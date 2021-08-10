@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>csv plotter</title>
+
+    <style type="text/css">
+    .input {
+        font-size: 1.2em;
+        font-family: Tahoma;
+        padding: 0.1em;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+        width:140px;
+    }
+    .coli {
+        display: inline-block;
+        border: 1px solid #ccc;
+        background-color:  #c5edfb; /*#EEF;*/
+        cursor: move;
+        padding: 0.1em;
+        margin: 3px;
+        font-size: 1.2em;
+    }
+    .dragging {
+        opacity : 0.4;
+    }
+
+    .activeset {
+        border-color: #6399cb;
+        border-style: solid;
+        border-width: 1px;
+    }
+
+    .dragtarget.dragging {
+        background-color: #cbffc4;
+    }
+
+    #colornames {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    #colornames > div {
+        width: 40px;
+        height: 20px;
+        margin: 2px;
+    }
+    </style>
+</head>
+
+<body style="font-family: verdana; font-size: 70%">
+
+<div id="plotly-div"></div>
+<div id="info">info:</div>
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script src='dsv.js'></script>
+<script src='zoom_pan.js'></script>
+<script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
+
+<div style="display:flex">
+   <span title="xtitle"><label>xtitle</label><input id="xtitle" placeholder="xtitle" onchange="document.getElementsByClassName('xtitle')
+[0].textContent = event.target.value;"></span>
+
+   <div id="colornames" style="height:20px">
+   </div>
+</div>
+
+
+
+<fieldset style="display:flex; flex-direction: column; flex:1">
+<legend>Data</legend>
+   <div>
+      <div class="activeset">
+         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
+         <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
+         <span title="using"><label>using</label><input id="using" placeholder="1:2" onchange="using_columns()"></span>
+         <span title="x"><label>column x</label><input type="search" id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()">
+         <datalist id="colx_list"></datalist></span>
+         <span title="y"><label>column y</label><input type="search" id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()">
+         <datalist id="coly_list"></datalist></span>
+         <span title="t"><label>column t</label><input type="search" id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()">
+         <datalist id="colt_list"></datalist></span>
+         <span title="c"><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <datalist id="colt_list"></datalist></span>
+         <select name="color" id="dcolor" class="selcolor"  onchange="this.style.color = this[this.selectedIndex].style.color;  Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': this.style.color}, 0)">
+         </select>
+      </div>
+      <div>
+         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"> <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
+         <span title="c"><input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <select name="fcolor" id="fcolor" class="selcolor" onchange="this.style.color = this[this.selectedIndex].style.color;  Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': this.style.color}, 1)">
+         </select>
+      </div>
+   </div>
+</fieldset>
+
+<div id="colnames">
+</div>
+
+
+
+<script>
+
+function colorDragStart(e) {
+    this.classList.add("dragging");
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.style["background-color"]);
+}
+
+function colorDrop(e) {
+    e.stopPropagation(); // stops the browser from redirecting.
+    var color = e.dataTransfer.getData('text/html');
+    this.style["background-color"] = color;
+    var trace = e.target.id == "fcolc";
+    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': color}, 1*trace)
+}
+
+divcols = document.getElementById('colornames');
+for (color of Plotly.d3.scale.category10().range()) {
+    let div = document.createElement('div');
+    div.style['background-color'] = color;
+    div.draggable = true;
+    div.ondragstart = colorDragStart
+    div.ondragend = handleDragEnd
+    divcols.append(div);
+}
+
+for (item of document.querySelectorAll('input[type=search]')) {
+    item.onkeydown = function(e){if (e.key == "Enter") this.onchange()}
+    item.oninput = function(e){console.log(e); if (window.event.inputType == 'insertReplacementText'){this.onchange()}}
+    item.ondragover = handleDragOver
+    item.ondrop = handleDrop
+}
+
+document.getElementById("colc").ondrop = colorDrop
+document.getElementById("fcolc").ondrop = colorDrop
+
+for (selcol of document.getElementsByClassName('selcolor')) {
+    for (color of Plotly.d3.scale.category10().range()) {
+        let option = document.createElement('option');
+        option.value = color;
+        option.style = "color:"+color;
+        option.innerHTML = 'o';
+        selcol.appendChild(option);
+    }
+}
+
+function handleDragStart(e) {
+    this.classList.add("dragging");
+    document.getElementsByClassName("dragtarget").forEach(x => x.classList.add('dragging'))
+
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', this.innerHTML);
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    return false;
+}
+
+function handleDrop(e) {
+    console.log(e)
+    e.stopPropagation(); // stops the browser from redirecting.
+    this.value = e.dataTransfer.getData('text/html');
+    this.onchange()
+}
+
+function handleDragEnd(e) {
+    //this.style.opacity = '1';
+    for(x of [...document.getElementsByClassName("dragging")])
+        {x.classList.remove('dragging');}
+}
+
+function do_drop(colnames){
+    colx = document.getElementById('colx_list');
+    coly = document.getElementById('coly_list');
+    colt = document.getElementById('colt_list');
+    for (list of [colx, coly, colt]){
+        list.innerHTML = '' // remove all currents options
+        for (colname of colnames) {
+            let option = document.createElement('option');
+            option.value = colname;
+            // option.id = colname;   // for dict-like access and to check is id in present
+            list.appendChild(option);
+        }
+    }
+
+    c1  = document.getElementById('colnames');
+    c1.innerHTML = '' // remove all currents options
+    // put all columns into dragable divs
+    for (colname of colnames) {
+        let div = document.createElement('div');
+        div.innerHTML = colname;
+        div.className = "coli"
+        div.draggable = true;
+        div.addEventListener('dragstart', handleDragStart, false);
+        div.addEventListener('dragend', handleDragEnd, false);
+        c1.appendChild(div);
+    }
+
+    colx.addEventListener('dragover', handleDragOver, false);
+    coly.addEventListener('drop', handleDrop, false);
+}
+
+function using_columns(){
+    [cx, cy, ct] = document.getElementById("using").value.split(":")
+    document.getElementById("colx").value = cx
+    document.getElementById("coly").value = cy
+    document.getElementById("colt").value = ct
+    select_columns()
+}
+
+function select_columns(){
+    cx = document.getElementById("colx").value
+    cy = document.getElementById("coly").value
+    ct = document.getElementById("colt").value
+    document.getElementById("using").value = cx + ":" + cy + ":" +ct
+    plot_data(data, cx, cy, ct)
+    return true;
+}
+
+var fmtaxis = {
+    linecolor: 'black', mirror: true,
+    ticks: "inside", mirror: "allticks", zeroline: false
+}
+
+function linspace(start, stop, num, endpoint=true) {
+    const div = endpoint ? (num - 1) : num;
+    const step = (stop - start) / div;
+    return Array.from({length: num}, (_, i) => start + step * i);
+}
+
+
+function empty_func(){
+    // a placeholder (function with no data)
+    var graph = document.getElementsByClassName("js-plotly-plot")[0];
+    expr1 = document.getElementById("func1").value
+    if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
+}
+
+function draw_func(){
+    var graph = document.getElementsByClassName("js-plotly-plot")[0];
+    expr1 = document.getElementById("func1").value
+    if (expr1 != "") {
+        expr = new Function("x", "return "+expr1);
+        x1 = linspace(...graph._fullLayout.xaxis.range, 200)
+        y1 = x1.map(expr)
+        Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1]}, 1)
+    }
+    for (x of ['xtitle', 'ytitle', 'gtitle']){
+        // reset attributes for the editable labels
+        // needed only for the when page reload (work in first place) + mouse zoom (property removed)
+
+        document.getElementsByClassName(x)[0].style['cursor'] = 'text'
+        document.getElementsByClassName(x)[0].style['pointer-events'] = 'all'
+        document.getElementsByClassName(x)[0].onclick = edittext
+    }
+}
+
+function plot_data(data, cx=4, cy=5, ct=""){
+    x = data[cx]
+    y = data[cy]
+
+    console.log('asdfas', cx, cy, ct, x, y)
+    //document.getElementById("info").innerHTML = data._colnames;
+    do_drop(data._colnames)
+
+    trace1 = {
+        type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
+        x: x,
+        y: y,
+        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
+        name: data.basename,
+        mode: 'markers', marker: {opacity: 0.5, line: {
+            width: 1,
+            color: '#404040'}}
+    };
+    if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
+
+    traces = [trace1];
+   /*
+   expr1 = document.getElementById("func1").value
+   if (expr1!="") {
+       expr = new Function("x", "return "+expr1);
+       x1 = x.filter(x => !isNaN(x))
+       x1 = linspace(Math.min(...x1), Math.max(...x1), 200)
+       y1 = x1.map(expr)
+ */
+    trace2 = {
+        type: "line",
+        x: [],
+        y: [],
+    };
+
+    traces.push(trace2)
+
+    layout = {
+        autosize: true,
+        height: 394,
+    //  width: 1121,
+        hovermode: 'closest',
+        title: "csv plotter",
+        xaxis: {
+            title: (cx>-1 ? 'Column '+cx : cx),
+            ...fmtaxis
+        },
+        yaxis: {
+            title: (cy>-1 ? 'Column '+cy : cy),
+            ...fmtaxis
+        },
+        margin: {l: 50, r: 10, b: 40, t: 30}
+    };
+//   Plotly.plot('plotly-div', {
+    Plotly.newPlot('plotly-div', {
+        data: traces,
+        layout: layout,
+        config: {responsive: true,
+            scrollZoom: true,
+            displaylogo: false,
+            modeBarButtonsToRemove: ['select2d', 'lasso2d']}
+    });
+
+    draw_func()
+    zoompan()
+
+
+    var myPlot = document.getElementById('plotly-div')
+    graph = document.getElementsByClassName("js-plotly-plot")[0];
+
+    graph.on('plotly_click', function(data){
+        var pts = '';
+        console.log(data)
+        for(var i=0; i < data.points.length; i++){
+            pts = 'x = '+data.points[i].x +', y = '+
+            data.points[i].y + ', ' + data.points[i].text;
+        }
+        document.getElementById("info").innerHTML = 'Closest point clicked: ' + pts;
+    });
+
+    graph.on('plotly_relayout', function(eventdata){
+        // recompute the function for new ranges after zoom
+        draw_func()
+    });
+
+}
+
+
+url = '';
+// allow to pre-fill fields and url
+(new URL(window.location)).searchParams.forEach((val, id) => {
+    console.log(id, val);
+    if (id=="url") url = val
+    else document.getElementById(id).value = val
+});
+
+
+dsv(url, function(){return plot_data(...arguments, cx=document.getElementById('colx').value, cy=document.getElementById('coly').value)})
+
+
+function edittext(svgtext){
+    //console.log(svgtext)
+    svgtext = svgtext.target
+    var input = document.createElement("input");
+    input.value = svgtext.textContent
+    // input.onkeyup = function(e){
+    input.addEventListener('keyup', function(e){
+       //e.stopPropagation()
+        if (["Enter", "Escape"].includes(e.key)) {this.blur(); }
+        else {svgtext.textContent = this.value};
+        return false
+    }, true)
+    input.onblur = function(e){
+     //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
+        myforeign.remove()
+    }
+
+    input.onchange = function (e) {
+        // update the titles in plotly
+        var val = e.target.parentNode.parentNode.classList.value
+        var a = {"g-xtitle" : 'xaxis.', "g-ytitle" : 'yaxis.', "g-gtitle":''};
+        a = a[val] + 'title'
+        b = {}; b[a] = e.target.value
+        Plotly.relayout(graph, b)
+    }
+
+    var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
+    myforeign.setAttribute("width", "100%");
+    myforeign.setAttribute("height", "100%");
+    myforeign.setAttribute("x", svgtext.attributes['x'].nodeValue);
+    myforeign.setAttribute("y", svgtext.attributes['y'].nodeValue-35);
+    myforeign.append(input);
+
+    svg = svgtext.parentNode
+    svg.append(myforeign);
+    console.log(svg.children, svgtext.textContent)
+
+    input.focus()
+}
+
+</script>
+
+<style>
+    .plotypicon {
+        width: 18px;
+        height: 18px;
+        border: 1px solid grey;
+    }
+</style>
+
+<div id="plottyp" bla="https://github.com/plotly/plotly-icons/tree/master/src/svg https://plotly-icons.ineffable.digital/">
+   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
+   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-error-bars.svg" class="plotypicon">
+   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
+   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-histogram.svg" class="plotypicon">
+</div>
+
+
+</html>
+
