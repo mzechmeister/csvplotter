@@ -83,15 +83,12 @@
          <span title="t"><label>column t</label><input type="search" id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()">
          <datalist id="colt_list"></datalist></span>
          <span title="c"><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
-         <datalist id="colt_list"></datalist></span>
-         <select name="color" id="dcolor" class="selcolor"  onchange="this.style.color = this[this.selectedIndex].style.color;  Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': this.style.color}, 0)">
-         </select>
+         <datalist id="colc_list"></datalist></span>
       </div>
       <div>
-         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"> <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <span title="c"><input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
-         <select name="fcolor" id="fcolor" class="selcolor" onchange="this.style.color = this[this.selectedIndex].style.color;  Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': this.style.color}, 1)">
-         </select>
+         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
+         <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
+         <input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
       </div>
    </div>
 </fieldset>
@@ -136,16 +133,6 @@ for (item of document.querySelectorAll('input[type=search]')) {
 
 document.getElementById("colc").ondrop = colorDrop
 document.getElementById("fcolc").ondrop = colorDrop
-
-for (selcol of document.getElementsByClassName('selcolor')) {
-    for (color of Plotly.d3.scale.category10().range()) {
-        let option = document.createElement('option');
-        option.value = color;
-        option.style = "color:"+color;
-        option.innerHTML = 'o';
-        selcol.appendChild(option);
-    }
-}
 
 function handleDragStart(e) {
     this.classList.add("dragging");
