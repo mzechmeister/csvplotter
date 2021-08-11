@@ -72,5 +72,12 @@ graph.addEventListener("keydown", function(e){
     Plotly.relayout(graph, update);
     return false
 });
+
+graph.addEventListener('mousedown', function(evt){
+    // hack to pan when pressing middle button/mouse wheel
+    // better would be https://github.com/plotly/plotly.js/issues/4004
+    this._fullLayout.dragmode = evt.buttons == 4? 'pan' : 'zoom'
+}, true);
+
 }
 
