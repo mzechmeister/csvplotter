@@ -50,7 +50,7 @@
         border-color: #6399cb;
     }
 
-    .trace.edit.dragging .dragtarget {
+    .dragging .dragtarget, .dragging.dragtarget {
         border: 1px solid #009900;
         border-radius: 4px;
         box-sizing: border-box
@@ -110,13 +110,13 @@
          <datalist id="colt_list"></datalist></span>
          <span title="t">&nbsp;<label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><input type="search" id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">
          <datalist id="cols_list"></datalist></span>
-         <span title="c"><i class="fa fa-tint"  draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <span title="c"><i class="fa fa-tint"  draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="colc" list="colc_list" class="dragtarget color" placeholder="4" style="width:40px" onchange="select_columns()">
          <datalist id="colc_list"></datalist></span>
       </div>
       <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" style="width:40px" onchange="select_columns()">
       </div>
    </div>
 </fieldset>
@@ -132,7 +132,18 @@ function dragicon(ev) {
    event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
 }
 
+function add_drag(classname) {
+    document.getElementsByClassName(classname).forEach(x => x.classList.add('dragging'))
+}
+
+function remove_drag() {
+    for(x of [...document.getElementsByClassName("dragging")])
+        {x.classList.remove('dragging')}
+}
+
 function colorDragStart(e) {
+    add_drag("color")
+
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.style["background-color"]);
 }
@@ -151,8 +162,9 @@ for (color of Plotly.d3.scale.category10().range()) {
     let div = document.createElement('div');
     div.style['background-color'] = color;
     div.draggable = true;
+    div.onmousedown = (_ => add_drag("color"))
     div.ondragstart = colorDragStart
-    div.ondragend = handleDragEnd
+    div.ondragend = div.onmouseup = remove_drag
     divcols.append(div);
 }
 
@@ -176,7 +188,7 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
 
 
 function handleDragStart(e) {
-    document.getElementsByClassName("trace edit")[0].classList.add('dragging')
+    add_drag("trace edit")
 
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.innerHTML);
@@ -193,10 +205,6 @@ function handleDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     this.value = e.dataTransfer.getData('text/html');
     this.onchange()
-}
-
-function handleDragEnd(e) {
-    document.getElementsByClassName("trace edit")[0].classList.remove('dragging')
 }
 
 function do_drop(colnames){
@@ -221,13 +229,13 @@ function do_drop(colnames){
         div.innerHTML = colname;
         div.className = "coli"
         div.draggable = true;
-        div.addEventListener('dragstart', handleDragStart, false);
-        div.addEventListener('dragend', handleDragEnd, false);
+        div.addEventListener('dragstart', handleDragStart);
+        div.addEventListener('dragend', remove_drag);
         c1.appendChild(div);
     }
 
-    colx.addEventListener('dragover', handleDragOver, false);
-    coly.addEventListener('drop', handleDrop, false);
+    colx.addEventListener('dragover', handleDragOver);
+    coly.addEventListener('drop', handleDrop);
 }
 
 function using_columns(){
