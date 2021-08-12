@@ -35,14 +35,22 @@
         color: grey;
     }
 
-    .activeset {
-        border-color: #6399cb;
+    .coli:active {
+        opacity : 0.4;
+    }
+
+    .trace {
+        border-color: #ccc;
         border-style: solid;
         border-width: 1px;
         padding: 2px;
     }
 
-    .activeset.dragging .dragtarget {
+    .trace:hover {
+        border-color: #6399cb;
+    }
+
+    .trace.edit.dragging .dragtarget {
         border: 1px solid #009900;
         border-radius: 4px;
         box-sizing: border-box
@@ -60,10 +68,6 @@
     }
 
     #colornames > div:active {
-        opacity : 0.4;
-    }
-
-    .coli:active {
         opacity : 0.4;
     }
 
@@ -94,7 +98,7 @@
 <fieldset style="display:flex; flex-direction: column; flex:1">
 <legend>Data</legend>
    <div>
-      <div class="activeset">
+      <div class="trace edit">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
          <span title="using"><label>using</label><input id="using" placeholder="1:2" onchange="using_columns()"></span>
@@ -109,7 +113,7 @@
          <span title="c"><i class="fa fa-tint"  draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
          <datalist id="colc_list"></datalist></span>
       </div>
-      <div>
+      <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
          <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
@@ -172,7 +176,7 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
 
 
 function handleDragStart(e) {
-    document.getElementsByClassName("activeset")[0].classList.add('dragging')
+    document.getElementsByClassName("trace edit")[0].classList.add('dragging')
 
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.innerHTML);
@@ -192,7 +196,7 @@ function handleDrop(e) {
 }
 
 function handleDragEnd(e) {
-    document.getElementsByClassName("activeset")[0].classList.remove('dragging')
+    document.getElementsByClassName("trace edit")[0].classList.remove('dragging')
 }
 
 function do_drop(colnames){
