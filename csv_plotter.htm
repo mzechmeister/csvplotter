@@ -39,10 +39,13 @@
         border-color: #6399cb;
         border-style: solid;
         border-width: 1px;
+        padding: 2px;
     }
 
-    .dragtarget.dragging {
-        background-color: #cbffc4;
+    .activeset.dragging .dragtarget {
+        border: 1px solid #009900;
+        border-radius: 4px;
+        box-sizing: border-box
     }
 
     #colornames {
@@ -164,13 +167,12 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     inp.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
                            a.onmouseover = (_ =>  t.select())
-                           a.onmousedown = (_ => {t.focus(); t.select();})
                            a.onclick = (e => {t.value = e.target.innerHTML; t.onchange(); t.select()})}})
 }
 
 
 function handleDragStart(e) {
-    document.getElementsByClassName("dragtarget").forEach(x => x.classList.add('dragging'))
+    document.getElementsByClassName("activeset")[0].classList.add('dragging')
 
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.innerHTML);
@@ -190,8 +192,7 @@ function handleDrop(e) {
 }
 
 function handleDragEnd(e) {
-    for(x of [...document.getElementsByClassName("dragging")])
-        {x.classList.remove('dragging');}
+    document.getElementsByClassName("activeset")[0].classList.remove('dragging')
 }
 
 function do_drop(colnames){
