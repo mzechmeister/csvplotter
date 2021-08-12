@@ -35,10 +35,6 @@
         color: grey;
     }
 
-    .dragging {
-        opacity : 0.4;
-    }
-
     .activeset {
         border-color: #6399cb;
         border-style: solid;
@@ -59,6 +55,15 @@
         height: 20px;
         margin: 2px;
     }
+
+    #colornames > div:active {
+        opacity : 0.4;
+    }
+
+    .coli:active {
+        opacity : 0.4;
+    }
+
     </style>
 </head>
 
@@ -121,7 +126,6 @@ function dragicon(ev) {
 }
 
 function colorDragStart(e) {
-    this.classList.add("dragging");
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/html', this.style["background-color"]);
 }
@@ -134,6 +138,7 @@ function colorDrop(e) {
     Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': color}, 1*trace)
 }
 
+// the color boxes
 divcols = document.getElementById('colornames');
 for (color of Plotly.d3.scale.category10().range()) {
     let div = document.createElement('div');
@@ -165,7 +170,6 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
 
 
 function handleDragStart(e) {
-    this.classList.add("dragging");
     document.getElementsByClassName("dragtarget").forEach(x => x.classList.add('dragging'))
 
     e.dataTransfer.effectAllowed = 'move';
@@ -186,7 +190,6 @@ function handleDrop(e) {
 }
 
 function handleDragEnd(e) {
-    //this.style.opacity = '1';
     for(x of [...document.getElementsByClassName("dragging")])
         {x.classList.remove('dragging');}
 }
