@@ -7,13 +7,13 @@
     <title>csv plotter</title>
 
     <style type="text/css">
-    .input {
+    input {
         font-size: 1.2em;
         font-family: Tahoma;
-        padding: 0.1em;
+        padding: 3px;
         border: 1px solid #ccc;
+        border-radius: 4px;
         box-sizing: border-box;
-        width:140px;
     }
     .coli {
         display: inline-block;
@@ -23,7 +23,18 @@
         padding: 0.1em;
         margin: 3px;
         font-size: 1.2em;
+        cursor: pointer;
     }
+   .coli:nth-child(n+1){
+        counter-increment: rowNumber;
+    }
+   .coli::before {
+        content: counter(rowNumber);
+        vertical-align: super;
+        font-size: smaller;
+        color: grey;
+    }
+
     .dragging {
         opacity : 0.4;
     }
@@ -82,15 +93,17 @@
          <datalist id="colx_list"></datalist></span>
          <span title="y"><label>column y</label><input type="search" id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()">
          <datalist id="coly_list"></datalist></span>
-         <span title="t"><label>column <i class="fa fa-tag"></i></label><input type="search" id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()">
+         <span title="t">&nbsp;<label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><input type="search" id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()">
          <datalist id="colt_list"></datalist></span>
-         <span title="c"><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <span title="t">&nbsp;<label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><input type="search" id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">
+         <datalist id="cols_list"></datalist></span>
+         <span title="c"><i class="fa fa-tint"  draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="colc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
          <datalist id="colc_list"></datalist></span>
       </div>
       <div>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
+         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="fcolc" list="colc_list" class="dragtarget" placeholder="4" style="width:40px" onchange="select_columns()">
       </div>
    </div>
 </fieldset>
@@ -101,6 +114,10 @@
 
 
 <script>
+
+function dragicon(ev) {
+   event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
+}
 
 function colorDragStart(e) {
     this.classList.add("dragging");
@@ -135,6 +152,16 @@ for (item of document.querySelectorAll('input[type=search]')) {
 
 document.getElementById("colc").ondrop = colorDrop
 document.getElementById("fcolc").ondrop = colorDrop
+
+for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
+    var inp = document.getElementById(inp)
+    inp.onfocus = (_ => {var t = _.target;
+                       for (a of document.getElementsByClassName("coli")) {
+                           a.onmouseover = t.select
+                           a.onmousedown = (_ => {t.focus(); t.select();})
+                           a.onclick = (e => {t.value = e.target.innerHTML; t.onchange(); t.select()})}})
+}
+
 
 function handleDragStart(e) {
     this.classList.add("dragging");
@@ -206,8 +233,9 @@ function select_columns(){
     cx = document.getElementById("colx").value
     cy = document.getElementById("coly").value
     ct = document.getElementById("colt").value
-    document.getElementById("using").value = cx + ":" + cy + ":" +ct
-    plot_data(data, cx, cy, ct)
+    cs = document.getElementById("cols").value
+    document.getElementById("using").value = cx + ":" + cy + ":" +ct+ ":" +cs
+    plot_data(data, cx, cy, ct, cs)
     return true;
 }
 
@@ -249,7 +277,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, cx=4, cy=5, ct=""){
+function plot_data(data, cx=4, cy=5, ct="", cs=""){
     x = data[cx]
     y = data[cy]
 
@@ -263,11 +291,13 @@ function plot_data(data, cx=4, cy=5, ct=""){
         y: y,
         //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
         name: data.basename,
-        mode: 'markers', marker: {opacity: 0.5, line: {
+        mode: 'markers', marker: { //size:4,
+            opacity: 0.5, line: {
             width: 1,
             color: '#404040'}}
     };
     if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
+    if (cs) trace1.marker.size = data[cs]
 
     traces = [trace1];
    /*
