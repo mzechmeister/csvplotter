@@ -383,6 +383,11 @@ function plot_data(data, cx=4, cy=5, ct="", cs=""){
 
 }
 
+let observer = new MutationObserver(function(mutations) {
+   window.dispatchEvent(new Event('resize'));
+});
+
+observer.observe(document.getElementById('plotly-div'), {attributes: true})
 
 url = '';
 // allow to pre-fill fields and url
