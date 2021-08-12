@@ -78,6 +78,7 @@
 
    <div id="colornames" style="height:20px">
    </div>
+   <button id="share"><i class="fa fa-share-alt"></i></button>
 </div>
 
 
@@ -157,7 +158,7 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     var inp = document.getElementById(inp)
     inp.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
-                           a.onmouseover = t.select
+                           a.onmouseover = (_ =>  t.select())
                            a.onmousedown = (_ => {t.focus(); t.select();})
                            a.onclick = (e => {t.value = e.target.innerHTML; t.onchange(); t.select()})}})
 }
@@ -290,7 +291,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs=""){
         x: x,
         y: y,
         //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
-        name: data.basename,
+        name: data._basename,
         mode: 'markers', marker: { //size:4,
             opacity: 0.5, line: {
             width: 1,
@@ -376,7 +377,7 @@ url = '';
 });
 
 
-dsv(url, function(){return plot_data(...arguments, cx=document.getElementById('colx').value, cy=document.getElementById('coly').value)})
+dsv(url, function(){return plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).value))})
 
 
 function edittext(svgtext){
@@ -417,6 +418,18 @@ function edittext(svgtext){
     console.log(svg.children, svgtext.textContent)
 
     input.focus()
+}
+
+// create share link
+document.getElementById("share").onclick = function(){
+   _url = new URL(window.location);
+   _url = _url.origin+_url.pathname+'?url=' + url +
+         [...'xyts'].map(x => {val=document.getElementById('col'+x).value; if (val) return '&col'+x+'='+val}).join('');
+   var link = document.createElement("a")
+   link.href = _url
+   link.append(_url)
+   document.getElementById('info').innerText = ''
+   document.getElementById('info').append(link)
 }
 
 </script>

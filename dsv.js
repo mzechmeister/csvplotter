@@ -5,7 +5,7 @@ async function dsv(file, ...args){
     }
     var responseText = await file.text()
     if (responseText.length) {
-        responseText.__proto__.basename = file.name || file.url.split('/').pop()
+        responseText.__proto__._url = file.name || file.url
         text_to_table(responseText, ...args)
     }
 }
@@ -41,7 +41,8 @@ function text_to_table(text, func, delim){
    // transpose
    data = data[0].map((_,k) => data.map(hjk => ""+hjk[k]))
    auto_colnames(data)
-   data.basename = text.basename
+   data._url = text._url
+   data._basename = text._url.split('/').pop()
    func(data)
 }
 
