@@ -7,7 +7,7 @@
     <title>csv plotter</title>
 
     <style type="text/css">
-    input {
+    input, .dragtarget {
         font-size: 1.2em;
         font-family: Tahoma;
         padding: 3px;
@@ -46,14 +46,17 @@
         padding: 2px;
     }
 
-    .trace:hover {
+    .trace:focus, .trace:focus-within {
         border-color: #6399cb;
+        padding: 1px;
+        border-width: 2px;
     }
 
     .dragging .dragtarget, .dragging.dragtarget {
-        border: 1px solid #009900;
         border-radius: 4px;
-        box-sizing: border-box
+        box-sizing: border-box;
+        border: 2px solid #009900;
+        padding: 2px;
     }
 
     #colornames {
@@ -98,7 +101,7 @@
 <fieldset style="display:flex; flex-direction: column; flex:1">
 <legend>Data</legend>
    <div>
-      <div class="trace edit">
+      <div class="trace edit" tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
          <span title="using"><label>using</label><input id="using" placeholder="1:2" onchange="using_columns()"></span>
@@ -139,6 +142,7 @@ function add_drag(classname) {
 function remove_drag() {
     for(x of [...document.getElementsByClassName("dragging")])
         {x.classList.remove('dragging')}
+    return false   // do only once for mousedown, dragend
 }
 
 function colorDragStart(e) {
@@ -163,8 +167,9 @@ for (color of Plotly.d3.scale.category10().range()) {
     div.style['background-color'] = color;
     div.draggable = true;
     div.onmousedown = (_ => add_drag("color"))
+    div.onmouseover = (_ => add_drag("color"))
     div.ondragstart = colorDragStart
-    div.ondragend = div.onmouseup = remove_drag
+    div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
     divcols.append(div);
 }
 
@@ -182,7 +187,7 @@ for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     var inp = document.getElementById(inp)
     inp.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
-                           a.onmouseover = (_ =>  t.select())
+                           a.onmouseover = (_ =>  {t.select(); return false})
                            a.onclick = (e => {t.value = e.target.innerHTML; t.onchange(); t.select()})}})
 }
 
@@ -267,7 +272,6 @@ function linspace(start, stop, num, endpoint=true) {
     return Array.from({length: num}, (_, i) => start + step * i);
 }
 
-
 function empty_func(){
     // a placeholder (function with no data)
     var graph = document.getElementsByClassName("js-plotly-plot")[0];
@@ -299,8 +303,6 @@ function plot_data(data, cx=4, cy=5, ct="", cs=""){
     y = data[cy]
 
     console.log('asdfas', cx, cy, ct, x, y)
-    //document.getElementById("info").innerHTML = data._colnames;
-    do_drop(data._colnames)
 
     trace1 = {
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
@@ -398,7 +400,7 @@ url = '';
 });
 
 
-dsv(url, function(){return plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).value))})
+dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).value))})
 
 
 function edittext(svgtext){
