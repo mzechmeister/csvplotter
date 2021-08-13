@@ -8,20 +8,28 @@
 
     <style type="text/css">
     input, .dragtarget {
-        font-size: 1.2em;
         font-family: Tahoma;
-        padding: 3px;
+        padding: 2px;
         border: 1px solid #ccc;
         border-radius: 4px;
         box-sizing: border-box;
     }
+
+    div.dragtarget, div[contenteditable] {
+        min-height: 20px;
+        min-width: 120px;
+        background-color: white;
+        vertical-align: middle;
+        display: table-cell;
+        padding: 1px 2px;
+    }
+
     .coli {
         display: inline-block;
         border: 1px solid #ccc;
         background-color:  #c5edfb; /*#EEF;*/
         cursor: move;
-        padding: 0.1em;
-        margin: 3px;
+        padding: 0px 4px;
         font-size: 1.2em;
         cursor: pointer;
     }
@@ -39,11 +47,21 @@
         opacity : 0.4;
     }
 
+    #colnames > .coli {
+        margin: 3px;
+    }
+
+     div.dragtarget.color {
+         min-width: 10px;
+         width: 40px;
+     }
+
     .trace {
         border-color: #ccc;
         border-style: solid;
         border-width: 1px;
         padding: 2px;
+        display: flex
     }
 
     .trace:focus, .trace:focus-within {
@@ -56,7 +74,7 @@
         border-radius: 4px;
         box-sizing: border-box;
         border: 2px solid #009900;
-        padding: 2px;
+        padding: 0px 1px;
     }
 
     #colornames {
@@ -97,29 +115,30 @@
 </div>
 
 
-
 <fieldset style="display:flex; flex-direction: column; flex:1">
 <legend>Data</legend>
    <div>
       <div class="trace edit" tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
-         <span title="using"><label>using</label><input id="using" placeholder="1:2" onchange="using_columns()"></span>
-         <span title="x"><label>column x</label><input type="search" id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()">
-         <datalist id="colx_list"></datalist></span>
-         <span title="y"><label>column y</label><input type="search" id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()">
-         <datalist id="coly_list"></datalist></span>
-         <span title="t">&nbsp;<label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><input type="search" id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()">
-         <datalist id="colt_list"></datalist></span>
-         <span title="t">&nbsp;<label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><input type="search" id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">
-         <datalist id="cols_list"></datalist></span>
-         <span title="c"><i class="fa fa-tint"  draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="colc" list="colc_list" class="dragtarget color" placeholder="4" style="width:40px" onchange="select_columns()">
-         <datalist id="colc_list"></datalist></span>
+         <label>using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px">1:2</div>
+         <label>column x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" contenteditable onchange="select_columns()"></div>
+         <datalist id="colx_list"></datalist>
+         <label>column y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2"  contenteditable onchange="select_columns()"></div>
+         <datalist id="coly_list"></datalist>
+         &nbsp;<label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colt" list="colt_list" class="dragtarget" contenteditable placeholder="3" onchange="select_columns()"></div>
+         <datalist id="colt_list"></datalist>
+         &nbsp;<label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><div id="cols" list="cols_list" class="dragtarget" contenteditable placeholder="6" onchange="select_columns()">asdf</div>
+         <datalist id="cols_list"></datalist>
+         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><div id="colc" list="colc_list" class="dragtarget color" contenteditable placeholder="4" onchange="select_columns()"></div>
+         <datalist id="colc_list"></datalist>
+         <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><input type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" style="width:40px" onchange="select_columns()">
+         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><div type="search" id="fcolc" list="colc_list" class="dragtarget color" contenteditable placeholder="4" onchange="select_columns()"></div>
+         <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
    </div>
 </fieldset>
@@ -156,8 +175,10 @@ function colorDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     var color = e.dataTransfer.getData('text/html');
     this.style["background-color"] = color;
+    this.innerHTML = ''
     var trace = e.target.id == "fcolc";
     Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': color}, 1*trace)
+    return false
 }
 
 // the color boxes
@@ -173,9 +194,9 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div);
 }
 
-for (item of document.querySelectorAll('input[type=search]')) {
+for (item of document.querySelectorAll('div[contenteditable]')) {
     item.onkeydown = function(e){if (e.key == "Enter") this.onchange()}
-    item.oninput = function(e){console.log(e); if (window.event.inputType == 'insertReplacementText'){this.onchange()}}
+    // item.oninput = function(e){if (window.event.inputType == 'insertReplacementText'){this.onchange()}}  // select replaced input text
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
@@ -183,12 +204,13 @@ for (item of document.querySelectorAll('input[type=search]')) {
 document.getElementById("colc").ondrop = colorDrop
 document.getElementById("fcolc").ondrop = colorDrop
 
-for (var inp of ['colx', 'coly', 'colt', 'cols', 'colc']) {
-    var inp = document.getElementById(inp)
-    inp.onfocus = (_ => {var t = _.target;
+for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
+    var div = document.getElementById(div)
+    div.tabIndex = 0
+    div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
-                           a.onmouseover = (_ =>  {t.select(); return false})
-                           a.onclick = (e => {t.value = e.target.innerHTML; t.onchange(); t.select()})}})
+                           a.onmouseover = (_ =>  {t.focus(); return false})
+                           a.onclick = (e => {t.innerHTML = e.target.outerHTML; t.onchange(); t.focus()})}})
 }
 
 
@@ -200,7 +222,7 @@ function handleDragStart(e) {
 }
 
 function handleDragOver(e) {
-    e.preventDefault();
+    e.preventDefault();   // needed otherwise drop is not called
     e.dataTransfer.dropEffect = 'move';
     return false;
 }
@@ -208,8 +230,15 @@ function handleDragOver(e) {
 function handleDrop(e) {
     console.log(e)
     e.stopPropagation(); // stops the browser from redirecting.
-    this.value = e.dataTransfer.getData('text/html');
+    text = e.dataTransfer.getData('text/html')
+    clone = document.getElementById("colnames").children[0].cloneNode()
+    clone.innerHTML = text
+    this.innerHTML = ''
+    this.append(clone)
+    this.innerHTML += '  '
     this.onchange()
+    this.focus()
+    return false
 }
 
 function do_drop(colnames){
@@ -244,19 +273,19 @@ function do_drop(colnames){
 }
 
 function using_columns(){
-    [cx, cy, ct] = document.getElementById("using").value.split(":")
-    document.getElementById("colx").value = cx
-    document.getElementById("coly").value = cy
-    document.getElementById("colt").value = ct
+    [cx, cy, ct] = document.getElementById("using").innerText.split(":")
+    document.getElementById("colx").innerText = cx
+    document.getElementById("coly").innerText = cy
+    document.getElementById("colt").innerText = ct
     select_columns()
 }
 
 function select_columns(){
-    cx = document.getElementById("colx").value
-    cy = document.getElementById("coly").value
-    ct = document.getElementById("colt").value
-    cs = document.getElementById("cols").value
-    document.getElementById("using").value = cx + ":" + cy + ":" +ct+ ":" +cs
+    cx = document.getElementById("colx").innerText
+    cy = document.getElementById("coly").innerText
+    ct = document.getElementById("colt").innerText
+    cs = document.getElementById("cols").innerText
+    document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
     plot_data(data, cx, cy, ct, cs)
     return true;
 }
@@ -399,11 +428,11 @@ url = '';
 (new URL(window.location)).searchParams.forEach((val, id) => {
     console.log(id, val);
     if (id=="url") url = val
-    else document.getElementById(id).value = val
+    else document.getElementById(id).innerHTML = val
 });
 
 
-dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).value))})
+dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).innerText))})
 
 
 function edittext(svgtext){
@@ -450,7 +479,7 @@ function edittext(svgtext){
 document.getElementById("share").onclick = function(){
    _url = new URL(window.location);
    _url = _url.origin+_url.pathname+'?url=' + url +
-         [...'xyts'].map(x => {val=document.getElementById('col'+x).value; if (val) return '&col'+x+'='+val}).join('');
+         [...'xyts'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
    var link = document.createElement("a")
    link.href = _url
    link.append(_url)
