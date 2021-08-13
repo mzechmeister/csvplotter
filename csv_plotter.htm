@@ -284,6 +284,9 @@ function draw_func(){
     expr1 = document.getElementById("func1").value
     if (expr1 != "") {
         expr = new Function("x", "return "+expr1);
+        // mathjs
+        expr2 = math.compile(expr1).evaluate ;
+        expr = x => expr2({'x':x})
         x1 = linspace(...graph._fullLayout.xaxis.range, 200)
         y1 = x1.map(expr)
         Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1]}, 1)
