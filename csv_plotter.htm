@@ -221,7 +221,7 @@ for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id, e.target.innerHTML)); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id)); t.onchange(); t.focus()})}})
 }
 
 
@@ -240,16 +240,15 @@ function handleDragOver(e) {
 function handleDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     id = e.dataTransfer.getData('text/html')
-    // clone = document.getElementById(id).cloneNode(true)
     src = document.getElementById(id)
     if (id.startsWith('colcol')) {
         // swap
         srcloc = src.parentNode
-        this.children[0].before(src)
-        srcloc.prepend(this.children[1])
+        this.prepend(src)
+        this.children[1] && srcloc.prepend(this.children[1])  // case: empty dragging target
     }
     else {
-        clone = colBox(id, src.innerHTML)
+        clone = colBox(id)
 
         // append editable div
         let div = document.createElement('div');
@@ -265,9 +264,9 @@ function handleDrop(e) {
     return false
 }
 
-function colBox (k, colname){
+function colBox(k, colname=""){
     let div = document.createElement('div');
-    div.innerHTML = colname
+    div.innerHTML = colname || document.getElementById(k).innerHTML
     div.className = "coli"
     div.id = 'col' + k
     div.draggable = true
