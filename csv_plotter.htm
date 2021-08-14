@@ -287,7 +287,7 @@ function colBox(k, colname=""){
     return div
 }
 
-function do_drop(colnames){
+function init_box(colnames){
     // list option
     colx = document.getElementById('colx_list');
     coly = document.getElementById('coly_list');
@@ -471,16 +471,29 @@ let observer = new MutationObserver(function(mutations) {
 
 observer.observe(document.getElementById('plotly-div'), {attributes: true})
 
-url = '';
 // allow to pre-fill fields and url
-(new URL(window.location)).searchParams.forEach((val, id) => {
-    console.log(id, val);
-    if (id=="url") url = val
-    else document.getElementById(id).innerHTML = val
-});
+url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
+url = url_kwargs["url"]
+delete url_kwargs["url"]
 
 
-dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xytsco"].map(x => document.getElementById('col'+x).innerText))})
+dsv(url, function(){
+     // after reading data:
+     init_box(arguments[0]._colnames)
+
+     plot_data(...arguments, ...[..."xytsco"].map(x => url_kwargs['col'+x]))
+
+     // render column names in plot fields
+     lookup = Object.fromEntries(colnames.map((x,i) => [x, i+1]))
+     for (col in url_kwargs) {
+          t = document.getElementById(col)
+          t.innerText = ''
+          name = url_kwargs[col]
+          id = lookup[name]
+          console.log(t, id, name)
+          t.append( (col=='colc' || col=='colo') ? url_kwargs[col] : colBox("col"+id))
+     }
+})
 
 
 function edittext(svgtext){
