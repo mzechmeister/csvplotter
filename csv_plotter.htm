@@ -63,6 +63,10 @@
          min-width: 43px;
      }
 
+    div.dragtarget.opacity {
+         min-width: 23px;
+     }
+
     .trace {
         border-color: #ccc;
         border-style: solid;
@@ -149,6 +153,8 @@
          <datalist id="cols_list"></datalist>
          <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" contentEditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
+         <label><i class="fa fa-adjust" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colo" list="colo_list" class="dragtarget opacity" placeholder="4" contentEditable onchange="select_columns()">0.5</div>
+         <datalist id="colo_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace">
@@ -324,8 +330,9 @@ function select_columns(){
     ct = document.getElementById("colt").innerText
     cs = document.getElementById("cols").innerText
     cc = document.getElementById("colc").innerText
+    co = document.getElementById("colo").innerText
     document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
-    plot_data(data, cx, cy, ct, cs, cc)
+    plot_data(data, cx, cy, ct, cs, cc, co)
     return true;
 }
 
@@ -369,7 +376,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, cx=4, cy=5, ct="", cs="", cc=""){
+function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
     x = data[cx]
     y = data[cy]
 
@@ -383,7 +390,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc=""){
         name: data._basename,
         mode: 'markers',
         marker: { //size:4,
-            opacity: 0.5,
+            opacity: co,
             color: cc ? cc : '#404040',
             line: { width: 1,
                 color: '#404040'}}
@@ -473,7 +480,7 @@ url = '';
 });
 
 
-dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xytsc"].map(x => document.getElementById('col'+x).innerText))})
+dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xytsco"].map(x => document.getElementById('col'+x).innerText))})
 
 
 function edittext(svgtext){
@@ -520,7 +527,7 @@ function edittext(svgtext){
 document.getElementById("share").onclick = function(){
    _url = new URL(window.location);
    _url = _url.origin+_url.pathname+'?url=' + url +
-         [...'xytsc'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
+         [...'xytsco'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
    var link = document.createElement("a")
    _url = _url.replace(/#/g, '%23')
    link.href = _url
