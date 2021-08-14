@@ -105,7 +105,7 @@
 
     .dragtarget.color:not(:hover):not(:focus) {
         /* slowly hide hex string */
-        transition: 1s;
+        transition: color 1s;
         color: transparent;
     }
 
@@ -207,12 +207,12 @@ function colorDrop(e) {
 
 // the color boxes
 divcols = document.getElementById('colornames');
+divcols.onmouseover = (_ => add_drag("color"))
 for (color of Plotly.d3.scale.category10().range()) {
     let div = document.createElement('div');
     div.style['background-color'] = color;
     div.draggable = true;
     div.onmousedown = (_ => add_drag("color"))
-    div.onmouseover = (_ => add_drag("color"))
     div.ondragstart = colorDragStart
     div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
     divcols.append(div);
