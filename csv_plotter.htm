@@ -60,8 +60,7 @@
     }
 
      div.dragtarget.color {
-         min-width: 10px;
-         width: 40px;
+         min-width: 43px;
      }
 
     .trace {
@@ -142,14 +141,14 @@
          <datalist id="colt_list"></datalist>
          <label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">asdf</div>
          <datalist id="cols_list"></datalist>
-         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" onchange="select_columns()"></div>
+         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" contentEditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" onchange="select_columns()"></div>
+         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" contentEditable onchange="select_columns()"></div>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
    </div>
@@ -185,11 +184,12 @@ function colorDragStart(e) {
 
 function colorDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
-    var color = e.dataTransfer.getData('text/html');
-    this.style["background-color"] = color;
-    this.innerHTML = ''
+    var rgb = e.dataTransfer.getData('text/html');
+    rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
+    this.style["background-color"] = rgb;
+    this.innerHTML = rgb
     var trace = e.target.id == "fcolc";
-    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': color}, 1*trace)
+    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, 1*trace)
     return false
 }
 
@@ -207,7 +207,7 @@ for (color of Plotly.d3.scale.category10().range()) {
 }
 
 for (item of document.getElementsByClassName('dragtarget')) {
-    item.onkeydown = function(e){if (e.key == "Enter") this.onchange()}
+    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false}}  // no newline for Enter press
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
