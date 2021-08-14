@@ -21,12 +21,12 @@
         background-color: white;
         vertical-align: middle;
         display: table-cell;
-        padding: 1px 2px;
+        padding: 0px 2px;
     }
 
     .coli {
-        border: 1px solid #ccc;
-        background-color:  #c5edfb; /*#EEF;*/
+        border: 1px solid #ccc;     /* grey*/
+        background-color:  #c5edfb; /* a light blue */
      }
 
     .coli, div[contenteditable=true]{
@@ -48,6 +48,11 @@
 
     .coli:active {
         opacity : 0.4;
+    }
+
+    .dragging .dragtarget > .coli, .dragging.dragtarget > .coli, .dragtarget:focus-within > .coli {
+        /* remove top bottom because focussing outer div border need more space */
+        border-style: none solid;
     }
 
     #colnames > .coli {
@@ -76,7 +81,7 @@
     .dragging .dragtarget, .dragging.dragtarget, .dragtarget:focus-within {
         border-radius: 4px;
         box-sizing: border-box;
-        border: 2px solid #009900;
+        border: 2px solid #009900; /* greeen */
         padding: 0px 1px;
     }
 
@@ -126,12 +131,12 @@
 <legend>Data</legend>
    <div>
       <div class="trace edit" tabIndex=0>
-         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
+         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left; border: 1px solid #ccc">Choose file</label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
-         <label>using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px">1:2</div>
-         <label>column x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
+         <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
+         <label>x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
-         <label>column y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
+         <label>y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
          <label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
