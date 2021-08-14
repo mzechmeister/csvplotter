@@ -221,7 +221,7 @@ for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = e.target.outerHTML; t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id, e.target.innerHTML)); t.onchange(); t.focus()})}})
 }
 
 
@@ -241,17 +241,25 @@ function handleDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     id = e.dataTransfer.getData('text/html')
     // clone = document.getElementById(id).cloneNode(true)
-    clone = colBox(id, document.getElementById(id).innerHTML)
-    clone.clone = true
+    src = document.getElementById(id)
+    if (id.startsWith('colcol')) {
+        // swap
+        srcloc = src.nextElementSibling
+        this.children[0].before(src)
+        srcloc.before(this.children[1])
+    }
+    else {
+        clone = colBox(id, src.innerHTML)
 
-    //append editable div
-    let div = document.createElement('div');
-    div.style['background-color'] = "light-green"
-    div.innerText = ' ' 
-    div.contentEditable = "true"
+        // append editable div
+        let div = document.createElement('div');
+        div.style['background-color'] = "red"
+        div.innerText = ' '
+        div.contentEditable = "true"
 
-    this.innerHTML = ''
-    this.append(clone, div)
+        this.innerHTML = ''
+        this.append(clone, div)
+    }
     this.onchange()
     this.focus()
     return false
@@ -261,7 +269,7 @@ function colBox (k, colname){
     let div = document.createElement('div');
     div.innerHTML = colname
     div.className = "coli"
-    div.id = 'col' + (k+1)
+    div.id = 'col' + k
     div.draggable = true
     div.addEventListener('dragstart', handleDragStart)
     div.addEventListener('dragend', remove_drag)
@@ -288,8 +296,8 @@ function do_drop(colnames){
     //c1.addEventListener('mouseleave', (_ => {remove_drag("trace edit")}) );
     c1.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
-    for (var colname of colnames.entries()) {
-        let div = colBox(...colname);
+    for (let [k, colname] of colnames.entries()) {
+        let div = colBox(k+1, colname);
         c1.appendChild(div);
     }
 
