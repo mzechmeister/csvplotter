@@ -98,7 +98,13 @@
     #colornames > div:active {
         opacity : 0.4;
     }
-    
+
+    .dragtarget.color:not(:hover):not(:focus) {
+        /* slowly hide hex string */
+        transition: 1s;
+        color: transparent;
+    }
+
     label {
         margin: 0 1px 0 6px;
     }
@@ -186,7 +192,7 @@ function colorDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     var rgb = e.dataTransfer.getData('text/html');
     rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
-    this.style["background-color"] = rgb;
+    this.style["background-color"] = rgb
     this.innerHTML = rgb
     var trace = e.target.id == "fcolc";
     Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, 1*trace)
@@ -207,7 +213,7 @@ for (color of Plotly.d3.scale.category10().range()) {
 }
 
 for (item of document.getElementsByClassName('dragtarget')) {
-    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false}}  // no newline for Enter press
+    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); this.style["background-color"] = this.innerHTML; return false}}  // no newline for Enter press
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
@@ -317,7 +323,7 @@ function select_columns(){
     cy = document.getElementById("coly").innerText
     ct = document.getElementById("colt").innerText
     cs = document.getElementById("cols").innerText
-    cc = document.getElementById("colc").style["background-color"]
+    cc = document.getElementById("colc").innerText
     document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
     plot_data(data, cx, cy, ct, cs, cc)
     return true;
@@ -467,7 +473,7 @@ url = '';
 });
 
 
-dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xyts"].map(x => document.getElementById('col'+x).innerText))})
+dsv(url, function(){do_drop(arguments[0]._colnames); plot_data(...arguments, ...[..."xytsc"].map(x => document.getElementById('col'+x).innerText))})
 
 
 function edittext(svgtext){
@@ -514,8 +520,9 @@ function edittext(svgtext){
 document.getElementById("share").onclick = function(){
    _url = new URL(window.location);
    _url = _url.origin+_url.pathname+'?url=' + url +
-         [...'xyts'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
+         [...'xytsc'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
    var link = document.createElement("a")
+   _url = _url.replace(/#/g, '%23')
    link.href = _url
    link.append(_url)
    document.getElementById('info').innerText = ''
