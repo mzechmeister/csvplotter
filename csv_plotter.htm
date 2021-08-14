@@ -244,9 +244,9 @@ function handleDrop(e) {
     src = document.getElementById(id)
     if (id.startsWith('colcol')) {
         // swap
-        srcloc = src.nextElementSibling
+        srcloc = src.parentNode
         this.children[0].before(src)
-        srcloc.before(this.children[1])
+        srcloc.prepend(this.children[1])
     }
     else {
         clone = colBox(id, src.innerHTML)
