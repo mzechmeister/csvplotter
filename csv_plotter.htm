@@ -15,7 +15,7 @@
         box-sizing: border-box;
     }
 
-    div.dragtarget, div[contenteditable] {
+    div.dragtarget {
         min-height: 20px;
         min-width: 120px;
         background-color: white;
@@ -25,9 +25,12 @@
     }
 
     .coli {
-        display: inline-block;
         border: 1px solid #ccc;
         background-color:  #c5edfb; /*#EEF;*/
+     }
+
+    .coli, div[contenteditable=true]{
+        display: inline-block;
         cursor: move;
         padding: 0px 4px;
         font-size: 1.2em;
@@ -70,7 +73,7 @@
         border-width: 2px;
     }
 
-    .dragging .dragtarget, .dragging.dragtarget {
+    .dragging .dragtarget, .dragging.dragtarget, .dragtarget:focus-within {
         border-radius: 4px;
         box-sizing: border-box;
         border: 2px solid #009900;
@@ -90,6 +93,10 @@
 
     #colornames > div:active {
         opacity : 0.4;
+    }
+    
+    label {
+        margin: 0 1px 0 6px;
     }
 
     </style>
@@ -122,22 +129,22 @@
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left">Choose file</label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
          <label>using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px">1:2</div>
-         <label>column x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" contenteditable onchange="select_columns()"></div>
+         <label>column x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
-         <label>column y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2"  contenteditable onchange="select_columns()"></div>
+         <label>column y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
-         &nbsp;<label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colt" list="colt_list" class="dragtarget" contenteditable placeholder="3" onchange="select_columns()"></div>
+         <label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
-         &nbsp;<label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><div id="cols" list="cols_list" class="dragtarget" contenteditable placeholder="6" onchange="select_columns()">asdf</div>
+         <label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">asdf</div>
          <datalist id="cols_list"></datalist>
-         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><div id="colc" list="colc_list" class="dragtarget color" contenteditable placeholder="4" onchange="select_columns()"></div>
+         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i><div type="search" id="fcolc" list="colc_list" class="dragtarget color" contenteditable placeholder="4" onchange="select_columns()"></div>
+         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" onchange="select_columns()"></div>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
    </div>
@@ -194,9 +201,8 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div);
 }
 
-for (item of document.querySelectorAll('div[contenteditable]')) {
+for (item of document.getElementsByClassName('dragtarget')) {
     item.onkeydown = function(e){if (e.key == "Enter") this.onchange()}
-    // item.oninput = function(e){if (window.event.inputType == 'insertReplacementText'){this.onchange()}}  // select replaced input text
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
@@ -216,9 +222,8 @@ for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
 
 function handleDragStart(e) {
     add_drag("trace edit")
-
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerHTML);
+    e.dataTransfer.setData('text/html', this.id);
 }
 
 function handleDragOver(e) {
@@ -228,20 +233,38 @@ function handleDragOver(e) {
 }
 
 function handleDrop(e) {
-    console.log(e)
     e.stopPropagation(); // stops the browser from redirecting.
-    text = e.dataTransfer.getData('text/html')
-    clone = document.getElementById("colnames").children[0].cloneNode()
-    clone.innerHTML = text
+    id = e.dataTransfer.getData('text/html')
+    // clone = document.getElementById(id).cloneNode(true)
+    clone = colBox(id, document.getElementById(id).innerHTML)
+    clone.clone = true
+
+    //append editable div
+    let div = document.createElement('div');
+    div.style['background-color'] = "light-green"
+    div.innerText = ' ' 
+    div.contentEditable = "true"
+
     this.innerHTML = ''
-    this.append(clone)
-    this.innerHTML += '  '
+    this.append(clone, div)
     this.onchange()
     this.focus()
     return false
 }
 
+function colBox (k, colname){
+    let div = document.createElement('div');
+    div.innerHTML = colname
+    div.className = "coli"
+    div.id = 'col' + (k+1)
+    div.draggable = true
+    div.addEventListener('dragstart', handleDragStart)
+    div.addEventListener('dragend', remove_drag)
+    return div
+}
+
 function do_drop(colnames){
+    // list option
     colx = document.getElementById('colx_list');
     coly = document.getElementById('coly_list');
     colt = document.getElementById('colt_list');
@@ -256,15 +279,12 @@ function do_drop(colnames){
     }
 
     c1  = document.getElementById('colnames');
+    //c1.addEventListener('mouseover', (_ => {add_drag("trace edit")}) );
+    //c1.addEventListener('mouseleave', (_ => {remove_drag("trace edit")}) );
     c1.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
-    for (colname of colnames) {
-        let div = document.createElement('div');
-        div.innerHTML = colname;
-        div.className = "coli"
-        div.draggable = true;
-        div.addEventListener('dragstart', handleDragStart);
-        div.addEventListener('dragend', remove_drag);
+    for (var colname of colnames.entries()) {
+        let div = colBox(...colname);
         c1.appendChild(div);
     }
 
@@ -285,8 +305,9 @@ function select_columns(){
     cy = document.getElementById("coly").innerText
     ct = document.getElementById("colt").innerText
     cs = document.getElementById("cols").innerText
+    cc = document.getElementById("colc").style["background-color"]
     document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
-    plot_data(data, cx, cy, ct, cs)
+    plot_data(data, cx, cy, ct, cs, cc)
     return true;
 }
 
@@ -330,7 +351,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, cx=4, cy=5, ct="", cs=""){
+function plot_data(data, cx=4, cy=5, ct="", cs="", cc=""){
     x = data[cx]
     y = data[cy]
 
@@ -342,10 +363,12 @@ function plot_data(data, cx=4, cy=5, ct="", cs=""){
         y: y,
         //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
         name: data._basename,
-        mode: 'markers', marker: { //size:4,
-            opacity: 0.5, line: {
-            width: 1,
-            color: '#404040'}}
+        mode: 'markers',
+        marker: { //size:4,
+            opacity: 0.5,
+            color: cc ? cc : '#404040',
+            line: { width: 1,
+                color: '#404040'}}
     };
     if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
     if (cs) trace1.marker.size = data[cs]
