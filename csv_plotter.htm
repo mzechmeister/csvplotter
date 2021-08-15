@@ -7,24 +7,38 @@
     <title>csv plotter</title>
 
     <style type="text/css">
+    .invalid  {
+        box-shadow: 0 0 3px 1px #900 !important;   /* red */
+     }
+
+    [contentseditable=true]:empty:not(:focus):before {
+        content: attr(placeholder);
+        color: #ccc;
+    }     
+
     input, .dragtarget {
         font-family: Tahoma;
+        font-size: 13px;
         padding: 2px;
 /*        border: 1px solid #ccc;
         border-radius: 0px;
         box-sizing: border-box; */
     }
 
-    div.dragtarget {
+    div.dragtarget, div.func {
         min-height: 20px;
         min-width: 120px;
         display: table-cell;
         padding: 4px 0px;
         /*border-right: #ccc 1px solid; */
+        overflow: hidden;
+    }
+
+    div.dragtarget, div.func {
         box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
     }
 
-    .dragging.dragtarget, .dragging .dragtarget, .dragtarget:focus-within {
+    .dragging.dragtarget, .dragging .dragtarget, .dragtarget:focus-within,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
      }
 
@@ -131,27 +145,29 @@
 <fieldset style="display:flex; flex-direction: column; flex:1; border: none; padding: 0; margin: 5px 0;">
    <div>
       <div class="trace edit" tabIndex=0>
-         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon"> <label>file:</label><label for="csvFileInput" class="input" style="display: inline-block;  text-align: left; border: 1px solid #ccc">Choose file</label>
-         <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)">
+         <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
+         <label><i class="fa fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block;  text-align: left; border: 1px solid #ccc"></label>
+         <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
          <label>x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
          <label>y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
-         <label><i class="fa fa-tag" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
+         <label><i class="fa fa-tag"></i></label><div id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
-         <label><i class="fa fa-bullseye" draggable="true" ondragstart="dragicon(event)"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">asdf</div>
+         <label><i class="fa fa-bullseye"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">asdf</div>
          <datalist id="cols_list"></datalist>
-         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" contentEditable onchange="select_columns()"></div>
+         <label><i class="fa fa-tint"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
-         <label><i class="fa fa-adjust" draggable="true" ondragstart="dragicon(event)"></i></label><div id="colo" list="colo_list" class="dragtarget opacity" placeholder="4" contentEditable onchange="select_columns()">0.5</div>
+         <label><i class="fa fa-adjust"></i></label><div id="colo" list="colo_list" class="dragtarget opacity" placeholder="4" contenteditable onchange="select_columns()">0.5</div>
          <datalist id="colo_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace">
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-         <span title="df"><label>f1(x)=</label><input id="func1" placeholder="sin(x)" onchange="empty_func(); draw_func()"></span>
-         <label><i class="fa fa-tint" draggable="true" ondragstart="dragicon(event)"></i></label><div type="search" id="fcolc" list="colc_list" class="dragtarget color" placeholder="4" contentEditable onchange="select_columns()"></div>
+         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dragtarget func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="f(x)"></div>
+         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
+         <label><i class="fa fa-adjust"></i></label><div id="funco" class="dragtarget opacity" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
    </div>
@@ -166,6 +182,11 @@
 
 function dragicon(ev) {
    event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
+}
+
+for (item of document.getElementsByClassName('fa')) {
+    item.draggable = "true"
+    item.ondragstart = dragicon
 }
 
 function add_drag(classname) {
@@ -191,7 +212,7 @@ function colorDrop(e) {
     rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     this.style["background-color"] = rgb
     this.innerHTML = rgb
-    var trace = e.target.id == "fcolc";
+    var trace = e.target.id == "funcc";
     Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, 1*trace)
     return false
 }
@@ -209,14 +230,17 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div);
 }
 
+for (item of document.querySelectorAll("[contenteditable]")) {
+    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false}; console.log('d')}  // no newline for Enter press
+}
+
 for (item of document.getElementsByClassName('dragtarget')) {
-    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); this.style["background-color"] = this.innerHTML; return false}}  // no newline for Enter press
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
 
 document.getElementById("colc").ondrop = colorDrop
-document.getElementById("fcolc").ondrop = colorDrop
+document.getElementById("funcc").ondrop = colorDrop
 
 for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     var div = document.getElementById(div)
@@ -341,21 +365,33 @@ function linspace(start, stop, num, endpoint=true) {
 function empty_func(){
     // a placeholder (function with no data)
     var graph = document.getElementsByClassName("js-plotly-plot")[0];
-    expr1 = document.getElementById("func1").value
+    expr1 = document.getElementById("funcf").innerText
     if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
 }
 
 function draw_func(){
     var graph = document.getElementsByClassName("js-plotly-plot")[0];
-    expr1 = document.getElementById("func1").value
+    expr1 = document.getElementById("funcf").innerText
+    funcc = document.getElementById("funcc").innerText
+    funco = document.getElementById("funco").innerText
     if (expr1 != "") {
-        expr = new Function("x", "return "+expr1);
+        try {
+        /* expr = new Function("x", "return "+expr1); */
         // mathjs
         expr2 = math.compile(expr1).evaluate ;
         expr = x => expr2({'x':x})
         x1 = linspace(...graph._fullLayout.xaxis.range, 200)
         y1 = x1.map(expr)
-        Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1]}, 1)
+        }
+        catch {
+/*        if (typeof y1[0] == "Object") {*/
+           document.getElementById("funcf").classList.add("invalid")
+           return false;
+        }   
+        if (funco) {funcc += parseInt(funco*255).toString(16).padStart(2,0)}
+        document.getElementById("funcf").classList.remove("invalid")
+        Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1],
+            line: [{color: funcc}]}, 1)
     }
     for (x of ['xtitle', 'ytitle', 'gtitle']){
         // reset attributes for the editable labels
@@ -391,7 +427,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
 
     traces = [trace1];
    /*
-   expr1 = document.getElementById("func1").value
+   expr1 = document.getElementById("funcf").value
    if (expr1!="") {
        expr = new Function("x", "return "+expr1);
        x1 = x.filter(x => !isNaN(x))
@@ -449,23 +485,26 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
         document.getElementById("info").innerHTML = 'Closest point clicked: ' + pts;
     });
 
-    graph.on('plotly_relayout', function(eventdata){
-        // recompute the function for new ranges after zoom
-        draw_func()
+    graph.on('plotly_relayout', function(event){
+        // recompute the function for new ranges after zoom (resize?)
+         draw_func()
     });
 
 }
 
 let observer = new MutationObserver(function(mutations) {
-   window.dispatchEvent(new Event('resize'));
+    if (!(mutations[0].type == "attributes" && mutations[0].target.className == "js-plotly-plot")) {
+        // without this condition recurrence seems to occur 
+        window.dispatchEvent(new Event('resize'));
+    }
 });
 
 observer.observe(document.getElementById('plotly-div'), {attributes: true})
 
+
 // allow to pre-fill fields and url
 url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
-delete url_kwargs["url"]
 
 
 dsv(url, function(){
@@ -475,16 +514,31 @@ dsv(url, function(){
      plot_data(...arguments, ...[..."xytsco"].map(x => url_kwargs['col'+x]))
 
      // render column names in plot fields
-     lookup = Object.fromEntries(colnames.map((x,i) => [x, i+1]))
-     for (col in url_kwargs) {
-          t = document.getElementById(col)
+     lookup = {} 
+     // lookup has both column names and column number
+     for ([i,k] of colnames.entries()) {lookup [i+1] = lookup[k] = i+1}
+     for (arg in url_kwargs) {
+          t = document.getElementById(arg)
           t.innerText = ''
-          name = url_kwargs[col]
-          id = lookup[name] || name  // integer as fallback
-          console.log(t, id, name)
-          t.append((col=='colc' || col=='colo') ? name : colBox("col"+id))
+          val = url_kwargs[arg]
+          id = lookup[val]
+          t.append(id ? colBox("col"+id) : val)
      }
 })
+
+
+// create shared link
+document.getElementById("share").onclick = function(){
+   _url = new URL(window.location)
+   _url = _url.origin + _url.pathname + "?"
+   _url += [...document.getElementsByClassName("dragtarget")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
+   _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
+   var link = document.createElement("a")
+   link.href = _url
+   link.append(_url)
+   document.getElementById('info').innerText = ''
+   document.getElementById('info').append(link)
+}
 
 
 function edittext(svgtext){
@@ -527,18 +581,6 @@ function edittext(svgtext){
     input.focus()
 }
 
-// create share link
-document.getElementById("share").onclick = function(){
-   _url = new URL(window.location);
-   _url = _url.origin+_url.pathname+'?url=' + url +
-         [...'xytsco'].map(x => {val=document.getElementById('col'+x).innerText; if (val) return '&col'+x+'='+val}).join('');
-   var link = document.createElement("a")
-   _url = _url.replace(/#/g, '%23')
-   link.href = _url
-   link.append(_url)
-   document.getElementById('info').innerText = ''
-   document.getElementById('info').append(link)
-}
 
 </script>
 
