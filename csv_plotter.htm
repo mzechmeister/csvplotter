@@ -11,10 +11,10 @@
         box-shadow: 0 0 3px 1px #900 !important;   /* red */
      }
 
-    [contentseditable=true]:empty:not(:focus):before {
+    [contenteditable=true]:empty:not(:focus):before {
         content: attr(placeholder);
         color: #ccc;
-    }     
+    }
 
     input, .dragtarget {
         font-family: Tahoma;
@@ -231,7 +231,8 @@ for (color of Plotly.d3.scale.category10().range()) {
 }
 
 for (item of document.querySelectorAll("[contenteditable]")) {
-    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false}; console.log('d')}  // no newline for Enter press
+    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false};}  // no newline for Enter press
+    item.onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}}  // prevent newline when empyting with backspace or del
 }
 
 for (item of document.getElementsByClassName('dragtarget')) {
