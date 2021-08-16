@@ -492,9 +492,15 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
 
 }
 
+
+gwidth = null
+gheight = null
 let observer = new MutationObserver(function(mutations) {
-    if (!(mutations[0].type == "attributes" && mutations[0].target.className == "js-plotly-plot")) {
-        // without this condition recurrence seems to occur 
+    var graph = document.getElementById("plotly-div")
+    var resized = graph.style.width && graph.style.height && (gwidth != graph.style.width) || (gheight != graph.style.height)
+    gwidth = graph.style.width
+    gheight = graph.style.height
+    if (resized) {
         window.dispatchEvent(new Event('resize'));
     }
 });
