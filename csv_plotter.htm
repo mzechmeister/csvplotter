@@ -212,8 +212,8 @@ function colorDrop(e) {
     rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     this.style["background-color"] = rgb
     this.innerHTML = rgb
-    var trace = e.target.id == "funcc";
-    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, 1*trace)
+    var func = (e.target.id == "funcc") * 1;
+    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, func)
     return false
 }
 
@@ -389,10 +389,9 @@ function draw_func(){
            document.getElementById("funcf").classList.add("invalid")
            return false;
         }   
-        if (funco) {funcc += parseInt(funco*255).toString(16).padStart(2,0)}
         document.getElementById("funcf").classList.remove("invalid")
         Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1],
-            line: [{color: funcc}]}, 1)
+            marker: [{color: funcc}], opacity: funco}, 1)
     }
     for (x of ['xtitle', 'ytitle', 'gtitle']){
         // reset attributes for the editable labels
