@@ -143,8 +143,8 @@
 
 
 <fieldset style="display:flex; flex-direction: column; flex:1; border: none; padding: 0; margin: 5px 0;">
-   <div>
-      <div class="trace edit" tabIndex=0>
+   <div class="traces" style="background: white">
+      <div class="trace" tnum=0 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
          <label><i class="fa fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block;  text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
@@ -163,7 +163,7 @@
          <datalist id="colo_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
-      <div class="trace">
+      <div class="trace" tnum=1>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dragtarget func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="f(x)"></div>
          <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
@@ -181,7 +181,7 @@
 <script>
 
 function dragicon(ev) {
-   event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
+    event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
 }
 
 for (item of document.getElementsByClassName('fa')) {
@@ -207,17 +207,21 @@ function colorDragStart(e) {
 }
 
 function colorUpdate(f, rgb) {
-    rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
+    if (!rgb) rgb = f.innerHTML
+    if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     f.style.backgroundColor = rgb
     f.innerHTML = rgb
-    var func = (f.id == "funcc") * 1;
-    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, func)
+}
+
+function colorRestyle(f, rgb) {
+    colorUpdate(f, rgb)
+    Plotly.restyle(graph, {'marker.color': f.innerHTML}, f.parentElement.getAttribute("tnum"))
 }
 
 function colorDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     var rgb = e.dataTransfer.getData('text/html');
-    colorUpdate(this, rgb)
+    colorRestyle(this, rgb)
     return false
 }
 
@@ -233,12 +237,17 @@ for (color of Plotly.d3.scale.category10().range()) {
     div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
     div.onmousedown = (_ => {add_drag("color"); f = document.activeElement;})
     div.onmouseup = (e => {if(f.classList.contains('color')) {
-                       colorUpdate(f, e.target.style.backgroundColor); f.focus()}})
+                       colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
     divcols.append(div);
 }
 
+for (item of document.getElementsByClassName('color')) {
+    item.onchange = (e => colorRestyle(e.target))
+}
+
+
 for (item of document.querySelectorAll("[contenteditable]")) {
-    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(); return false};}  // no newline for Enter press
+    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(e); return false};}  // no newline for Enter press
     item.onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}}  // prevent newline when empyting with backspace or del
 }
 
@@ -535,7 +544,9 @@ dsv(url, function(){
           t.innerText = ''
           val = url_kwargs[arg]
           id = lookup[val]
-          t.append(id ? colBox("col"+id) : val)
+          if (id) t.append(colBox("col"+id))
+          else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
+          else t.append(val)
      }
 })
 
