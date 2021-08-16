@@ -206,27 +206,34 @@ function colorDragStart(e) {
     e.dataTransfer.setData('text/html', this.style["background-color"]);
 }
 
+function colorUpdate(f, rgb) {
+    rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
+    f.style.backgroundColor = rgb
+    f.innerHTML = rgb
+    var func = (f.id == "funcc") * 1;
+    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, func)
+}
+
 function colorDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
     var rgb = e.dataTransfer.getData('text/html');
-    rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
-    this.style["background-color"] = rgb
-    this.innerHTML = rgb
-    var func = (e.target.id == "funcc") * 1;
-    Plotly.restyle(document.getElementsByClassName('js-plotly-plot')[0], {'marker.color': rgb}, func)
+    colorUpdate(this, rgb)
     return false
 }
 
 // the color boxes
 divcols = document.getElementById('colornames');
 divcols.onmouseover = (_ => add_drag("color"))
+
 for (color of Plotly.d3.scale.category10().range()) {
     let div = document.createElement('div');
     div.style['background-color'] = color;
     div.draggable = true;
-    div.onmousedown = (_ => add_drag("color"))
     div.ondragstart = colorDragStart
     div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
+    div.onmousedown = (_ => {add_drag("color"); f = document.activeElement;})
+    div.onmouseup = (e => {if(f.classList.contains('color')) {
+                       colorUpdate(f, e.target.style.backgroundColor); f.focus()}})
     divcols.append(div);
 }
 
