@@ -27,8 +27,9 @@
 
     div.dragtarget, div.func {
         min-height: 20px;
-        min-width: 120px;
+        min-width: 40px;
         display: table-cell;
+        flex-grow: 1;
         padding: 4px 0px;
         /*border-right: #ccc 1px solid; */
         overflow: hidden;
@@ -54,11 +55,9 @@
         font-size: 1.2em;
         cursor: pointer;
     }
-   .coli:nth-child(n+1){
-        counter-increment: rowNumber;
-    }
-   .coli::before {
-        content: counter(rowNumber);
+ 
+    .coli::before {
+        content: attr(knum);
         vertical-align: super;
         font-size: smaller;
         color: grey;
@@ -72,13 +71,21 @@
         margin: 3px;
     }
 
-     div.dragtarget.color {
-         min-width: 43px;
-     }
+    div.dragtarget.color {
+        min-width: 23px;
+        flex-grow: 0;
+    }
 
     div.dragtarget.opacity {
-         min-width: 23px;
-     }
+        min-width: 15px;
+        flex-grow: 0;
+    }
+
+    .dragtarget.color:not(:hover):not(:focus) {
+        /* slowly hide hex string */
+        transition: color 1s;
+        color: transparent;
+    }
 
     .trace {
         border-color: #ccc;
@@ -100,19 +107,13 @@
     }
 
     #colornames > div {
-        width: 40px;
+        min-width: 20px;
         height: 20px;
         margin: 2px;
     }
 
     #colornames > div:active {
         opacity : 0.4;
-    }
-
-    .dragtarget.color:not(:hover):not(:focus) {
-        /* slowly hide hex string */
-        transition: color 1s;
-        color: transparent;
     }
 
     label {
@@ -125,7 +126,8 @@
 <body style="font-family: verdana; font-size: 70%; margin-left: 0; margin-right: 0">
 
 <div id="plotly-div"></div>
-<div id="info">info:</div>
+<div id="info" style="display:inline">info:</div>
+<button id="share" style="float: right;"><i class="fa fa-share-alt"></i></button>
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
 <script src='dsv.js'></script>
@@ -136,15 +138,13 @@
    <span title="xtitle"><label>xtitle</label><input id="xtitle" placeholder="xtitle" onchange="document.getElementsByClassName('xtitle')
 [0].textContent = event.target.value;"></span>
 
-   <div id="colornames" style="height:20px">
+   <div id="colornames" style="height:20px;">
    </div>
-   <button id="share"><i class="fa fa-share-alt"></i></button>
 </div>
 
 
-<fieldset style="display:flex; flex-direction: column; flex:1; border: none; padding: 0; margin: 5px 0;">
-   <div class="traces" style="background: white">
-      <div class="trace" tnum=0 tabIndex=0>
+<div class="traces" style="background: white; margin: 5px 0;">
+   <div class="trace" tnum=0 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
          <label><i class="fa fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block;  text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
@@ -169,9 +169,8 @@
          <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
          <label><i class="fa fa-adjust"></i></label><div id="funco" class="dragtarget opacity" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div> 
-      </div>
-   </div>
-</fieldset>
+    </div>
+</div>
 
 <div id="colnames">
 </div>
@@ -311,7 +310,8 @@ function handleDrop(e) {
 function colBox(k, colname=""){
     let div = document.createElement('div');
     div.innerHTML = colname || document.getElementById(k).innerHTML
-    div.className = "coli"
+    div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
+    div.className = "coli" 
     div.id = 'col' + k
     div.draggable = true
     div.addEventListener('dragstart', handleDragStart)
