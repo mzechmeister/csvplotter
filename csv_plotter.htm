@@ -41,12 +41,12 @@
 
     .dragging.dragtarget, .dragging .dragtarget, .dragtarget:focus-within,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
-     }
+    }
 
     .coli {
         border: 1px solid #ccc;      /* grey*/
         background-color: #c5edfb;   /* a light blue */
-     }
+    }
 
     .coli, div[contenteditable=true]{
         display: inline-block;
@@ -72,12 +72,12 @@
     }
 
     div.dragtarget.color {
-        min-width: 23px;
+        width: 25px;
         flex-grow: 0;
     }
 
     div.dragtarget.opacity {
-        min-width: 15px;
+        width: 15px;
         flex-grow: 0;
     }
 
@@ -92,13 +92,21 @@
         border-style: solid;
         border-width: 1px;
         display: flex;
-        padding: 0 4px;
+        padding: 0 0 0 4px;
     }
 
     .trace:focus, .trace:focus-within {
         border-color: #6399cb;
         _padding: 1px;
         _border-width: 2px;
+    }
+    .trace > label {
+        font-weight: bold;
+        font-style:  italic;
+        color: #ccc;
+    }
+    .trace:focus > label, .trace:focus-within > label {
+        color: #6399cb;
     }
 
     #colornames {
@@ -136,7 +144,7 @@
 <div><i class="fa fa-info" style="padding: 0px 5px;"></i>
 <div id="info" style="display:inline"></div>
 <button id="share" style="float: right"><i class="fa fa-share-alt"></i></button>
-<div>
+</div>
 
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
@@ -144,11 +152,10 @@
 <script src='zoom_pan.js'></script>
 <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 
-<div style="display:flex">
+<div>
    <span title="xtitle"><label>xtitle</label><input id="xtitle" placeholder="xtitle" onchange="document.getElementsByClassName('xtitle')
 [0].textContent = event.target.value;"></span>
-
-   <div id="colornames" style="height:20px;">
+   <div id="colornames" style="height:20px; float:right">
    </div>
 </div>
 
