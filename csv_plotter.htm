@@ -3,13 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
     <title>csv plotter</title>
 
     <style type="text/css">
     .invalid  {
         box-shadow: 0 0 3px 1px #900 !important;   /* red */
-     }
+    }
 
     [contenteditable=true]:empty:not(:focus):before {
         content: attr(placeholder);
@@ -20,9 +21,6 @@
         font-family: Tahoma;
         font-size: 13px;
         padding: 2px;
-/*        border: 1px solid #ccc;
-        border-radius: 0px;
-        box-sizing: border-box; */
     }
 
     div.dragtarget, div.func {
@@ -132,18 +130,25 @@
     #plotly-div {
         flex-grow: 20;
     }
-    html {height:100%}
-    body {height:100%; display:flex; flex-direction: column;}
+
+    body {
+        display:flex;
+        flex-direction: column;
+    }
 
     </style>
 </head>
 
-<body style="font-family: verdana; font-size: 70%; margin-left: 0; margin-right: 0">
+<body style="font-family: verdana; font-size: 70%; margin: 0">
+
+<button id="expand" style="position: fixed; left: 10px; top: 10px; z-index: 10000;"
+onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.height] = this.children[0].classList.toggle('fa-expand') ? [window.innerHeight+'px', ''] : ['',window.innerHeight+'px']; document.getElementById('funcf').innerHTML='aa'+ window.innerHeight + 'vv' + document.getElementsByTagName('body')[0].clientHeight "><i class="fas fa-expand fa-compress"></i></button>
 
 <div id="plotly-div"></div>
 <div><i class="fa fa-info" style="padding: 0px 5px;"></i>
-<div id="info" style="display:inline"></div>
-<button id="share" style="float: right"><i class="fa fa-share-alt"></i></button>
+<div id="info" style="display:inline">
+<div style="float: right">
+<button id="share"><i class="fa fa-share-alt"></i></button>
 </div>
 
 
@@ -163,7 +168,7 @@
 <div class="traces" style="background: white; margin: 5px 0;">
    <div class="trace" tnum=0 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
-         <label><i class="fa fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block;  text-align: left; border: 1px solid #ccc"></label>
+         <label><i class="far fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
          <label>x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
@@ -274,6 +279,7 @@ for (item of document.getElementsByClassName('dragtarget')) {
 
 document.getElementById("colc").ondrop = colorDrop
 document.getElementById("funcc").ondrop = colorDrop
+document.getElementById("funcf").onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}; this.onchange()}
 
 for (var div of ['colx', 'coly', 'colt', 'cols', 'colc']) {
     var div = document.getElementById(div)
@@ -414,7 +420,7 @@ function draw_func(){
         // mathjs
         expr2 = math.compile(expr1).evaluate ;
         expr = x => expr2({'x':x})
-        x1 = linspace(...graph._fullLayout.xaxis.range, 200)
+        x1 = linspace(...graph._fullLayout.xaxis.range, 2000)
         y1 = x1.map(expr)
         }
         catch {
