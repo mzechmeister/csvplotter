@@ -181,11 +181,13 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
          <label>x</label><div id="colx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
+         <label><i class="fa fa-arrows-alt-h"></i></label><div id="cole_x" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <label>y</label><div id="coly" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
+         <label><i class="fa fa-arrows-alt-v"></i></label><div id="cole_y" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
          <label><i class="fa fa-tag"></i></label><div id="colt" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
-         <label><i class="fa fa-bullseye"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()">asdf</div>
+         <label><i class="fa fa-bullseye"></i></label><div id="cols" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()"></div>
          <datalist id="cols_list"></datalist>
          <label><i class="fa fa-tint"></i></label><div id="colc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
@@ -390,12 +392,14 @@ function using_columns(){
 function select_columns(){
     cx = document.getElementById("colx").innerText
     cy = document.getElementById("coly").innerText
+    ce_x = document.getElementById("cole_x").innerText
+    ce_y = document.getElementById("cole_y").innerText
     ct = document.getElementById("colt").innerText
     cs = document.getElementById("cols").innerText
     cc = document.getElementById("colc").innerText
     co = document.getElementById("colo").innerText
     document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
-    plot_data(data, cx, cy, ct, cs, cc, co)
+    plot_data(data, cx, cy, ce_x, ce_y, ct, cs, cc, co)
     return true;
 }
 
@@ -450,7 +454,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
+function plot_data(data, cx=4, cy=5, ce_x="", ce_y="", ct="", cs="", cc="", co=0.5){
     x = data[cx]
     y = data[cy]
 
@@ -460,7 +464,16 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
         x: x,
         y: y,
-        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
+        error_x: {
+           type: 'data',
+           array: data[ce_x],
+           visible: ce_x != ""
+        },
+        error_y: {
+           type: 'data',
+           array: data[ce_y],
+           visible: ce_y != ""
+        },        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
         name: data._basename,
         mode: 'markers',
         marker: { //size:4,
