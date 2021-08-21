@@ -62,7 +62,7 @@
         opacity: 0.4;
     }
 
-    #colnames > .coli {
+    #colpool > .coli {
         margin: 3px;
     }
 
@@ -202,7 +202,7 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
     </div>
 </div>
 
-<div id="colnames">
+<div id="colpool">
 </div>
 
 
@@ -350,14 +350,14 @@ function colBox(k, colname=""){
     return div
 }
 
-function init_box(colnames){
+function init_box(colpool){
     // list option
     colx = document.getElementById('colx_list');
     coly = document.getElementById('coly_list');
     colt = document.getElementById('colt_list');
     for (list of [colx, coly, colt]){
         list.innerHTML = '' // remove all currents options
-        for (colname of colnames) {
+        for (colname of colpool) {
             let option = document.createElement('option');
             option.value = colname;
             // option.id = colname;   // for dict-like access and to check is id in present
@@ -365,12 +365,12 @@ function init_box(colnames){
         }
     }
 
-    c1  = document.getElementById('colnames');
+    c1  = document.getElementById('colpool');
     //c1.addEventListener('mouseover', (_ => {add_drag("trace edit")}) );
     //c1.addEventListener('mouseleave', (_ => {remove_drag("trace edit")}) );
     c1.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
-    for (let [k, colname] of colnames.entries()) {
+    for (let [k, colname] of colpool.entries()) {
         let div = colBox(k+1, colname);
         c1.appendChild(div);
     }
@@ -473,14 +473,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
     if (cs) trace1.marker.size = data[cs]
 
     traces = [trace1];
-   /*
-   expr1 = document.getElementById("funcf").value
-   if (expr1!="") {
-       expr = new Function("x", "return "+expr1);
-       x1 = x.filter(x => !isNaN(x))
-       x1 = linspace(Math.min(...x1), Math.max(...x1), 200)
-       y1 = x1.map(expr)
- */
+
     trace2 = {
         type: "line",
         x: [],
@@ -492,7 +485,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
     layout = {
         autosize: true,
         // height: 394,
-    //  width: 1121,
+        // width: 1121,
         hovermode: 'closest',
         title: "csv plotter",
         xaxis: {
@@ -505,7 +498,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
         },
         margin: {l: 50, r: 10, b: 40, t: 30}
     };
-//   Plotly.plot('plotly-div', {
+    // Plotly.plot('plotly-div', {
     Plotly.newPlot('plotly-div', {
         data: traces,
         layout: layout,
@@ -519,12 +512,10 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
     zoompan()
 
 
-    var myPlot = document.getElementById('plotly-div')
     graph = document.getElementsByClassName("js-plotly-plot")[0];
 
     graph.on('plotly_click', function(data){
         var pts = '';
-        console.log(data)
         for(var i=0; i < data.points.length; i++){
             pts = 'x = '+data.points[i].x +', y = '+
             data.points[i].y + ', ' + data.points[i].text;
@@ -534,7 +525,7 @@ function plot_data(data, cx=4, cy=5, ct="", cs="", cc="", co=0.5){
 
     graph.on('plotly_relayout', function(event){
         // recompute the function for new ranges after zoom (resize?)
-         draw_func()
+        draw_func()
     });
 
 }
@@ -562,14 +553,15 @@ url = url_kwargs["url"]
 
 dsv(url, function(){
      // after reading data:
-     init_box(arguments[0]._colnames)
+     colpool = arguments[0]._colnames
+     init_box(colpool)
 
      plot_data(...arguments, ...[..."xytsco"].map(x => url_kwargs['col'+x]))
 
      // render column names in plot fields
      lookup = {} 
      // lookup has both column names and column number
-     for ([i,k] of colnames.entries()) {lookup [i+1] = lookup[k] = i+1}
+     for ([i,k] of colpool.entries()) {lookup [i+1] = lookup[k] = i+1}
      for (arg in url_kwargs) {
           t = document.getElementById(arg)
           t.innerText = ''
