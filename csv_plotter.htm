@@ -568,7 +568,7 @@ dsv(url, function(){
     // render column names in plot fields
     lookup = {} 
     // lookup has both column names and column number
-    for ([i,k] of colpool.entries()) {lookup [i+1] = lookup[k] = i+1}
+    for ([i,k] of colpool.entries()) {lookup ["$"+(i+1)] = lookup[k] = i+1}
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerText = ''
