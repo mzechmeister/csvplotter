@@ -381,8 +381,31 @@ function init_box(colpool){
 }
 
 function parseCell(cell) {
-    if (cell.innerHTML.startsWith("<div")) {return data[cell.innerText]}
-    else return cell.innerText
+    if (cell.innerHTML === +cell.innerHTML){
+        // scalar 
+        return cell.innerText }
+    else if (cell.children[0].outerHTML == cell.innerHTML) {
+        // single column
+        return data[cell.innerText]}
+    else {
+        // column operations
+        args = {}
+        expr_raw = cell.innerHTML
+        for (child of cell.children) {
+            knum = child.getAttribute('knum')
+            if (knum==null)
+                // normal string, e.g. "*8"
+                expr_raw = expr_raw.replace(child.outerHTML, child.innerText)
+            else {               
+                args["$"+knum] = data[knum].map(e => e=="undefined"? NaN : e)   // NaNs for Mathjs 
+                expr_raw = expr_raw.replace(child.outerHTML, "$"+knum)
+            }
+        }
+        console.log(expr_raw)
+        expr2 = math.compile(expr_raw).evaluate ;
+        vector = expr2(args) 
+        return vector
+    }
 }
 
 function using_columns(){
@@ -567,9 +590,6 @@ url = url_kwargs["url"]
 dsv(url, function(){
     // after reading data:
     colpool = arguments[0]._colnames
-    // rename column keys by prepending "$" [3] => ["$3"] 
-    //data = {}
-    //for (k of arguments[0].entries()) {data["$"+k] = arguments[0][k]}
     
     init_box(colpool)
     // render column names in plot fields
