@@ -466,10 +466,9 @@ function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
         x: x,
         y: y,
-        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
         name: data._basename,
         mode: 'markers',
-        marker: { //size:4,
+        marker: {
             opacity: co,
             color: cc ? cc : '#404040',
             line: { width: 1,
@@ -586,7 +585,7 @@ dsv(url, function(){
 document.getElementById("share").onclick = function(){
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
-    _url += [...document.getElementsByClassName("dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
+    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
