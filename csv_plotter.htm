@@ -277,14 +277,15 @@ for (item of document.getElementsByClassName('color')) {
 }
 
 
-for (item of document.querySelectorAll("[contenteditable]")) {
-    item.onkeydown = function(e){if (e.key == "Enter") {this.onchange(e); return false};}  // no newline for Enter press
-    item.onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}}  // prevent newline when empyting with backspace or del
-}
-
 for (item of document.getElementsByClassName('dropcell')) {
+    item.contentEditable = true
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
+}
+
+for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
+    item.onkeydown = function(e) {if (e.key == "Enter") {try{this.onchange(e)} finally {return false}};}  // no newline for Enter press
+    item.onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}}  // prevent newline when empyting with backspace or del
 }
 
 document.getElementById("cc").ondrop = colorDrop
@@ -324,15 +325,7 @@ function handleDrop(e) {
     }
     else {
         clone = colBox(id)
-
-        // append editable div
-        let div = document.createElement('div');
-        div.style['background-color'] = "red"
-        div.innerText = ' '
-        div.contentEditable = "true"
-
-        this.innerHTML = ''
-        this.append(clone, div)
+        this.append(clone, document.createElement('br'))
     }
     this.onchange()
     this.focus()
@@ -343,7 +336,7 @@ function colBox(k, colname=""){
     let div = document.createElement('div');
     div.innerHTML = colname || document.getElementById(k).innerHTML
     div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    div.className = "coli" 
+    div.className = "coli"
     div.id = 'col' + k
     div.draggable = true
     div.addEventListener('dragstart', handleDragStart)
@@ -381,30 +374,34 @@ function init_box(colpool){
 }
 
 function parseCell(cell) {
-    if (cell.innerHTML === +cell.innerHTML){
+    cellHTML = cell.innerHTML.replaceAll("&nbsp;", "")
+    cellText = cell.innerText.replaceAll(String.fromCharCode(160), "")
+    if (cellHTML === +cellHTML){
         // scalar 
-        return cell.innerText }
-    else if (cell.children[0].outerHTML == cell.innerHTML) {
-        // single column
-        return data[cell.innerText]}
-    else {
-        // column operations
-        args = {}
-        expr_raw = cell.innerHTML
-        for (child of cell.children) {
-            knum = child.getAttribute('knum')
-            if (knum==null)
-                // normal string, e.g. "*8"
-                expr_raw = expr_raw.replace(child.outerHTML, child.innerText)
-            else {               
-                args["$"+knum] = data[knum].map(e => e=="undefined"? NaN : e)   // NaNs for Mathjs 
-                expr_raw = expr_raw.replace(child.outerHTML, "$"+knum)
+        return cellText }
+    if (cell.childElementCount) {
+        if (cell.children[0].outerHTML == cellHTML) {
+            // single column
+            return data[cellText]}
+        else {
+            // column operations
+            args = {}
+            expr_raw = cellHTML
+            for (child of cell.children) {
+                knum = child.getAttribute('knum')
+                if (knum==null)
+                    // normal string, e.g. "*8"
+                    expr_raw = expr_raw.replace(child.outerHTML, child.innerText)
+                else {               
+                    args["$"+knum] = data[knum].map(e => e=="undefined"? NaN : e)   // NaNs for Mathjs 
+                    expr_raw = expr_raw.replace(child.outerHTML, "$"+knum)
+                }
             }
+            console.log(cell.id, expr_raw)
+            expr2 = math.compile(expr_raw).evaluate ;
+            vector = expr2(args) 
+            return vector
         }
-        console.log(expr_raw)
-        expr2 = math.compile(expr_raw).evaluate ;
-        vector = expr2(args) 
-        return vector
     }
 }
 
@@ -418,18 +415,18 @@ function using_columns(){
 
 function select_columns(){
     args = {
-        cx : document.getElementById("cx").innerText,
+        x : parseCell(document.getElementById("cx")),
         y : parseCell(document.getElementById("cy")),
-        ce_x : document.getElementById("ce_x").innerText,
-        ce_y : document.getElementById("ce_y").innerText,
-        ct : document.getElementById("ct").innerText,
+        de_x : parseCell(document.getElementById("ce_x")),
+        de_y : parseCell(document.getElementById("ce_y")),
+        dt : parseCell(document.getElementById("ct")),
         ds : parseCell(document.getElementById("cs")),
         cc : document.getElementById("cc").innerText,
-        co : document.getElementById("co").innerText,
+        co : document.getElementById("co".innerText),
     }
     args
 
-    //document.getElementById("using").innerText = cx + ":" + y + ":" + ct + ":" + ds
+    //document.getElementById("using").innerText = x + ":" + y + ":" + ct + ":" + ds
     plot_data(data, args)
     return true;
 }
@@ -475,20 +472,17 @@ function draw_func(){
         Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
     }
-    for (x of ['xtitle', 'ytitle', 'gtitle']){
+    for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle")){
         // reset attributes for the editable labels
         // needed only for the when page reload (work in first place) + mouse zoom (property removed)
-
-        document.getElementsByClassName(x)[0].style['cursor'] = 'text'
-        document.getElementsByClassName(x)[0].style['pointer-events'] = 'all'
-        document.getElementsByClassName(x)[0].onclick = edittext
+        x.style['cursor'] = 'text'
+        x.style['pointer-events'] = 'all'
+        x.onclick = edittext
     }
 }
 
-function plot_data(data, {cx, y, ce_x, ce_y, ct, ds, cc, co}){
-    x = data[cx]
-
-    console.log('asdfas', cx, ct, x, y)
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
+    console.log('asdfas', dt, x, y)
 
     trace1 = {
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
@@ -502,10 +496,10 @@ function plot_data(data, {cx, y, ce_x, ce_y, ct, ds, cc, co}){
             line: { width: 1,
                 color: '#404040'}}
     };
-    if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
+    if (dt) trace1.text = dt   //.map(ti => ""+ct+": "+ti)
     if (ds) trace1.marker.size = ds
-    if (ce_x) trace1.error_x = {array: data[ce_x]}
-    if (ce_y) trace1.error_y = {array: data[ce_y]}
+    if (de_x) trace1.error_x = {array: de_x}
+    if (de_y) trace1.error_y = {array: de_y}
 
     traces = [trace1];
 
@@ -601,7 +595,7 @@ dsv(url, function(){
         t.innerText = ''
         val = url_kwargs[arg]
         id = lookup[val]
-        if (id) t.append(colBox("col"+id))
+        if (id) t.append(String.fromCharCode(160), colBox("col"+id), String.fromCharCode(160))
         else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
         else t.append(val)
     }
