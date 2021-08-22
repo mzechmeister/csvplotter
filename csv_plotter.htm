@@ -466,16 +466,7 @@ function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
         x: x,
         y: y,
-        error_x: {
-           type: 'data',
-           array: data[ce_x],
-           visible: ce_x != ""
-        },
-        error_y: {
-           type: 'data',
-           array: data[ce_y],
-           visible: ce_y != ""
-        },        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
+        //text: t.map(ti => ""+ct+": "+ti), //.map((xi, i) => xi+" "+y[i]),
         name: data._basename,
         mode: 'markers',
         marker: { //size:4,
@@ -486,6 +477,8 @@ function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
     };
     if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
     if (cs) trace1.marker.size = data[cs]
+    if (ce_x) trace1.error_x = {array: data[ce_x]}
+    if (ce_y) trace1.error_y = {array: data[ce_y]}
 
     traces = [trace1];
 
