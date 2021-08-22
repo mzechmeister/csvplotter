@@ -187,7 +187,7 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
          <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dropcell" placeholder="1" onchange="select_columns()"></div>
          <label><i class="fa fa-tag"></i></label><div id="ct" list="colt_list" class="dropcell" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
-         <label><i class="fa fa-bullseye"></i></label><div id="cs" list="cols_list" class="dropcell" placeholder="6" onchange="select_columns()"></div>
+         <label><i class="fa fa-bullseye"></i></label><div id="cs" list="cols_list" class="dropcell" contenteditable placeholder="6" onchange="select_columns()"></div>
          <datalist id="cols_list"></datalist>
          <label><i class="fa fa-tint"></i></label><div id="cc" list="colc_list" class="dropcell color" placeholder="4" contenteditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
@@ -380,6 +380,11 @@ function init_box(colpool){
     coly.addEventListener('drop', handleDrop);
 }
 
+function parseCell(cell) {
+    if (cell.innerHTML.startsWith("<div")) {return data[cell.innerText]}
+    else return cell.innerText
+}
+
 function using_columns(){
     [cx, cy, ct] = document.getElementById("using").innerText.split(":")
     document.getElementById("cx").innerText = cx
@@ -391,16 +396,17 @@ function using_columns(){
 function select_columns(){
     args = {
         cx : document.getElementById("cx").innerText,
-        cy : document.getElementById("cy").innerText,
+        y : parseCell(document.getElementById("cy")),
         ce_x : document.getElementById("ce_x").innerText,
         ce_y : document.getElementById("ce_y").innerText,
         ct : document.getElementById("ct").innerText,
-        cs : document.getElementById("cs").innerText,
+        ds : parseCell(document.getElementById("cs")),
         cc : document.getElementById("cc").innerText,
         co : document.getElementById("co").innerText,
     }
+    args
 
-    document.getElementById("using").innerText = cx + ":" + cy + ":" + ct + ":" + cs
+    //document.getElementById("using").innerText = cx + ":" + y + ":" + ct + ":" + ds
     plot_data(data, args)
     return true;
 }
@@ -456,11 +462,10 @@ function draw_func(){
     }
 }
 
-function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
+function plot_data(data, {cx, y, ce_x, ce_y, ct, ds, cc, co}){
     x = data[cx]
-    y = data[cy]
 
-    console.log('asdfas', cx, cy, ct, x, y)
+    console.log('asdfas', cx, ct, x, y)
 
     trace1 = {
         type: "scattergl", // https://plotly.com/javascript/webgl-vs-svg/
@@ -475,7 +480,7 @@ function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
                 color: '#404040'}}
     };
     if (ct) trace1.text = data[ct].map(ti => ""+ct+": "+ti)
-    if (cs) trace1.marker.size = data[cs]
+    if (ds) trace1.marker.size = ds
     if (ce_x) trace1.error_x = {array: data[ce_x]}
     if (ce_y) trace1.error_y = {array: data[ce_y]}
 
@@ -500,7 +505,8 @@ function plot_data(data, {cx, cy, ce_x, ce_y, ct, cs, cc, co}){
             ...fmtaxis
         },
         yaxis: {
-            title: (cy>-1 ? 'Column '+cy : cy),
+            title: 'Column y',
+            // title: (cy>-1 ? 'Column '+dy : dy),
             ...fmtaxis
         },
         margin: {l: 50, r: 10, b: 40, t: 30}
@@ -561,14 +567,15 @@ url = url_kwargs["url"]
 dsv(url, function(){
     // after reading data:
     colpool = arguments[0]._colnames
+    // rename column keys by prepending "$" [3] => ["$3"] 
+    //data = {}
+    //for (k of arguments[0].entries()) {data["$"+k] = arguments[0][k]}
+    
     init_box(colpool)
-
-    plot_data(...arguments, url_kwargs)
-
     // render column names in plot fields
     lookup = {} 
     // lookup has both column names and column number
-    for ([i,k] of colpool.entries()) {lookup ["$"+(i+1)] = lookup[k] = i+1}
+    for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup[k] = i+1}
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerText = ''
@@ -578,6 +585,10 @@ dsv(url, function(){
         else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
         else t.append(val)
     }
+
+    select_columns()
+    //plot_data(arguments[0], url_kwargs)
+
 })
 
 
