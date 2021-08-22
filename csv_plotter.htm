@@ -567,39 +567,39 @@ url = url_kwargs["url"]
 
 
 dsv(url, function(){
-     // after reading data:
-     colpool = arguments[0]._colnames
-     init_box(colpool)
+    // after reading data:
+    colpool = arguments[0]._colnames
+    init_box(colpool)
 
-     plot_data(...arguments, url_kwargs)
+    plot_data(...arguments, url_kwargs)
 
-     // render column names in plot fields
-     lookup = {} 
-     // lookup has both column names and column number
-     for ([i,k] of colpool.entries()) {lookup [i+1] = lookup[k] = i+1}
-     for (arg in url_kwargs) {
-          t = document.getElementById(arg)
-          t.innerText = ''
-          val = url_kwargs[arg]
-          id = lookup[val]
-          if (id) t.append(colBox("col"+id))
-          else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
-          else t.append(val)
-     }
+    // render column names in plot fields
+    lookup = {} 
+    // lookup has both column names and column number
+    for ([i,k] of colpool.entries()) {lookup [i+1] = lookup[k] = i+1}
+    for (arg in url_kwargs) {
+        t = document.getElementById(arg)
+        t.innerText = ''
+        val = url_kwargs[arg]
+        id = lookup[val]
+        if (id) t.append(colBox("col"+id))
+        else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
+        else t.append(val)
+    }
 })
 
 
 // create shared link
 document.getElementById("share").onclick = function(){
-   _url = new URL(window.location)
-   _url = _url.origin + _url.pathname + "?"
-   _url += [...document.getElementsByClassName("dragtarget")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
-   _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
-   var link = document.createElement("a")
-   link.href = _url
-   link.append(_url)
-   document.getElementById('info').innerText = ''
-   document.getElementById('info').append(link)
+    _url = new URL(window.location)
+    _url = _url.origin + _url.pathname + "?"
+    _url += [...document.getElementsByClassName("dragtarget")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
+    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
+    var link = document.createElement("a")
+    link.href = _url
+    link.append(_url)
+    document.getElementById('info').innerText = ''
+    document.getElementById('info').append(link)
 }
 
 
@@ -610,13 +610,13 @@ function edittext(svgtext){
     input.value = svgtext.textContent
     // input.onkeyup = function(e){
     input.addEventListener('keyup', function(e){
-       //e.stopPropagation()
+        //e.stopPropagation()
         if (["Enter", "Escape"].includes(e.key)) {this.blur(); }
         else {svgtext.textContent = this.value};
         return false
     }, true)
     input.onblur = function(e){
-     //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
+        //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
         myforeign.remove()
     }
 
