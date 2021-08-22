@@ -17,13 +17,13 @@
         color: #ccc;
     }
 
-    input, .dragtarget {
+    input, .dropcell {
         font-family: Tahoma;
         font-size: 13px;
         padding: 2px;
     }
 
-    div.dragtarget, div.func {
+    div.dropcell, div.func {
         min-height: 20px;
         min-width: 40px;
         display: table-cell;
@@ -34,7 +34,7 @@
         box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
     }
 
-    .dragging.dragtarget, .dragging .dragtarget, .dragtarget:focus-within,  div.func:focus-within  {
+    .dragging.dropcell, .dragging .dropcell, .dropcell:focus-within,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
@@ -66,17 +66,17 @@
         margin: 3px;
     }
 
-    div.dragtarget.color {
+    div.dropcell.color {
         width: 25px;
         flex-grow: 0;
     }
 
-    div.dragtarget.opacity {
+    div.dropcell.opacity {
         width: 15px;
         flex-grow: 0;
     }
 
-    .dragtarget.color:not(:hover):not(:focus) {
+    .dropcell.color:not(:hover):not(:focus) {
         /* slowly hide hex string */
         transition: color 1s;
         color: transparent;
@@ -176,30 +176,30 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
 <div class="traces" style="background: white; margin: 5px 0;">
    <div class="trace" tnum=1 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
-         <label><i class="far fa-file"></i></label><div id="url" class="dragtarget"><label for="csvFileInput" class="co" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
+         <label><i class="far fa-file"></i></label><div id="url" class="drop"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
-         <label>x</label><div id="cx" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
+         <label>x</label><div id="cx" list="colx_list" class="dropcell" placeholder="1" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
-         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
-         <label>y</label><div id="cy" list="coly_list" class="dragtarget" placeholder="2" onchange="select_columns()"></div>
+         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dropcell" placeholder="1" onchange="select_columns()"></div>
+         <label>y</label><div id="cy" list="coly_list" class="dropcell" placeholder="2" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
-         <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dragtarget" placeholder="1" onchange="select_columns()"></div>
-         <label><i class="fa fa-tag"></i></label><div id="ct" list="colt_list" class="dragtarget" placeholder="3" onchange="select_columns()"></div>
+         <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dropcell" placeholder="1" onchange="select_columns()"></div>
+         <label><i class="fa fa-tag"></i></label><div id="ct" list="colt_list" class="dropcell" placeholder="3" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
-         <label><i class="fa fa-bullseye"></i></label><div id="cs" list="cols_list" class="dragtarget" placeholder="6" onchange="select_columns()"></div>
+         <label><i class="fa fa-bullseye"></i></label><div id="cs" list="cols_list" class="dropcell" placeholder="6" onchange="select_columns()"></div>
          <datalist id="cols_list"></datalist>
-         <label><i class="fa fa-tint"></i></label><div id="cc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
+         <label><i class="fa fa-tint"></i></label><div id="cc" list="colc_list" class="dropcell color" placeholder="4" contenteditable onchange="select_columns()"></div>
          <datalist id="colc_list"></datalist>
-         <label><i class="fa fa-adjust"></i></label><div id="co" list="colo_list" class="dragtarget opacity" placeholder="4" contenteditable onchange="select_columns()">0.5</div>
+         <label><i class="fa fa-adjust"></i></label><div id="co" list="colo_list" class="dropcell opacity" placeholder="4" contenteditable onchange="select_columns()">0.5</div>
          <datalist id="colo_list"></datalist>
          <div info="dummy otherwise drop would be allow here!?"></div> 
       </div>
       <div class="trace" tnum=2>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dragtarget func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="f(x)"></div>
-         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dragtarget color" placeholder="4" contenteditable onchange="select_columns()"></div>
-         <label><i class="fa fa-adjust"></i></label><div id="funco" class="dragtarget opacity" contenteditable onchange="select_columns()">0.5</div>
+         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="f(x)"></div>
+         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dropcell color" placeholder="4" contenteditable onchange="select_columns()"></div>
+         <label><i class="fa fa-adjust"></i></label><div id="funco" class="dropcell opacity" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div> 
     </div>
 </div>
@@ -282,7 +282,7 @@ for (item of document.querySelectorAll("[contenteditable]")) {
     item.onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}}  // prevent newline when empyting with backspace or del
 }
 
-for (item of document.getElementsByClassName('dragtarget')) {
+for (item of document.getElementsByClassName('dropcell')) {
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
@@ -291,7 +291,7 @@ document.getElementById("cc").ondrop = colorDrop
 document.getElementById("funcc").ondrop = colorDrop
 document.getElementById("funcf").onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}; this.onchange()}
 
-for (var div of document.querySelectorAll("[tnum='1'] .dragtarget")) {
+for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.tabIndex = 0
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
@@ -593,7 +593,7 @@ dsv(url, function(){
 document.getElementById("share").onclick = function(){
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
-    _url += [...document.getElementsByClassName("dragtarget")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
+    _url += [...document.getElementsByClassName("dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
