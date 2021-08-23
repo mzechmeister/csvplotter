@@ -297,7 +297,7 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id)); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
 }
 
 
@@ -598,7 +598,7 @@ dsv(url, function(){
         t.innerText = ''
         val = url_kwargs[arg]
         id = lookup[val]
-        if (id) t.append(String.fromCharCode(160), colBox("col"+id))
+        if (id) t.append(String.fromCharCode(160), colBox("col"+id), document.createElement('br'))   // for editing firefox needs something before the Box; br is nice in first place, but wraps when more comes into the cell 
         else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
         else t.append(val)
     }
