@@ -375,8 +375,8 @@ function init_box(colpool){
 }
 
 function parseCell(cell) {
-    cellHTML = cell.innerHTML.replaceAll("&nbsp;", "")
-    cellText = cell.innerText.replaceAll(String.fromCharCode(160), "")
+    cellHTML = cell.innerHTML.replace(/&nbsp;/g, "")
+    cellText = cell.innerText.replace(/\u00A0/g, "")
     if (cellHTML == +cellHTML){
         // scalar, e.g. "5"
         return cellText }
