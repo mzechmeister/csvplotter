@@ -140,7 +140,6 @@
     .vis:hover {
         opacity: 1;
     }
-    
 
     </style>
 </head>
@@ -176,7 +175,7 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
 <div class="traces" style="background: white; margin: 5px 0;">
    <div class="trace" tnum=1 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
-         <label><i class="far fa-file"></i></label><div id="url" class="drop"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
+         <label><i class="far fa-file"></i></label><div id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
          <label>x</label><div id="cx" list="colx_list" class="dropcell" placeholder="x" onchange="select_columns()"></div>
@@ -683,4 +682,3 @@ function edittext(svgtext){
 
 
 </html>
-
