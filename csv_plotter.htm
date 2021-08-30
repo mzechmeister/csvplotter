@@ -165,8 +165,6 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
 <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 
 <div>
-   <span title="xtitle"><label>xtitle</label><input id="xtitle" placeholder="xtitle" onchange="document.getElementsByClassName('xtitle')
-[0].textContent = event.target.value;"></span>
    <div id="colornames" style="height:20px; float:right">
    </div>
 </div>
@@ -180,9 +178,9 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
          <label>x</label><div id="cx" list="colx_list" class="dropcell" placeholder="x" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
-         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
          <label>y</label><div id="cy" list="coly_list" class="dropcell" placeholder="y" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
+         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
          <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dropcell" placeholder="err_y" onchange="select_columns()"></div>
          <label><i class="fa fa-tag"></i></label><div id="ct" list="colt_list" class="dropcell" placeholder="label" onchange="select_columns()"></div>
          <datalist id="colt_list"></datalist>
@@ -591,7 +589,8 @@ dsv(url, function(){
     // render column names in plot fields
     lookup = {} 
     // lookup has both column names and column number
-    for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup[k] = i+1}
+    // e.g. $4, "$colname" "colname" => 4 
+    for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerText = ''
@@ -623,6 +622,7 @@ document.getElementById("share").onclick = function(){
 
 
 function edittext(svgtext){
+    // to edit xtitle etc.
     //console.log(svgtext)
     svgtext = svgtext.target
     var input = document.createElement("input");
@@ -630,11 +630,11 @@ function edittext(svgtext){
     // input.onkeyup = function(e){
     input.addEventListener('keyup', function(e){
         //e.stopPropagation()
-        if (["Enter", "Escape"].includes(e.key)) {this.blur(); }
+        if (["Enter", "Escape"].includes(e.key)) {this.blur();}
         else {svgtext.textContent = this.value};
         return false
     }, true)
-    input.onblur = function(e){
+    input.onfocusout = function(e){
         //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
         myforeign.remove()
     }
@@ -673,11 +673,11 @@ function edittext(svgtext){
     }
 </style>
 
-<div id="plottyp" bla="https://github.com/plotly/plotly-icons/tree/master/src/svg https://plotly-icons.ineffable.digital/">
+<div id="plottyp" bla='"https://github.com/plotly/plotly-icons/tree/master/src/svg https://plotly-icons.ineffable.digital/">
    <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
    <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-error-bars.svg" class="plotypicon">
    <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-histogram.svg" class="plotypicon">
+   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-histogram.svg" class="plotypicon"'>
 </div>
 
 
