@@ -500,6 +500,8 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
     if (ds) trace1.marker.size = ds
     if (de_x) trace1.error_x = {array: de_x}
     if (de_y) trace1.error_y = {array: de_y}
+    cx = document.getElementById("cx").innerText
+    cy = document.getElementById("cy").innerText
 
     traces = [trace1];
 
@@ -522,8 +524,8 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
             ...fmtaxis
         },
         yaxis: {
-            title: 'Column y',
-            // title: (cy>-1 ? 'Column '+dy : dy),
+            //title: 'Column y',
+            title: (cy>-1 ? 'Column '+cy : cy),
             ...fmtaxis
         },
         margin: {l: 50, r: 10, b: 40, t: 30}
@@ -627,6 +629,8 @@ function edittext(svgtext){
     svgtext = svgtext.target
     var input = document.createElement("input");
     input.value = svgtext.textContent
+    graph.onmouseover = null   // remove temporarily the focus stealing from zoompan.js
+
     // input.onkeyup = function(e){
     input.addEventListener('keyup', function(e){
         //e.stopPropagation()
@@ -634,9 +638,11 @@ function edittext(svgtext){
         else {svgtext.textContent = this.value};
         return false
     }, true)
-    input.onfocusout = function(e){
+
+    input.onblur = function(e){
         //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
         myforeign.remove()
+        graph.onmouseover = graph.focus   // restore focus behaviour from zoompan.js
     }
 
     input.onchange = function (e) {
@@ -646,13 +652,14 @@ function edittext(svgtext){
         a = a[val] + 'title'
         b = {}; b[a] = e.target.value
         Plotly.relayout(graph, b)
+        graph.onmouseover = graph.focus   // restore focus behaviour from zoompan.js, relayout removes the foreign object
     }
 
     var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
     myforeign.setAttribute("width", "100%");
     myforeign.setAttribute("height", "100%");
     myforeign.setAttribute("x", svgtext.attributes['x'].nodeValue);
-    myforeign.setAttribute("y", svgtext.attributes['y'].nodeValue-35);
+    myforeign.setAttribute("y", math.max(svgtext.attributes['y'].nodeValue-35, 10));
     myforeign.append(input);
 
     svg = svgtext.parentNode
