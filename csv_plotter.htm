@@ -614,7 +614,7 @@ document.getElementById("share").onclick = function(){
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
-    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replaceAll(String.fromCharCode(160), "")
+    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replace(/\u00A0/g, "")
     var link = document.createElement("a")
     link.href = _url
     link.append(_url)
