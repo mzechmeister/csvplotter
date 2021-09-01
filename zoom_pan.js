@@ -67,8 +67,9 @@ graph.addEventListener("keydown", function(e){
         case 'PageUp': panY(1.); break;
         case 'PageDown': panY(-1.); break;
         case 'l': case 'L':
-              axis = graph.layout[key=='L' ? 'xaxis' : 'yaxis'];
-              axis.type = axis.type == 'linear' ? 'log' : 'linear';
+              axis = graph.layout[key=='L' ? 'xaxis' : 'yaxis'];   // keep format
+              [func, axis.type] = (axis.type == 'linear') ? [Math.log10, 'log'] : [(x => 10**x), 'linear'];
+              axis['range'] = axis['range'].map(func)   // adjust the range
               Plotly.relayout(graph, {axis}); break;
         default: return;
     }
