@@ -389,15 +389,18 @@ function parseCell(cell) {
             if (knum==null)
                 // normal string, e.g. "*8"
                 expr_raw = expr_raw.replace(child.outerHTML, child.innerText)
-            else {               
+            else {
                 expr_raw = expr_raw.replace(child.outerHTML, "$"+knum)
                 knums.add(knum)
             }
         }
-        knums.add(...expr_raw.match(/\$[0-9]+/g).map(x=>+x.replace("$", "")))
+        // search for column names starting with $ and ending as a word, e.g. $11 vs $119
+        for (k in lookup) {if (k.startsWith('$')){  u=expr_raw.match("\\"+k+"\\b", "g"); u && knums.add(u[0].replace("$", ""))}}
+        // Trim dollar sign and convert to integer
+        //knums.add(...expr_raw.match(/\$[0-9]+/g).map(x=>+x.replace("$", "")))
         args = {}
         for (knum of knums)
-            args["$"+knum] = data[knum].map(e => e=="undefined"? NaN : e)   // NaNs for Mathjs 
+            args["$"+knum] = data[knum].map(e => e=="undefined" || e===""? NaN : e)   // NaNs for Mathjs 
         console.log(cell.id, expr_raw, knums)
         expr2 = math.compile(expr_raw).evaluate;
         vector = expr2(args) 
@@ -467,7 +470,7 @@ function draw_func(){
 /*        if (typeof y1[0] == "Object") {*/
            document.getElementById("funcf").classList.add("invalid")
            return false;
-        }   
+        }
         document.getElementById("funcf").classList.remove("invalid")
         Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
@@ -586,7 +589,7 @@ url = url_kwargs["url"]
 dsv(url, function(){
     // after reading data:
     colpool = arguments[0]._colnames
-    
+
     init_box(colpool)
     // render column names in plot fields
     lookup = {} 
