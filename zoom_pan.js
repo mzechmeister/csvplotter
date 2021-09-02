@@ -67,10 +67,15 @@ graph.addEventListener("keydown", function(e){
         case 'PageUp': panY(1.); break;
         case 'PageDown': panY(-1.); break;
         case 'l': case 'L':
+              // toggle linear and log scale
               axis = graph.layout[key=='L' ? 'xaxis' : 'yaxis'];   // keep format
               [func, axis.type] = (axis.type == 'linear') ? [Math.log10, 'log'] : [(x => 10**x), 'linear'];
               axis['range'] = axis['range'].map(func)   // adjust the range
               Plotly.relayout(graph, {axis}); break;
+        case 'g':
+              // toggle grid
+              showgrid = graph.layout.yaxis.showgrid == false;
+              Plotly.relayout(graph, {'xaxis.showgrid': showgrid, 'yaxis.showgrid': showgrid}); break
         default: return;
     }
 
