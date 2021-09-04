@@ -24,6 +24,16 @@ function current_extreme(y, x, xbeg, xend) {
     return [Math.min(...yf), Math.max(...yf)]
 }
 
+function clamp(x, x1, x2) {
+    return math.min(math.max(x, x1), x2)
+}
+
+function trac_mouse(evt) {
+    // track coordinates, since they are not available on keyboard events
+    x0 = evt.x
+    y0 = evt.y
+}
+
 graph.tabIndex = 0; // https://stackoverflow.com/questions/3149362/capture-key-press-or-keydown-event-on-div-element
 graph.onmouseover = graph.focus   // focus when over, thus no click needed
 graph.style.cssText = "resize:both; overflow: auto;" // border: 1px solid; height:250px"
@@ -75,7 +85,48 @@ graph.addEventListener("keydown", function(e){
         case 'g':
               // toggle grid
               showgrid = graph.layout.yaxis.showgrid == false;
-              Plotly.relayout(graph, {'xaxis.showgrid': showgrid, 'yaxis.showgrid': showgrid}); break
+              Plotly.relayout(graph, {'xaxis.showgrid': showgrid, 'yaxis.showgrid': showgrid});
+              break
+        case 'r':
+              // ruler
+              if (!graph.onmousemove || graph.onmousemove!=trac_mouse) {
+                  // toggle off
+                  graph.onmousemove = trac_mouse
+                  Plotly.relayout(graph, {annotations: []});
+                  return
+              }
+              
+              var xaxis = graph._fullLayout.xaxis;
+              var yaxis = graph._fullLayout.yaxis;
+              var l = graph._fullLayout.margin.l;
+              var t = graph._fullLayout.margin.t;
+              x0 = xaxis.p2c(x0 - l)
+              y0 = yaxis.p2c(y0 - t)
+              note = [{
+                       x: x0,
+                       y: y0,
+                       axref: 'x',
+                       ayref: 'y',
+                       showarrow: true,
+                       arrowwidth: 1,
+                       arrowhead: 7,
+                       ax: x0+1,
+                       ay: y0+1
+              }]
+              Plotly.relayout(graph, {annotations: note});
+
+              graph.onmousemove = function(evt) {
+                  mouseX = xaxis.p2c(evt.x - l);
+                  mouseY = yaxis.p2c(evt.y - t);
+                  mouseX = clamp(mouseX, ...xaxis.range)
+                  mouseY = clamp(mouseY, ...yaxis.range)
+                  rulertext = `[${x0.toPrecision(7)}, ${y0.toPrecision(7)}] ${mouseX.toPrecision(7)}, ${mouseY.toPrecision(7)}  distance: ${(mouseX-x0).toPrecision(7)}, ${(mouseY-y0).toPrecision(7)}`
+
+                  Plotly.relayout(graph, 
+                  {annotations:
+                   [{ax: x0, axref:'x', x: mouseX, ay: y0, ayref:'y', y: mouseY,  arrowside: 'start', startarrowhead: 7, arrowwidth: 1, text: ''},
+                    {ax: 0, xref:'paper', x: 1, ay: 0, yref:'paper', y: 0, showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
+              };
         default: return;
     }
 
