@@ -107,11 +107,12 @@ graph.addEventListener("keydown", function(e){
                        y: y0,
                        axref: 'x',
                        ayref: 'y',
+                       text: '',  // otherwise the head is not shown
                        showarrow: true,
                        arrowwidth: 1,
                        arrowhead: 7,
-                       ax: x0+1,
-                       ay: y0+1
+                       ax: x0,
+                       ay: y0
               }]
               Plotly.relayout(graph, {annotations: note});
 
