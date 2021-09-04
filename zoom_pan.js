@@ -105,14 +105,14 @@ graph.addEventListener("keydown", function(e){
               note = [{
                        x: x0,
                        y: y0,
+                       ax: x0,
+                       ay: y0
                        axref: 'x',
                        ayref: 'y',
                        text: '',  // otherwise the head is not shown
                        showarrow: true,
                        arrowwidth: 1,
                        arrowhead: 7,
-                       ax: x0,
-                       ay: y0
               }]
               Plotly.relayout(graph, {annotations: note});
 
@@ -125,8 +125,8 @@ graph.addEventListener("keydown", function(e){
 
                   Plotly.relayout(graph, 
                   {annotations:
-                   [{x: x0, axref:'x', ax: mouseX, y: y0, ayref:'y', ay: mouseY, arrowhead: 7, arrowwidth: 1, text: ''},
-                    {ax: 0, xref:'paper', x: 1, ay: 0, yref:'paper', y: 0, showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
+                   [{x: x0, y: y0, ax: mouseX, ay: mouseY, axref:'x', ayref:'y', arrowhead: 7, arrowwidth: 1, text: ''},
+                    {x: 1, y: 0, ax: 0, ay: 0, xref:'paper', yref:'paper', showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
               };
         default: return;
     }
