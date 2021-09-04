@@ -81,19 +81,20 @@ graph.addEventListener("keydown", function(e){
               axis = graph.layout[key=='L' ? 'xaxis' : 'yaxis'];   // keep format
               [func, axis.type] = (axis.type == 'linear') ? [Math.log10, 'log'] : [(x => 10**x), 'linear'];
               axis['range'] = axis['range'].map(func)   // adjust the range
-              Plotly.relayout(graph, {axis}); break;
+              update = {axis}
+              break;
         case 'g':
               // toggle grid
-              showgrid = graph.layout.yaxis.showgrid == false;
-              Plotly.relayout(graph, {'xaxis.showgrid': showgrid, 'yaxis.showgrid': showgrid});
+              var showgrid = graph.layout.yaxis.showgrid == false
+              update = {'xaxis.showgrid': showgrid, 'yaxis.showgrid': showgrid}
               break
         case 'r':
               // ruler
               if (!graph.onmousemove || graph.onmousemove!=trac_mouse) {
                   // toggle off
                   graph.onmousemove = trac_mouse
-                  Plotly.relayout(graph, {annotations: []});
-                  return
+                  update.annotations = []
+                  break
               }
               
               var xaxis = graph._fullLayout.xaxis;
@@ -102,19 +103,18 @@ graph.addEventListener("keydown", function(e){
               var t = graph._fullLayout.margin.t;
               x0 = xaxis.p2c(x0 - l)
               y0 = yaxis.p2c(y0 - t)
-              note = [{
-                       x: x0,
-                       y: y0,
-                       ax: x0,
-                       ay: y0
-                       axref: 'x',
-                       ayref: 'y',
-                       text: '',  // otherwise the head is not shown
-                       showarrow: true,
-                       arrowwidth: 1,
-                       arrowhead: 7,
+              update.annotations = [{
+                  x: x0,
+                  y: y0,
+                  ax: x0,
+                  ay: y0,
+                  axref: 'x',
+                  ayref: 'y',
+                  text: '',   // otherwise the head is not shown
+                  showarrow: true,
+                  arrowwidth: 1,
+                  arrowhead: 7
               }]
-              Plotly.relayout(graph, {annotations: note});
 
               graph.onmousemove = function(evt) {
                   mouseX = xaxis.p2c(evt.x - l);
@@ -128,6 +128,7 @@ graph.addEventListener("keydown", function(e){
                    [{x: x0, y: y0, ax: mouseX, ay: mouseY, axref:'x', ayref:'y', arrowhead: 7, arrowwidth: 1, text: ''},
                     {x: 1, y: 0, ax: 0, ay: 0, xref:'paper', yref:'paper', showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
               };
+              break
         default: return;
     }
 
