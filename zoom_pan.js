@@ -125,7 +125,7 @@ graph.addEventListener("keydown", function(e){
 
                   Plotly.relayout(graph, 
                   {annotations:
-                   [{ax: x0, axref:'x', x: mouseX, ay: y0, ayref:'y', y: mouseY,  arrowside: 'start', startarrowhead: 7, arrowwidth: 1, text: ''},
+                   [{x: x0, axref:'x', ax: mouseX, y: y0, ayref:'y', ay: mouseY, arrowhead: 7, arrowwidth: 1, text: ''},
                     {ax: 0, xref:'paper', x: 1, ay: 0, yref:'paper', y: 0, showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
               };
         default: return;
