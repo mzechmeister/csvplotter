@@ -425,7 +425,7 @@ function select_columns(){
         dt : parseCell(document.getElementById("ct")),
         ds : parseCell(document.getElementById("cs")),
         cc : document.getElementById("cc").innerText,
-        co : document.getElementById("co".innerText),
+        co : document.getElementById("co").innerText,
     }
     args
 
@@ -593,7 +593,7 @@ dsv(url, function(){
 
     init_box(colpool)
     // render column names in plot fields
-    lookup = {} 
+    lookup = {"$0": 0} 
     // lookup has both column names and column number
     // e.g. $4, "$colname" "colname" => 4 
     for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
