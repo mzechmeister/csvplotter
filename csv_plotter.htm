@@ -312,6 +312,11 @@ function handleDragOver(e) {
 
 function handleDrop(e) {
     e.stopPropagation(); // stops the browser from redirecting.
+    if(e.dataTransfer.files.length){
+        dsv(e.dataTransfer.files[0], init)
+        return false;
+    }
+    
     id = e.dataTransfer.getData('text/html')
     src = document.getElementById(id)
     if (id.startsWith('colcol')) {
@@ -587,7 +592,7 @@ url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
 
 
-dsv(url, function(){
+function init(){
     // after reading data:
     colpool = arguments[0]._colnames
 
@@ -607,10 +612,10 @@ dsv(url, function(){
         else t.append(val)
     }
 
-    select_columns()
-    //plot_data(arguments[0], url_kwargs)
+    select_columns()   // plots data
+}
 
-})
+dsv(url, init)
 
 
 // create shared link
