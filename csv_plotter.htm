@@ -510,8 +510,8 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
     };
     if (dt) trace1.text = dt   //.map(ti => ""+ct+": "+ti)
     if (ds) trace1.marker.size = ds
-    if (de_x) trace1.error_x = {array: de_x}
-    if (de_y) trace1.error_y = {array: de_y}
+    if (de_x) trace1.error_x = {array: de_x, color: cc ? cc : '#404040', opacity: co, width: 1}
+    if (de_y) trace1.error_y = {array: de_y, color: cc ? cc : '#404040', opacity: co, width: 1}
     cx = document.getElementById("cx").innerText
     cy = document.getElementById("cy").innerText
 
