@@ -681,6 +681,11 @@ function edittext(svgtext){
     input.focus()
 }
 
+window.onbeforeunload = function(e){
+    // prevent following github link accidentally
+    if (e.srcElement.activeElement.id == 'github')
+        return 'Are you sure you want to leave?'
+}
 
 </script>
 
