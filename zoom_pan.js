@@ -30,8 +30,8 @@ function clamp(x, x1, x2) {
 
 function trac_mouse(evt) {
     // track coordinates, since they are not available on keyboard events
-    x0 = evt.x
-    y0 = evt.y
+    i0 = evt.x
+    j0 = evt.y
 }
 
 graph.tabIndex = 0; // https://stackoverflow.com/questions/3149362/capture-key-press-or-keydown-event-on-div-element
@@ -94,16 +94,21 @@ graph.addEventListener("keydown", function(e){
                   // toggle off
                   graph.onmousemove = trac_mouse
                   update.annotations = []
+                  if (mousei) {
+                      // remember mouse position (there might be no mousemove between two ruler events)
+                      i0 = mousei; j0 = mousej
+                  }
                   break
               }
-              
+
               var xaxis = graph._fullLayout.xaxis;
               var yaxis = graph._fullLayout.yaxis;
               var l = graph._fullLayout.margin.l;
               var t = graph._fullLayout.margin.t;
-              x0 = xaxis.p2c(x0 - l)
-              y0 = yaxis.p2c(y0 - t)
+              x0 = xaxis.p2c(i0 - l)
+              y0 = yaxis.p2c(j0 - t)
               update.annotations = [{
+                  // initial marker
                   x: x0,
                   y: y0,
                   ax: x0,
@@ -117,8 +122,10 @@ graph.addEventListener("keydown", function(e){
               }]
 
               graph.onmousemove = function(evt) {
-                  mouseX = xaxis.p2c(evt.x - l);
-                  mouseY = yaxis.p2c(evt.y - t);
+                  mousei = evt.x
+                  mousej = evt.y
+                  mouseX = xaxis.p2c(mousei - l);
+                  mouseY = yaxis.p2c(mousej - t);
                   mouseX = clamp(mouseX, ...xaxis.range)
                   mouseY = clamp(mouseY, ...yaxis.range)
                   rulertext = `[${x0.toPrecision(7)}, ${y0.toPrecision(7)}] ${mouseX.toPrecision(7)}, ${mouseY.toPrecision(7)}  distance: ${(mouseX-x0).toPrecision(7)}, ${(mouseY-y0).toPrecision(7)}`
