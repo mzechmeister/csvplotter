@@ -246,7 +246,7 @@ function colorUpdate(f, rgb) {
 
 function colorRestyle(f, rgb) {
     colorUpdate(f, rgb)
-    Plotly.restyle(graph, {'marker.color': f.innerHTML}, f.parentElement.getAttribute("tnum")-1)
+    Plotly.restyle(graph, {'marker.color': f.innerText, 'error_y.color': f.innerText}, f.parentElement.getAttribute("tnum")-1)
 }
 
 function colorDrop(e) {
@@ -433,7 +433,7 @@ function select_columns(){
         dt : parseCell(document.getElementById("ct")),
         ds : parseCell(document.getElementById("cs")),
         cc : document.getElementById("cc").innerText,
-        co : document.getElementById("co").innerText,
+        Do : parseCell(document.getElementById("co")),
     }
     args
 
@@ -493,7 +493,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, Do}){
     console.log('asdfas', dt, x, y)
 
     trace1 = {
@@ -503,15 +503,15 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, co}){
         name: data._basename,
         mode: 'markers',
         marker: {
-            opacity: co,
+            opacity: Do,
             color: cc ? cc : '#404040',
             line: { width: 1,
                 color: '#404040'}}
     };
     if (dt) trace1.text = dt   //.map(ti => ""+ct+": "+ti)
     if (ds) trace1.marker.size = ds
-    if (de_x) trace1.error_x = {array: de_x, color: cc ? cc : '#404040', opacity: co, width: 1}
-    if (de_y) trace1.error_y = {array: de_y, color: cc ? cc : '#404040', opacity: co, width: 1}
+    if (de_x) trace1.error_x = {array: de_x, color: cc ? cc : '#404040', opacity: Do, width: 1}
+    if (de_y) trace1.error_y = {array: de_y, color: cc ? cc : '#404040', opacity: Do, width: 1}
     cx = document.getElementById("cx").innerText
     cy = document.getElementById("cy").innerText
 
