@@ -297,7 +297,7 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("coli")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = ''; t.append(colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = ''; t.append("\u200B", colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
 }
 
 
@@ -330,7 +330,7 @@ function handleDrop(e) {
     }
     else {
         clone = colBox(id)
-        this.append(clone, document.createElement('br'))
+        this.append("\u200B", clone, document.createElement('br'))
     }
     this.onchange()
     this.focus()
@@ -380,8 +380,8 @@ function init_box(colpool){
 }
 
 function parseCell(cell) {
-    cellHTML = cell.innerHTML.replace(/&nbsp;/g, "")
-    cellText = cell.innerText.replace(/\u00A0/g, "")
+    cellHTML = cell.innerHTML.replace(/\u200B/g, "")
+    cellText = cell.innerText.replace(/\u200B/g, "")
     if (cellHTML == +cellHTML){
         // scalar, e.g. "5"
         return cellText }
@@ -610,7 +610,7 @@ function init(){
         t.innerText = ''
         val = url_kwargs[arg]
         id = lookup[val]
-        if (id) t.append(String.fromCharCode(160), colBox("col"+id), document.createElement('br'))   // for editing firefox needs something before the Box; br is nice in first place, but wraps when more comes into the cell 
+        if (id) t.append("\u200B", colBox("col"+id), document.createElement('br'))   // for editing firefox needs something before the Box; br is nice in first place, but wraps when more comes into the cell 
         else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
         else t.append(val)
     }
@@ -626,7 +626,7 @@ document.getElementById("share").onclick = function(){
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
-    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replace(/\u00A0/g, "")
+    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replace(/\u200B/g, "")
     var link = document.createElement("a")
     link.href = _url
     link.append(_url)
