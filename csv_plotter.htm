@@ -152,13 +152,18 @@
         opacity: 1;
     }
 
+    .fa-compress {display: None}
+    :fullscreen .fa-expand {display: None}
+    :fullscreen .fa-compress {display: inline-block}
+
     </style>
 </head>
 
 <body style="font-family: verdana; font-size: 70%; margin: 0">
 
 <div style="position: fixed; left: 20px; top: 10px;; z-index: 10000">
-   <button id="expand" class="vis" onclick="this.children[0].classList.toggle('fa-expand') ?  document.webkitExitFullscreen() : document.documentElement.webkitRequestFullscreen()"><i class="fas fa-expand fa-compress"></i></button>
+   <button id="expand" class="vis" onclick="if (document.fullscreenElement) {(document.exitFullscreen || document.webkitExitFullscreen).call(document)}
+   else {var elem = document.documentElement; (elem.requestFullscreen || elem.webkitRequestFullscreen).call(elem)}"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></button>
    <button id="console" class="vis"
 onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.height] = this.children[0].classList.toggle('fas') ?  ['','100vh'] : ['100vh', ''];"><i class="far fa-keyboard"></i></button>
 </div>
