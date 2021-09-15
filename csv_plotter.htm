@@ -28,11 +28,13 @@
         min-width: 40px;
         display: table-cell;
         flex-grow: 1;
-        padding: 4px 0px;
+        padding: 4px 1px;
         /*border-right: #ccc 1px solid; */
         overflow: hidden;
         box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
+        text-indent: 15px;
     }
+    
 
     .dragging.dropcell, .dragging .dropcell, .dropcell:focus-within,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
@@ -41,13 +43,13 @@
     .coli {
         border: 1px solid #ccc;      /* grey*/
         background-color: #c5edfb;   /* a light blue */
+        text-indent: 0px;
     }
 
     .coli, div[contenteditable=true]{
         display: inline-block;
         cursor: move;
         padding: 0px 4px;
-        font-size: 1.2em;
         cursor: pointer;
     }
  
@@ -93,13 +95,20 @@
     .trace:focus, .trace:focus-within {
         border-color: #6399cb;
     }
+
     .trace > label {
         font-weight: bold;
         font-style:  italic;
         color: #ccc;
     }
+        
     .trace:focus > label, .trace:focus-within > label {
         color: #6399cb;
+    }
+
+    label > i, label > label {
+        position: absolute;
+        padding: 2px 4px;
     }
 
     #colornames {
@@ -115,10 +124,6 @@
 
     #colornames > div:active {
         opacity : 0.4;
-    }
-
-    label {
-        margin: 0 1px 0 6px;
     }
 
     /* fullscreen mode + uncomment height in plot_data*/
@@ -179,9 +184,9 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
          <label><i class="far fa-file"></i></label><div id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
-         <label>x</label><div id="cx" list="colx_list" class="dropcell" placeholder="x" onchange="select_columns()"></div>
+         <label><label>x</label></label><div id="cx" list="colx_list" class="dropcell" placeholder="x" onchange="select_columns()"></div>
          <datalist id="colx_list"></datalist>
-         <label>y</label><div id="cy" list="coly_list" class="dropcell" placeholder="y" onchange="select_columns()"></div>
+         <label><label>y</label></label><div id="cy" list="coly_list" class="dropcell" placeholder="y" onchange="select_columns()"></div>
          <datalist id="coly_list"></datalist>
          <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
          <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dropcell" placeholder="err_y" onchange="select_columns()"></div>
