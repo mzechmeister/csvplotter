@@ -171,7 +171,7 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
 <div id="plotly-div"></div>
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
     <div id="info" style="flex-grow: 1"></div>
-    <button id="share" style="border-width:1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
+    <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
     <a id="github" style="text-decoration: none; color: black; padding: 2px 8px; font-size: large" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
 </div>
 
@@ -575,8 +575,9 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, Do}){
     graph.on('plotly_click', function(data){
         var pts = '';
         for(var i=0; i < data.points.length; i++){
-            pts = 'x = '+data.points[i].x +', y = '+
-            data.points[i].y + ', ' + data.points[i].text;
+            pts = 'x = ' + data.points[i].x + ', y = ' +
+            data.points[i].y 
+            data.points[i].text === undefined || (pts += ', ' + data.points[i].text);
         }
         document.getElementById("info").innerHTML = 'Closest point clicked: ' + pts;
     });
