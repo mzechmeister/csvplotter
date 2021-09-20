@@ -23,9 +23,9 @@ function auto_colnames(data){
         }
     }
     else {
-        data._colnames = [...Array(data.length+1).keys()] 
+        data._colnames = [...data.keys()].map((_, i) => i+1)   // one based indexing
     }
-    data.unshift([...Array(data[0].length).keys()])  // prepend a column with row numbers
+    data.unshift([...Array(data[0].length).keys()])  // prepend a column 0 with row numbers
     console.log(colnames)
 }
 
