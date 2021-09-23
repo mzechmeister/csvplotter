@@ -225,6 +225,10 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
 
 <script>
 
+function info(text="") {
+    document.getElementById("info").innerHTML = text
+}
+
 function dragicon(ev) {
     event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
 }
@@ -399,10 +403,10 @@ function parseCell(cell) {
     cellText = cell.innerText.replace(/\u200B/g, "")
     if (cellHTML == +cellHTML){
         // scalar, e.g. "5"
-        return cellText }
+        result = cellText }
     else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML)) {
         // single column
-        return data[cellText]}
+        result = data[cellText]}
     else {
         // column operations
         expr_raw = cellHTML
@@ -431,13 +435,14 @@ function parseCell(cell) {
         }
         catch (e) {
             cell.classList.add("invalid")
-            document.getElementById("info").innerHTML = '<span class="invalid" style="color:#D00">'+e.message+'</span>'
+            info('<span style="color:#D00">'+cell.getAttribute('placeholder')+": "+e.message+'</span>')
             return
         }
-        cell.classList.remove("invalid")
-        document.getElementById("info").innerHTML = ''
-        return vector
+        result = vector
     }
+    cell.classList.contains("invalid") && info()
+    cell.classList.remove("invalid")
+    return result
 }
 
 function using_columns(){
@@ -589,7 +594,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, cc, Do}){
             data.points[i].y 
             data.points[i].text === undefined || (pts += ', ' + data.points[i].text);
         }
-        document.getElementById("info").innerHTML = 'Closest point clicked: ' + pts;
+        info('Closest point clicked: ' + pts);
     });
 
     graph.on('plotly_relayout', function(event){
@@ -655,8 +660,7 @@ document.getElementById("share").onclick = function(){
     var link = document.createElement("a")
     link.href = _url
     link.append(_url)
-    document.getElementById('info').innerText = ''
-    document.getElementById('info').append(link)
+    info(link.outerHTML)
 }
 
 
