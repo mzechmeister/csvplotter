@@ -425,8 +425,17 @@ function parseCell(cell) {
         for (knum of knums)
             args["$"+knum] = data[knum].map(e => e=="undefined" || e===""? NaN : e)   // NaNs for Mathjs
         console.log(cell.id, expr_raw, knums)
-        expr2 = math.compile(expr_raw).evaluate;
-        vector = expr2(args)
+        try {
+            expr2 = math.compile(expr_raw).evaluate;
+            vector = expr2(args)
+        }
+        catch (e) {
+            cell.classList.add("invalid")
+            document.getElementById("info").innerHTML = '<span class="invalid" style="color:#D00">'+e.message+'</span>'
+            return
+        }
+        cell.classList.remove("invalid")
+        document.getElementById("info").innerHTML = ''
         return vector
     }
 }
