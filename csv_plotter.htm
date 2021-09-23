@@ -328,7 +328,7 @@ function handleDragOver(e) {
 }
 
 function handleDrop(e) {
-    e.stopPropagation(); // stops the browser from redirecting.
+    e.preventDefault();   // stops the browser from redirecting.
     if(e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
         return false;
@@ -346,6 +346,7 @@ function handleDrop(e) {
         clone = colBox(id)
         this.append("\u200B", clone, document.createElement('br'))
     }
+
     this.onchange()
     this.focus()
     return false
