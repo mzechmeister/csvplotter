@@ -421,17 +421,26 @@ function parseCell(cell) {
                 knums.add(knum)
             }
         }
+
+        // replaces entities ;gt&, ;amp& etc.
+        expr_raw = new DOMParser().parseFromString(expr_raw, "text/html").documentElement.textContent
+
         // search for column names starting with $ and ending as a word, e.g. $11 vs $119
         for (k in lookup) {if (k.startsWith('$')){  u=expr_raw.match("\\"+k+"\\b", "g"); u && knums.add(u[0].replace("$", ""))}}
         // Trim dollar sign and convert to integer
         //knums.add(...expr_raw.match(/\$[0-9]+/g).map(x=>+x.replace("$", "")))
-        args = {}
-        for (knum of knums)
-            args["$"+knum] = data[knum].map(e => e=="undefined" || e===""? NaN : e)   // NaNs for Mathjs
-        console.log(cell.id, expr_raw, knums)
+
+        // console.log(cell.id, expr_raw, knums)
         try {
             expr2 = math.compile(expr_raw).evaluate;
-            vector = expr2(args)
+            vector = data[0].map((d,i) => {
+                argi = {};
+                for (k of knums) {
+                    d = data[k][i];
+                    argi["$"+k] = d=="undefined" || d===""? NaN : d  // NaNs for Mathjs
+                };
+                return expr2(argi)
+            })
         }
         catch (e) {
             cell.classList.add("invalid")
