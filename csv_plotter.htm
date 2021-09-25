@@ -264,7 +264,7 @@ function colorUpdate(f, rgb) {
 
 function colorRestyle(f, rgb) {
     colorUpdate(f, rgb)
-    Plotly.restyle(graph, {'marker.color': f.innerText, 'error_y.color': f.innerText}, f.parentElement.getAttribute("tnum")-1)
+    Plotly.restyle(graph, {'marker.color': f.innerText, 'error_x.color': f.innerText, 'error_y.color': f.innerText}, f.parentElement.getAttribute("tnum")-1)
 }
 
 function colorDrop(e) {
