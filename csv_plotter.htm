@@ -162,9 +162,9 @@
 <body style="font-family: verdana; font-size: 70%; margin: 0">
 
 <div style="position: fixed; left: 20px; top: 10px;; z-index: 10000">
-   <button id="expand" class="vis" onclick="if (document.fullscreenElement) {(document.exitFullscreen || document.webkitExitFullscreen).call(document)}
+   <button id="fullscreen" class="vis" onclick="if (document.fullscreenElement) {(document.exitFullscreen || document.webkitExitFullscreen).call(document)}
    else {var elem = document.documentElement; (elem.requestFullscreen || elem.webkitRequestFullscreen).call(elem)}"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></button>
-   <button id="console" class="vis"
+   <button id="expand" class="vis"
 onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.height] = this.children[0].classList.toggle('fas') ?  ['','100vh'] : ['100vh', ''];"><i class="far fa-keyboard"></i></button>
 </div>
 
@@ -644,6 +644,9 @@ function init(){
     // lookup has both column names and column number
     // e.g. $4, "$colname" "colname" => 4
     for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
+    var fs = url_kwargs.expand
+    delete url_kwargs.expand
+
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerText = ''
@@ -655,6 +658,7 @@ function init(){
     }
 
     select_columns()   // plots data
+    if (fs != undefined) expand.click()
 }
 
 dsv(url, init)
