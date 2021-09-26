@@ -572,14 +572,14 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
         // height: 394,
         // width: 1121,
         hovermode: 'closest',
-        title: "csv plotter",
+        title: title || "csv plotter",
         xaxis: {
-            title: (cx>-1 ? 'Column '+cx : cx),
+            title: xtitle || (cx>-1 ? 'Column '+cx : cx),
             ...fmtaxis
         },
         yaxis: {
             //title: 'Column y',
-            title: (cy>-1 ? 'Column '+cy : cy),
+            title: ytitle || (cy>-1 ? 'Column '+cy : cy),
             ...fmtaxis
         },
         margin: {l: 50, r: 10, b: 40, t: 30}
@@ -650,6 +650,12 @@ function init(){
     for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
     var fs = url_kwargs.expand
     delete url_kwargs.expand
+    xtitle = url_kwargs.xtitle
+    delete url_kwargs.xtitle
+    ytitle = url_kwargs.ytitle
+    delete url_kwargs.ytitle
+    title = url_kwargs.title
+    delete url_kwargs.title
 
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
@@ -672,6 +678,9 @@ dsv(url, init)
 document.getElementById("share").onclick = function(){
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
+    _url += (xtitle && "xtitle="+xtitle+"&")
+         +  (ytitle && "ytitle="+ytitle+"&")
+         +  (title  && "title="+title+"&")
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replace(/\u200B/g, "")
     var link = document.createElement("a")
@@ -683,10 +692,10 @@ document.getElementById("share").onclick = function(){
 
 function edittext(svgtext){
     // to edit xtitle etc.
-    //console.log(svgtext)
     svgtext = svgtext.target
     var input = document.createElement("input");
     input.value = svgtext.textContent
+    input.svg = svgtext
     graph.onmouseover = null   // remove temporarily the focus stealing from zoompan.js
 
     // input.onkeyup = function(e){
@@ -696,6 +705,15 @@ function edittext(svgtext){
         else {svgtext.textContent = this.value};
         return false
     }, true)
+
+    input.onkeydown = function (e) {
+        // keyup+enter is not called?! thus keydown
+        if (["Enter"].includes(e.key)) {
+            (this.svg.getAttribute('class') == "xtitle") && (xtitle = this.value);
+            (this.svg.getAttribute('class') == "ytitle") && (ytitle = this.value);
+            (this.svg.getAttribute('class') == "title") && (title = this.value);
+        }
+    }
 
     input.onblur = function(e){
         //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
@@ -707,6 +725,9 @@ function edittext(svgtext){
         // update the titles in plotly
         var val = e.target.parentNode.parentNode.classList.value
         var a = {"g-xtitle" : 'xaxis.', "g-ytitle" : 'yaxis.', "g-gtitle":''};
+        if (val=="g-xtitle") xtitle && (xtitle=e.target.value)
+        if (val=="g-ytitle") ytitle && (ytitle=e.target.value)
+        if (val=="g-gtitle")  title && (title=e.target.value)
         a = a[val] + 'title'
         b = {}; b[a] = e.target.value
         Plotly.relayout(graph, b)
