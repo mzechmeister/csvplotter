@@ -650,11 +650,11 @@ function init(){
     for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
     var fs = url_kwargs.expand
     delete url_kwargs.expand
-    xtitle = url_kwargs.xtitle
+    xtitle = url_kwargs.xtitle || ""
     delete url_kwargs.xtitle
-    ytitle = url_kwargs.ytitle
+    ytitle = url_kwargs.ytitle || ""
     delete url_kwargs.ytitle
-    title = url_kwargs.title
+    title = url_kwargs.title  || ""
     delete url_kwargs.title
 
     for (arg in url_kwargs) {
@@ -670,10 +670,6 @@ function init(){
     select_columns()   // plots data
     if (fs != undefined) expand.click()
 }
-
-xtitle = ""
-ytitle = ""
-title = ""
 
 dsv(url, init)
 
