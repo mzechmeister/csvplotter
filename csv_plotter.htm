@@ -521,9 +521,25 @@ function draw_func(){
         try {
             /* expr = new Function("x", "return "+expr1); */
             // mathjs
+            range = [...graph._fullLayout.xaxis.range, 2000]
+            // split range
+            user_range = expr1.match(/^\s*?\[(.*)\]/);
+            if (user_range) {
+                expr1 = expr1.replace(user_range[0], "")
+                user_range = user_range[1]
+                user_range = user_range.split(":").map(s => s.trim())
+                if (user_range.length == 1 && user_range[0]) {
+                   range[2] = +user_range[0]
+                }
+                else if (user_range.length > 1) {
+                    if (user_range[0]) range[0] = +user_range[0]                
+                    if (user_range[1]) range[1] = +user_range[1]                
+                    if (user_range[2]) range[2] = +user_range[2]                
+                }
+            }
             expr2 = math.compile(expr1).evaluate ;
             expr = x => expr2({'x':x})
-            x1 = linspace(...graph._fullLayout.xaxis.range, 2000)
+            x1 = linspace(...range)
             if (graph._fullLayout.xaxis.type == 'log') x1 = x1.map(x => 10**x)
             y1 = x1.map(expr)
         }
@@ -532,7 +548,8 @@ function draw_func(){
             document.getElementById("funcf").classList.add("invalid")
             return false;
         }
-        document.getElementById("funcf").classList.remove("invalid")
+        funcf.classList.contains("invalid") && info()
+        funcf.classList.remove("invalid")
         Plotly.restyle(graph, {'x': [x1], 'y': [y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
     }
