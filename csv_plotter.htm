@@ -41,7 +41,7 @@
 
     .coli {
         border: 1px solid #ccc;      /* grey*/
-        background-color: #c5edfb;   /* a light blue */
+        background-color: #e8f9ff;   /* a light blue */
         text-indent: 0px;
     }
 
@@ -358,12 +358,23 @@ function handleDrop(e) {
     return false
 }
 
+// https://github.com/d3/d3-scale-chromatic
+schemeTableau10 = "4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab".match(/.{1,6}/g)
+schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5ffed6f".match(/.{1,6}/g)
+schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
+
 function colBox(k, colname=""){
     let div = document.createElement('div');
     div.innerHTML = colname || document.getElementById(k).innerHTML
     div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
     div.className = "coli"
     div.id = 'col' + k
+    // var styleElem = document.head.appendChild(document.createElement("style"));
+    // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
+    // styleElem.innerHTML = "#"+div.id+":before {color: #"+schemeTableau10[div.getAttribute('knum')%10]+";}";
+    // div.style.backgroundColor = "#" + schemeSet3[div.getAttribute('knum')%12] + "44"
+    div.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
+    div.style.color = "#" + schemeDark2[div.getAttribute('knum')%8]
     div.draggable = true
     div.setAttribute('contenteditable', "false")
     div.addEventListener('dragstart', handleDragStart)
