@@ -519,21 +519,21 @@ function draw_func(){
     funco = document.getElementById("funco").innerText
     if (expr1 != "") {
         try {
-        /* expr = new Function("x", "return "+expr1); */
-        // mathjs
-        expr2 = math.compile(expr1).evaluate ;
-        expr = x => expr2({'x':x})
-        x1 = linspace(...graph._fullLayout.xaxis.range, 2000)
-        if (graph._fullLayout.xaxis.type == 'log') x1 = x1.map(x => 10**x)
-        y1 = x1.map(expr)
+            /* expr = new Function("x", "return "+expr1); */
+            // mathjs
+            expr2 = math.compile(expr1).evaluate ;
+            expr = x => expr2({'x':x})
+            x1 = linspace(...graph._fullLayout.xaxis.range, 2000)
+            if (graph._fullLayout.xaxis.type == 'log') x1 = x1.map(x => 10**x)
+            y1 = x1.map(expr)
         }
-        catch {
-/*        if (typeof y1[0] == "Object") {*/
-           document.getElementById("funcf").classList.add("invalid")
-           return false;
+        catch(e) {
+            info('<span style="color:#D00">expr: '+e.message+'</span>')
+            document.getElementById("funcf").classList.add("invalid")
+            return false;
         }
         document.getElementById("funcf").classList.remove("invalid")
-        Plotly.restyle(graph, {'x':[x1], 'y':[y1], 'name': [expr1],
+        Plotly.restyle(graph, {'x': [x1], 'y': [y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
     }
     for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle")){
