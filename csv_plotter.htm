@@ -213,7 +213,7 @@ onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.he
       </div>
       <div class="trace" tnum=2>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="f(x)"></div>
+         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></div>
          <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
          <label><i class="fa fa-adjust"></i></label><div id="funco" class="dropcell opacity" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div>
@@ -522,12 +522,21 @@ function draw_func(){
             /* expr = new Function("x", "return "+expr1); */
             // mathjs
             range = [...graph._fullLayout.xaxis.range, 2000]
+
             // split range
             user_range = expr1.match(/^\s*?\[(.*)\]/);
             if (user_range) {
                 expr1 = expr1.replace(user_range[0], "")
-                user_range = user_range[1]
-                user_range = user_range.split(":").map(s => s.trim())
+                user_range = user_range[1].split(":").map(s => s.trim())
+            }
+
+            [expr_y, expr_x] = expr1.split(",").reverse()
+            if (expr_x != undefined){
+                // parametric plot
+                range = [0, 10, 2000]
+            }
+
+            if (user_range) {
                 if (user_range.length == 1 && user_range[0]) {
                    range[2] = +user_range[0]
                 }
@@ -537,11 +546,21 @@ function draw_func(){
                     if (user_range[2]) range[2] = +user_range[2]                
                 }
             }
-            expr2 = math.compile(expr1).evaluate ;
-            expr = x => expr2({'x':x})
-            x1 = linspace(...range)
-            if (graph._fullLayout.xaxis.type == 'log') x1 = x1.map(x => 10**x)
-            y1 = x1.map(expr)
+            
+            x1 = t1 = linspace(...range)
+            expr2 = math.compile(expr_y.trim()).evaluate
+ 
+            if (expr_x != undefined){
+                // parametric plot
+                expr_x2 = math.compile(expr_x.trim()).evaluate
+                x1 = t1.map(t => expr_x2({'t':t}))
+                expr = t => expr2({'t':t})
+                y1 = t1.map(expr)
+            } else {
+                if (graph._fullLayout.xaxis.type == 'log') x1 = x1.map(x => 10**x)
+                expr = x => expr2({'x':x})
+                y1 = x1.map(expr)
+            }
         }
         catch(e) {
             info('<span style="color:#D00">expr: '+e.message+'</span>')
