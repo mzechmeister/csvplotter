@@ -47,7 +47,6 @@
 
     .coli, div[contenteditable=true]{
         display: inline-block;
-        cursor: move;
         padding: 0px 4px;
         cursor: pointer;
     }
@@ -138,7 +137,7 @@
     }
 
     body {
-        display:flex;
+        display: flex;
         flex-direction: column;
     }
     .vis {
@@ -161,11 +160,10 @@
 
 <body style="font-family: verdana; font-size: 70%; margin: 0">
 
-<div style="position: fixed; left: 20px; top: 10px;; z-index: 10000">
+<div style="position: fixed; left: 20px; top: 10px; z-index: 10000">
    <button id="fullscreen" class="vis" onclick="if (document.fullscreenElement) {(document.exitFullscreen || document.webkitExitFullscreen).call(document)}
    else {var elem = document.documentElement; (elem.requestFullscreen || elem.webkitRequestFullscreen).call(elem)}"><i class="fas fa-expand"></i><i class="fas fa-compress"></i></button>
-   <button id="expand" class="vis"
-onclick="[document.getElementsByTagName('body')[0].style.height,  graph.style.height] = this.children[0].classList.toggle('fas') ?  ['','100vh'] : ['100vh', ''];"><i class="far fa-keyboard"></i></button>
+   <button id="expand" class="vis" onclick="[document.getElementsByTagName('body')[0].style.height, graph.style.height] = this.children[0].classList.toggle('fas') ?  ['','100vh'] : ['100vh', ''];"><i class="far fa-keyboard"></i></button>
 </div>
 
 <div id="plotly-div"></div>
