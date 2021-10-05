@@ -155,6 +155,28 @@
     :fullscreen .fa-expand {display: None}
     :fullscreen .fa-compress {display: inline-block}
 
+    li {
+        display: block;
+        padding: 0 2px;
+    }
+
+    li.hover {
+        background: lightblue;
+    }
+
+    li:not(.show) {
+        display: none;
+    }
+
+    div > span {
+        padding: 0 0px;
+        background-color: #ddf;
+    }
+
+    span:not(:focus) + ul { /* the next sibiling, but ul is previous sibling*/
+       display: none;
+    }
+
     </style>
 </head>
 
@@ -221,6 +243,7 @@
 <div id="colpool">
 </div>
 
+<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="position: fixed; z-index:99; padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -380,6 +403,16 @@ function colBox(k, colname=""){
     return div
 }
 
+function colLi(k, colname=""){
+    let li = document.createElement('li');
+    let sp = document.createElement('span');
+    sp.innerHTML = colname || document.getElementById(k).innerHTML
+    sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
+    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum')%8]
+    li.append(sp)
+    return li
+}
+
 function init_box(colpool){
     // list option
     colx = document.getElementById('colx_list');
@@ -403,6 +436,7 @@ function init_box(colpool){
     for (let [k, colname] of colpool.entries()) {
         let div = colBox(k+1, colname);
         c1.appendChild(div);
+        suggest_list.append(colLi(k+1, colname))   // List entries for suggestion
     }
 
     colx.addEventListener('dragover', handleDragOver);
@@ -539,12 +573,12 @@ function draw_func(){
                    range[2] = +user_range[0]
                 }
                 else if (user_range.length > 1) {
-                    if (user_range[0]) range[0] = +user_range[0]                
-                    if (user_range[1]) range[1] = +user_range[1]                
-                    if (user_range[2]) range[2] = +user_range[2]                
+                    if (user_range[0]) range[0] = +user_range[0]
+                    if (user_range[1]) range[1] = +user_range[1]
+                    if (user_range[2]) range[2] = +user_range[2]
                 }
             }
-            
+
             x1 = t1 = linspace(...range)
             expr2 = math.compile(expr_y.trim()).evaluate
  
@@ -797,6 +831,126 @@ window.onbeforeunload = function(e){
     // prevent following github link accidentally
     if (e.srcElement.activeElement.id == 'github')
         return 'Are you sure you want to leave?'
+}
+
+
+function suggest_hover(e) {
+    if (e.key=="ArrowDown" || e.key=="ArrowUp") {
+        active = document.querySelector('.show.hover')
+        // find next proposal
+        if (active) {
+            while (active = active[(e.key=="ArrowUp"? 'previous':'next') + 'ElementSibling']) {
+                if (active.classList.contains('show')) break
+            }
+            if (!active) {  // stick to the element (first/last if not found)
+                e.preventDefault()
+                return
+            }
+        }
+        old = document.querySelector('.hover')
+        old && old.classList.remove('hover')
+        active && active.classList.add('hover')
+        e.preventDefault()
+    }
+    if (!e.key) {
+        // mouseover
+        old = document.querySelector('.hover')
+        old && old.classList.remove('hover')
+        e.target.classList.add('hover')
+    }
+    if (e.key == "Enter") {
+        suggest_hit(active)
+        e.preventDefault()
+    }
+}
+
+function suggest_hit(e) {
+    active = e.target || e
+    if (active) {
+        active = active.firstChild
+        uu.innerHTML = "$" + active.innerHTML
+        uu.setAttribute('knum', active.getAttribute('knum'))
+        uu.style.color = active.style.color
+        setEndOfContenteditable(uu.nextSibling, true)
+        uu.draggable = true
+        uu.addEventListener('dragstart', handleDragStart)
+        uu.addEventListener('dragend', remove_drag)
+    }
+    suggest_list.style.display = "none"
+    e.preventDefault && e.preventDefault()  // do not insert newline
+    return // prevent caret movement
+}
+
+function focusToParent(e) {
+    console.log('blur', e)
+    suggest_list.style.display = "none"
+    e.target.parentNode.focus()
+    return false
+}
+
+suggest_list.onmouseover = suggest_hover
+suggest_list.onmousedown = suggest_hit
+
+function filter_suggests(e) {
+    if (!["Enter", "ArrowLeft", "ArrowRight"].includes(e.key))
+        suggest_list.style.display = ""
+    for (x of suggest_list.children) {
+        if (x.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$","")))
+            x.classList.add('show')
+        else x.classList.remove('show', 'hover')
+    }
+    // propose first element
+    document.querySelector('.show.hover') ||
+        (active = document.querySelector('.show')) && active.classList.add('hover')
+}
+
+function handle_dollar(e) {
+    if (e.key == "$") {
+        // open a span
+        uu = document.createElement('span')
+        uu.tabIndex = -1
+        uu.onkeydown = suggest_hover
+        uu.onkeyup = filter_suggests
+        uu.onblur = focusToParent
+        insertNodeAtCursor(uu)
+        uu.before(suggest_div)
+    }
+    if (e.key == "Enter") {
+        try{this.onchange(e)}
+        finally {return false}   // no newline for Enter press
+    }
+}
+
+function focusToChild(e) {
+    // focus to child
+    sel = window.getSelection()
+    foc = sel.focusNode.parentElement
+    if (foc.tagName == "SPAN" && foc.parentElement==e.target) {
+        foc.focus()
+    }
+}
+
+for (item of document.querySelectorAll(".trace:first-child > div")) {
+    item.onkeydown = handle_dollar
+    item.onkeyup = focusToChild
+}
+
+function insertNodeAtCursor(node) {
+    let selection = window.getSelection()
+    let range = selection.getRangeAt(0)
+    range.deleteContents()
+    range.insertNode(node)
+    setEndOfContenteditable(uu)
+    //uu.focus()
+}
+
+function setEndOfContenteditable(contentEditableElement, atstart=false) {
+    var range = document.createRange()     // create a range (a range is a like the selection but invisible)
+    range.selectNodeContents(contentEditableElement) // select the entire contents of the element with the range
+    range.collapse(atstart)                // collapse the range to the end point. false means collapse to end rather than the start
+    var selection = window.getSelection()  // get the selection object (allows you to change selection)
+    selection.removeAllRanges()            // remove any selections already made
+    selection.addRange(range)              // make the range you have just created the visible selection
 }
 
 </script>
