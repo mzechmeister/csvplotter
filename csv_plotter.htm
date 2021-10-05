@@ -469,6 +469,7 @@ function parseCell(cell) {
 
         // replaces entities ;gt&, ;amp& etc.
         expr_raw = new DOMParser().parseFromString(expr_raw, "text/html").documentElement.textContent
+        expr_raw = expr_raw.replace(/\s/g, " ")   // replace protected spaces (caused by nbsp)
 
         // search for column names starting with $ and ending as a word, e.g. $11 vs $119
         for (k in lookup) {if (k.startsWith('$')){  u=expr_raw.match("\\"+k+"\\b", "g"); u && knums.add(u[0].replace("$", ""))}}
@@ -871,7 +872,8 @@ function suggest_hit(e) {
         uu.innerHTML = "$" + active.innerHTML
         uu.setAttribute('knum', active.getAttribute('knum'))
         uu.style.color = active.style.color
-        setEndOfContenteditable(uu.nextSibling, true)
+        uu.nextSibling && setEndOfContenteditable(uu.nextSibling, true)  ||
+            uu.parentNode.focus()
         uu.draggable = true
         uu.addEventListener('dragstart', handleDragStart)
         uu.addEventListener('dragend', remove_drag)
