@@ -39,30 +39,30 @@
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
-    .coli {
+    .colk {
         border: 1px solid #ccc;      /* grey*/
         background-color: #e8f9ff;   /* a light blue */
         text-indent: 0px;
     }
 
-    .coli, div[contenteditable=true]{
+    .colk, div[contenteditable=true]{
         display: inline-block;
         padding: 0px 4px;
         cursor: pointer;
     }
 
-    .coli::before {
+    .colk::before, #suggest_list li span::before {
         content: attr(knum);
         vertical-align: super;
         font-size: smaller;
         color: grey;
     }
 
-    .coli:active {
+    .colk:active {
         opacity: 0.4;
     }
 
-    #colpool > .coli {
+    #colpool > .colk {
         margin: 3px;
     }
 
@@ -329,7 +329,7 @@ document.getElementById("funcf").onkeyup = function(e){if(this.innerText=="\n"){
 for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.tabIndex = 0
     div.onfocus = (_ => {var t = _.target;
-                       for (a of document.getElementsByClassName("coli")) {
+                       for (a of document.getElementsByClassName("colk")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
                            a.onclick = (e => {t.innerHTML = ''; t.append("\u200B", colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
 }
@@ -378,10 +378,10 @@ schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
 function colBox(k, colname=""){
-    let div = document.createElement('div');
+    let div = document.createElement('span');
     div.innerHTML = colname || document.getElementById(k).innerHTML
     div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    div.className = "coli"
+    div.className = "colk"
     div.id = 'col' + k
     // var styleElem = document.head.appendChild(document.createElement("style"));
     // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
