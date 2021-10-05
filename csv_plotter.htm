@@ -213,28 +213,21 @@
          <label><i class="far fa-file"></i></label><div id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
          <label style="display: none">using</label><div id="using" placeholder="1:2" contenteditable onchange="using_columns()" style="width: 200px; display: none">1:2</div>
-         <label><label>x</label></label><div id="cx" list="colx_list" class="dropcell" placeholder="x" onchange="select_columns()"></div>
-         <datalist id="colx_list"></datalist>
-         <label><label>y</label></label><div id="cy" list="coly_list" class="dropcell" placeholder="y" onchange="select_columns()"></div>
-         <datalist id="coly_list"></datalist>
-         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" list="colx_list" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
-         <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" list="colx_list" class="dropcell" placeholder="err_y" onchange="select_columns()"></div>
-         <label><i class="fa fa-tag"></i></label><div id="ct" list="colt_list" class="dropcell" placeholder="label" onchange="select_columns()"></div>
-         <datalist id="colt_list"></datalist>
-         <label><i class="fa fa-bullseye"></i></label><div id="cs" list="cols_list" class="dropcell" contenteditable placeholder="size" onchange="select_columns()"></div>
-         <datalist id="cols_list"></datalist>
-         <label><i class="fas fa-shapes"></i></label><div id="pt" list="pt_list" class="dropcell" contenteditable placeholder="pt" onchange="select_columns()"></div>
-         <datalist id="pt_list"></datalist>
-         <label><i class="fa fa-tint"></i></label><div id="cc" list="colc_list" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
-         <datalist id="colc_list"></datalist>
-         <label><i class="fa fa-adjust"></i></label><div id="co" list="colo_list" class="dropcell opacity" placeholder="opac" contenteditable onchange="select_columns()">0.5</div>
-         <datalist id="colo_list"></datalist>
+         <label><label>x</label></label><div id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></div>
+         <label><label>y</label></label><div id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></div>
+         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
+         <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></div>
+         <label><i class="fa fa-tag"></i></label><div id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></div>
+         <label><i class="fa fa-bullseye"></i></label><div id="cs" class="dropcell" contenteditable placeholder="size" onchange="select_columns()"></div>
+         <label><i class="fas fa-shapes"></i></label><div id="pt" class="dropcell" contenteditable placeholder="pt" onchange="select_columns()"></div>
+         <label><i class="fa fa-tint"></i></label><div id="cc" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
+         <label><i class="fa fa-adjust"></i></label><div id="co" class="dropcell opacity" placeholder="opac" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div>
       </div>
       <div class="trace" tnum=2>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></div>
-         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" list="colc_list" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
+         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
          <label><i class="fa fa-adjust"></i></label><div id="funco" class="dropcell opacity" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div>
     </div>
@@ -414,20 +407,6 @@ function colLi(k, colname=""){
 }
 
 function init_box(colpool){
-    // list option
-    colx = document.getElementById('colx_list');
-    coly = document.getElementById('coly_list');
-    colt = document.getElementById('colt_list');
-    for (list of [colx, coly, colt]){
-        list.innerHTML = '' // remove all currents options
-        for (colname of colpool) {
-            let option = document.createElement('option');
-            option.value = colname;
-            // option.id = colname;   // for dict-like access and to check is id in present
-            list.appendChild(option);
-        }
-    }
-
     c1  = document.getElementById('colpool');
     //c1.addEventListener('mouseover', (_ => {add_drag("trace edit")}) );
     //c1.addEventListener('mouseleave', (_ => {remove_drag("trace edit")}) );
@@ -436,11 +415,8 @@ function init_box(colpool){
     for (let [k, colname] of colpool.entries()) {
         let div = colBox(k+1, colname);
         c1.appendChild(div);
-        suggest_list.append(colLi(k+1, colname))   // List entries for suggestion
+        suggest_list.append(colLi(k+1, colname))   // list entries for suggestion
     }
-
-    colx.addEventListener('dragover', handleDragOver);
-    coly.addEventListener('drop', handleDrop);
 }
 
 function parseCell(cell) {
@@ -865,6 +841,19 @@ function suggest_hover(e) {
     }
 }
 
+function filter_suggests(e) {
+    if (!["Enter", "ArrowLeft", "ArrowRight"].includes(e.key))
+        suggest_list.style.display = ""
+    for (x of suggest_list.children) {
+        if (x.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$","")))
+            x.classList.add('show')
+        else x.classList.remove('show', 'hover')
+    }
+    // propose first element
+    document.querySelector('.show.hover') ||
+        (active = document.querySelector('.show')) && active.classList.add('hover')
+}
+
 function suggest_hit(e) {
     active = e.target || e
     if (active) {
@@ -890,21 +879,17 @@ function focusToParent(e) {
     return false
 }
 
+function focusToChild(e) {
+    // focus to child
+    sel = window.getSelection()
+    foc = sel.focusNode.parentElement
+    if (foc.tagName == "SPAN" && foc.parentElement==e.target) {
+        foc.focus()
+    }
+}
+
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
-
-function filter_suggests(e) {
-    if (!["Enter", "ArrowLeft", "ArrowRight"].includes(e.key))
-        suggest_list.style.display = ""
-    for (x of suggest_list.children) {
-        if (x.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$","")))
-            x.classList.add('show')
-        else x.classList.remove('show', 'hover')
-    }
-    // propose first element
-    document.querySelector('.show.hover') ||
-        (active = document.querySelector('.show')) && active.classList.add('hover')
-}
 
 function handle_dollar(e) {
     if (e.key == "$") {
@@ -920,15 +905,6 @@ function handle_dollar(e) {
     if (e.key == "Enter") {
         try{this.onchange(e)}
         finally {return false}   // no newline for Enter press
-    }
-}
-
-function focusToChild(e) {
-    // focus to child
-    sel = window.getSelection()
-    foc = sel.focusNode.parentElement
-    if (foc.tagName == "SPAN" && foc.parentElement==e.target) {
-        foc.focus()
     }
 }
 
