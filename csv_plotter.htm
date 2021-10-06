@@ -425,7 +425,7 @@ function parseCell(cell) {
     if (cellHTML == +cellHTML){
         // scalar, e.g. "5"
         result = cellText }
-    else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML)) {
+    else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML) && data[cellText]) {
         // single column
         result = data[cellText]}
     else {
