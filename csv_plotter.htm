@@ -39,30 +39,30 @@
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
-    .colk {
+    .kbox {
         border: 1px solid #ccc;      /* grey*/
         background-color: #e8f9ff;   /* a light blue */
         text-indent: 0px;
     }
 
-    .colk, div[contenteditable=true]{
+    .kbox, div[contenteditable=true]{
         display: inline-block;
         padding: 0px 4px;
         cursor: pointer;
     }
 
-    .colk::before, #suggest_list li span::before {
+    .kbox::before, #suggest_list li span::before {
         content: attr(knum);
         vertical-align: super;
         font-size: smaller;
         color: grey;
     }
 
-    .colk:active {
+    .kbox:active {
         opacity: 0.4;
     }
 
-    #colpool > .colk {
+    #colpool > .kbox {
         margin: 3px;
     }
 
@@ -342,7 +342,7 @@ document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n")
 for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.tabIndex = 0
     div.onfocus = (_ => {var t = _.target;
-                       for (a of document.getElementsByClassName("colk")) {
+                       for (a of document.getElementsByClassName("kbox")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
                            a.onclick = (e => {t.innerHTML = ''; t.append("\u200B", colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
 }
@@ -394,7 +394,7 @@ function colBox(k, colname=""){
     let div = document.createElement('span');
     div.innerHTML = colname || document.getElementById(k).innerHTML
     div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    div.className = "colk"
+    div.className = "kbox"
     div.id = 'col' + k
     // var styleElem = document.head.appendChild(document.createElement("style"));
     // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
@@ -950,7 +950,6 @@ function mark_active(e) {
     // highlight the span with caret
     foc && foc.classList.remove('active')
     foc = sel.focusNode.parentElement
-    console.log('m', foc)
     if (document.getElementsByClassName("trace_t")[0].contains(foc))
         foc.classList.add("active")
 }
