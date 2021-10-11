@@ -168,13 +168,19 @@
         display: none;
     }
 
-    div > span {
+    .trace > div > span {
         padding: 0 0px;
         background-color: #ddf;
     }
 
     span:not(:focus) + ul { /* the next sibiling, but ul is previous sibling*/
        display: none;
+    }
+
+    .dropcell > .active {
+        outline: 5px auto Highlight;
+        outline: 5px auto -webkit-focus-ring-color;
+        outline: 1px dotted #000;
     }
 
     </style>
@@ -190,7 +196,7 @@
 
 <div id="plotly-div"></div>
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
-    <div id="info" style="flex-grow: 1"></div>
+    <div id="info" style="flex-grow: 1"><span style="color:grey">type "$" to insert columns</span></div>
     <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
     <a id="github" style="text-decoration: none; color: black; padding: 2px 8px; font-size: large" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
 </div>
@@ -318,8 +324,15 @@ for (item of document.getElementsByClassName('dropcell')) {
 }
 
 for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
-    item.onkeydown = function(e) {if (e.key == "Enter") {try{this.onchange(e)} finally {return false}};}  // no newline for Enter press
-    item.onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}}  // prevent newline when empyting with backspace or del
+    item.onkeyup = function(e) {
+        if (this.innerText=="\n") {
+            // prevent newline when empyting with backspace or del
+            this.innerText = ""
+        } else {
+            foc = sel.focusNode.parentElement
+            if (foc.tagName=='SPAN') filter_suggests(foc)
+        }
+    }
 }
 
 document.getElementById("cc").ondrop = colorDrop
@@ -811,8 +824,7 @@ window.onbeforeunload = function(e){
 }
 
 
-function suggest_hover(e) {
-    if (e.key=="ArrowDown" || e.key=="ArrowUp") {
+function suggest_hover_kdb(e) {
         active = document.querySelector('.show.hover')
         // find next proposal
         if (active) {
@@ -828,16 +840,14 @@ function suggest_hover(e) {
         old && old.classList.remove('hover')
         active && active.classList.add('hover')
         e.preventDefault()
-    }
+}
+
+function suggest_hover(e) {
     if (!e.key) {
         // mouseover
         old = document.querySelector('.hover')
         old && old.classList.remove('hover')
         e.target.classList.add('hover')
-    }
-    if (e.key == "Enter") {
-        suggest_hit(document.querySelector('.show.hover'))
-        e.preventDefault()
     }
 }
 
@@ -872,35 +882,28 @@ function suggest_hit(e) {
     return // prevent caret movement
 }
 
-function focusToParent(e) {
-    console.log('blur', e)
-    suggest_list.style.display = "none"
-    e.target.parentNode.focus()
-    return false
-}
-
-function focusToChild(e) {
-    // focus to child
-    sel = window.getSelection()
-    foc = sel.focusNode.parentElement
-    if (foc.tagName == "SPAN" && foc.parentElement==e.target) {
-        foc.focus()
-    }
-}
-
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
+suggest_div = document.getElementById("suggest_div")
 
 function handle_dollar(e) {
     if (e.key == "$") {
         // open a span
         uu = document.createElement('span')
-        uu.tabIndex = -1
-        uu.onkeydown = suggest_hover
-        uu.onkeyup = filter_suggests
-        uu.onblur = focusToParent
+        uu.classList.add("active")
         insertNodeAtCursor(uu)
+        zwsp_put(uu.parentElement)
         uu.before(suggest_div)
+        setEndOfContenteditable(document.getElementById("suggest_div").nextElementSibling)
+    }
+    if (e.key=="ArrowDown" || e.key=="ArrowUp") {
+        suggest_hover_kdb(e)
+        return true
+    }
+    if (e.key == "Enter" && suggest_list.style.display!="none" && (hit=document.querySelector('.show.hover'))) {
+        suggest_hit(hit)
+        e.preventDefault()
+        return true
     }
     if (e.key == "Enter") {
         try{this.onchange(e)}
@@ -910,7 +913,7 @@ function handle_dollar(e) {
 
 for (item of document.querySelectorAll(".trace:first-child > div")) {
     item.onkeydown = handle_dollar
-    item.onkeyup = focusToChild
+    item.onblur = () => {suggest_list.style.display = "none"}
 }
 
 function insertNodeAtCursor(node) {
@@ -929,6 +932,34 @@ function setEndOfContenteditable(contentEditableElement, atstart=false) {
     var selection = window.getSelection()  // get the selection object (allows you to change selection)
     selection.removeAllRanges()            // remove any selections already made
     selection.addRange(range)              // make the range you have just created the visible selection
+}
+
+document.onselectionchange = (e) => {
+    mark_active(e)
+}
+
+
+var sel = window.getSelection()
+var foc
+
+function mark_active(e) {
+    // highlight the span with caret
+    foc && foc.classList.remove('active')
+    foc = sel.focusNode.parentElement
+    if (document.getElementsByClassName("trace")[0].contains(foc))
+        foc.classList.add("active")
+}
+
+function zwsp_put(d){
+    // insert zero width space only where needed (span-span, etc.)
+    var zwsp = "\u200B" // "&#8203;"  "&ZeroWidthSpace;"
+    var xleft = "SPAN"
+    for (x of [...d.childNodes]) {
+        if ({SPANSPAN:1, SPANBR:1, BRSPAN:1}[xleft+x.tagName])
+            x.before(zwsp)
+        xleft = x.tagName
+    }
+    if (xleft=="SPAN" || xleft=="BR") d.lastChild.after(zwsp)
 }
 
 </script>
