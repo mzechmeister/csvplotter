@@ -391,22 +391,21 @@ schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
 function colBox(k, colname=""){
-    let div = document.createElement('span');
-    div.innerHTML = colname || document.getElementById(k).innerHTML
-    div.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    div.className = "kbox"
-    div.id = 'col' + k
+    let sp = document.createElement('span');
+    sp.innerHTML = colname || document.getElementById(k).innerHTML
+    sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
+    sp.className = "kbox"
+    sp.id = 'col' + k
     // var styleElem = document.head.appendChild(document.createElement("style"));
     // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
     // styleElem.innerHTML = "#"+div.id+":before {color: #"+schemeTableau10[div.getAttribute('knum')%10]+";}";
-    // div.style.backgroundColor = "#" + schemeSet3[div.getAttribute('knum')%12] + "44"
-    div.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
-    div.style.color = "#" + schemeDark2[div.getAttribute('knum')%8]
-    div.draggable = true
-    div.setAttribute('contenteditable', "false")
-    div.addEventListener('dragstart', handleDragStart)
-    div.addEventListener('dragend', remove_drag)
-    return div
+    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
+    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
+    sp.draggable = true
+    sp.setAttribute('contenteditable', "false")
+    sp.addEventListener('dragstart', handleDragStart)
+    sp.addEventListener('dragend', remove_drag)
+    return sp
 }
 
 function colLi(k, colname=""){
