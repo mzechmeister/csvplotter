@@ -82,7 +82,7 @@
         color: transparent;
     }
 
-    .trace {
+    .trace_t {
         border-color: #ccc;
         border-style: solid;
         border-width: 1px;
@@ -90,17 +90,17 @@
         padding: 0 0 0 4px;
     }
 
-    .trace:focus, .trace:focus-within {
+    .trace_t:focus, .trace_t:focus-within {
         border-color: #6399cb;
     }
 
-    .trace > label {
+    .trace_t > label {
         font-weight: bold;
         font-style:  italic;
         color: #ccc;
     }
 
-    .trace:focus > label, .trace:focus-within > label {
+    .trace_t:focus > label, .trace_t:focus-within > label {
         color: #6399cb;
     }
 
@@ -168,7 +168,7 @@
         display: none;
     }
 
-    .trace > div > span {
+    .trace_t > div > span {
         padding: 0 0px;
         background-color: #ddf;
     }
@@ -180,7 +180,7 @@
     .dropcell > .active {
         outline: 5px auto Highlight;
         outline: 5px auto -webkit-focus-ring-color;
-        outline: 1px dotted #000;
+        outline: 1px solid #000;
     }
 
     </style>
@@ -214,7 +214,7 @@
 
 
 <div class="traces" style="background: white; margin: 5px 0;">
-   <div class="trace" tnum=1 tabIndex=0>
+   <div class="trace_t" tnum=1 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
          <label><i class="far fa-file"></i></label><div id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
          <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
@@ -230,7 +230,7 @@
          <label><i class="fa fa-adjust"></i></label><div id="co" class="dropcell opacity" placeholder="opac" contenteditable onchange="select_columns()">0.5</div>
          <div info="dummy otherwise drop would be allow here!?"></div>
       </div>
-      <div class="trace" tnum=2>
+      <div class="trace_t" tnum=2>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
          <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" contenteditable="true" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></div>
          <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" class="dropcell color" placeholder="color" contenteditable onchange="select_columns()"></div>
@@ -265,7 +265,7 @@ function add_drag(query) {
 }
 
 function remove_drag() {
-    for(x of [...document.getElementsByClassName("dragging")])
+    for (x of [...document.getElementsByClassName("dragging")])
         {x.classList.remove('dragging')}
     return false   // do only once for mousedown, dragend
 }
@@ -307,7 +307,7 @@ for (color of Plotly.d3.scale.category10().range()) {
     div.ondragstart = colorDragStart
     div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
     div.onmousedown = (_ => {add_drag(".color"); f = document.activeElement})
-    div.onmouseup = (e => {if(f.classList.contains('color')) {
+    div.onmouseup = (e => {if (f.classList.contains('color')) {
                        colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
     divcols.append(div);
 }
@@ -337,7 +337,7 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
 
 document.getElementById("cc").ondrop = colorDrop
 document.getElementById("funcc").ondrop = colorDrop
-document.getElementById("funcf").onkeyup = function(e){if(this.innerText=="\n"){this.innerText = ""}; this.onchange()}
+document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n"){this.innerText = ""}; this.onchange()}
 
 for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.tabIndex = 0
@@ -362,7 +362,7 @@ function handleDragOver(e) {
 
 function handleDrop(e) {
     e.preventDefault();   // stops the browser from redirecting.
-    if(e.dataTransfer.files.length){
+    if (e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
         return false;
     }
@@ -421,8 +421,8 @@ function colLi(k, colname=""){
 
 function init_box(colpool){
     c1  = document.getElementById('colpool');
-    //c1.addEventListener('mouseover', (_ => {add_drag("trace edit")}) );
-    //c1.addEventListener('mouseleave', (_ => {remove_drag("trace edit")}) );
+    //c1.addEventListener('mouseover', (_ => {add_drag("trace_t edit")}) );
+    //c1.addEventListener('mouseleave', (_ => {remove_drag("trace_t edit")}) );
     c1.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
@@ -671,7 +671,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
 
     graph.on('plotly_click', function(data){
         var pts = '';
-        for(var i=0; i < data.points.length; i++){
+        for (var i=0; i < data.points.length; i++){
             pts = 'x = ' + data.points[i].x + ', y = ' +
             data.points[i].y 
             data.points[i].text === undefined || (pts += ', ' + data.points[i].text);
@@ -887,14 +887,18 @@ suggest_list.onmousedown = suggest_hit
 suggest_div = document.getElementById("suggest_div")
 
 function handle_dollar(e) {
+    // open a span
+    uu = document.createElement('span')
+    uu.classList.add("active")
+    insertNodeAtCursor(uu)
+    zwsp_put(uu.parentElement)
+    uu.before(suggest_div)
+    console.log(uu)
+}
+
+function handle_keydown(e) {
     if (e.key == "$") {
-        // open a span
-        uu = document.createElement('span')
-        uu.classList.add("active")
-        insertNodeAtCursor(uu)
-        zwsp_put(uu.parentElement)
-        uu.before(suggest_div)
-        setEndOfContenteditable(document.getElementById("suggest_div").nextElementSibling)
+       handle_dollar(e)
     }
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
         suggest_hover_kdb(e)
@@ -911,8 +915,8 @@ function handle_dollar(e) {
     }
 }
 
-for (item of document.querySelectorAll(".trace:first-child > div")) {
-    item.onkeydown = handle_dollar
+for (item of document.querySelectorAll(".trace_t:first-child > div")) {
+    item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = "none"}
 }
 
@@ -946,7 +950,8 @@ function mark_active(e) {
     // highlight the span with caret
     foc && foc.classList.remove('active')
     foc = sel.focusNode.parentElement
-    if (document.getElementsByClassName("trace")[0].contains(foc))
+    console.log('m', foc)
+    if (document.getElementsByClassName("trace_t")[0].contains(foc))
         foc.classList.add("active")
 }
 
