@@ -140,6 +140,7 @@
         display: flex;
         flex-direction: column;
     }
+
     .vis {
         opacity: 0.4;
         transition: opacity 0.2s;
@@ -158,6 +159,7 @@
     li {
         display: block;
         padding: 0 2px;
+        text-indent: initial;   // do not inherit fom div
     }
 
     li.hover {
@@ -167,12 +169,16 @@
     li:not(.show) {
         display: none;
     }
+    
+    li > span {
+        pointer-events: none;
+    }
 
-    .trace_t > div > span {
+  /*  .trace_t > div > span {
         padding: 0 0px;
         background-color: #ddf;
     }
-
+*/
     span:not(:focus) + ul { /* the next sibiling, but ul is previous sibling*/
        display: none;
     }
@@ -242,7 +248,7 @@
 <div id="colpool">
 </div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="position: fixed; z-index:99; padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="display: none; padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -390,17 +396,22 @@ schemeTableau10 = "4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab"
 schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5ffed6f".match(/.{1,6}/g)
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
-function colBox(k, colname=""){
+function ksp(k, colname="") {
     let sp = document.createElement('span');
     sp.innerHTML = colname || document.getElementById(k).innerHTML
     sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
+    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
+    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
+    return sp
+}
+
+function colBox(k, colname="") {
+    let sp = ksp(k, colname)
     sp.className = "kbox"
     sp.id = 'col' + k
     // var styleElem = document.head.appendChild(document.createElement("style"));
     // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
     // styleElem.innerHTML = "#"+div.id+":before {color: #"+schemeTableau10[div.getAttribute('knum')%10]+";}";
-    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
-    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
     sp.draggable = true
     sp.setAttribute('contenteditable', "false")
     sp.addEventListener('dragstart', handleDragStart)
@@ -410,11 +421,7 @@ function colBox(k, colname=""){
 
 function colLi(k, colname=""){
     let li = document.createElement('li');
-    let sp = document.createElement('span');
-    sp.innerHTML = colname || document.getElementById(k).innerHTML
-    sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum')%8]
-    li.append(sp)
+    li.append(ksp(k, colname))
     return li
 }
 
