@@ -868,9 +868,10 @@ function filter_suggests(e) {
             x.classList.add('show')
         else x.classList.remove('show', 'hover')
     }
-    // propose first element
-    document.querySelector('.show.hover') ||
-        (active = document.querySelector('.show')) && active.classList.add('hover')
+    // keep last proposal or propose first element
+    suggest_list.querySelector('.show.hover') ||
+        (active = suggest_list.querySelector('.show')) && active.classList.add('hover')
+    suggest_div.hidden = !suggest_list.querySelector('.show')
 }
 
 function suggest_hit(e) {
