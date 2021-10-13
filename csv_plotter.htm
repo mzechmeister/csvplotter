@@ -12,9 +12,15 @@
         box-shadow: 0 0 3px 1px #900 !important;   /* red */
     }
 
+    div[contenteditable=true] {
+        display: inline-block;
+        padding: 0px 4px;
+    }
+
     [contenteditable=true]:empty:before {
         content: attr(placeholder);
         color: #ccc;
+        cursor: text;
     }
 
     input, .dropcell {
@@ -43,9 +49,6 @@
         border: 1px solid #ccc;      /* grey*/
         background-color: #e8f9ff;   /* a light blue */
         text-indent: 0px;
-    }
-
-    .kbox, div[contenteditable=true]{
         display: inline-block;
         padding: 0px 4px;
         cursor: pointer;
