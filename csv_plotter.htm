@@ -191,6 +191,10 @@
         outline: 5px auto -webkit-focus-ring-color;
         outline: 1px solid #000;
     }
+    
+    #suggest_list {
+        display: none;
+    }
 
     </style>
 </head>
@@ -251,7 +255,7 @@
 <div id="colpool">
 </div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="display: none; padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -337,11 +341,12 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
         if (this.innerText=="\n") {
             // prevent newline when empyting with backspace or del
             this.innerText = ""
-        } else {
-            foc = sel.focusNode.parentElement
-            if (foc.tagName=='SPAN') filter_suggests(foc)
         }
-    }
+     }   
+     item.oninput = function(e) {
+         foc = sel.focusNode.parentElement
+         if (foc.tagName=='SPAN') filter_suggests(foc)
+     }
 }
 
 document.getElementById("cc").ondrop = colorDrop
@@ -861,8 +866,6 @@ function suggest_hover(e) {
 }
 
 function filter_suggests(e) {
-    if (!["Enter", "ArrowLeft", "ArrowRight"].includes(e.key))
-        suggest_list.style.display = ""
     for (x of suggest_list.children) {
         if (x.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$","")))
             x.classList.add('show')
@@ -871,7 +874,7 @@ function filter_suggests(e) {
     // keep last proposal or propose first element
     suggest_list.querySelector('.show.hover') ||
         (active = suggest_list.querySelector('.show')) && active.classList.add('hover')
-    suggest_div.hidden = !suggest_list.querySelector('.show')
+    suggest_list.style.display = suggest_list.querySelector('.show') ? 'inline-block' : ''
 }
 
 function suggest_hit(e) {
@@ -887,7 +890,7 @@ function suggest_hit(e) {
         uu.addEventListener('dragstart', handleDragStart)
         uu.addEventListener('dragend', remove_drag)
     }
-    suggest_list.style.display = "none"
+    suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
     return // prevent caret movement
 }
@@ -927,7 +930,7 @@ function handle_keydown(e) {
 
 for (item of document.querySelectorAll(".trace_t:first-child > div")) {
     item.onkeydown = handle_keydown
-    item.onblur = () => {suggest_list.style.display = "none"}
+    item.onblur = () => {suggest_list.style.display = ""}
 }
 
 function insertNodeAtCursor(node) {
