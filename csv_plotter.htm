@@ -917,7 +917,7 @@ function handle_keydown(e) {
         suggest_hover_kdb(e)
         return true
     }
-    if (e.key == "Enter" && suggest_list.style.display!="none" && (hit=document.querySelector('.show.hover'))) {
+    if (e.key == "Enter" && suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
         suggest_hit(hit)
         e.preventDefault()
         return true
