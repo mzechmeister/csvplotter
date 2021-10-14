@@ -46,8 +46,8 @@
     }
 
     .kbox {
-        border: 1px solid #ccc;      /* grey*/
-        background-color: #e8f9ff;   /* a light blue */
+        border: 1px solid #0002;      /* grey ~ #ccc */
+        background-color: #e8f9ffaa;   /* a light blue */
         text-indent: 0px;
         display: inline-block;
         padding: 0px 4px;
@@ -172,7 +172,7 @@
     li:not(.show) {
         display: none;
     }
-    
+
     li > span {
         pointer-events: none;
     }
@@ -190,8 +190,9 @@
         outline: 5px auto Highlight;
         outline: 5px auto -webkit-focus-ring-color;
         outline: 1px solid #000;
+        outline: 1px dashed #0008;  /* transparency to make cursor visible at border */
     }
-    
+
     #suggest_list {
         display: none;
     }
