@@ -437,7 +437,7 @@ function init_box(colpool){
 
         // list entries for suggestion
         let li = document.createElement('li')
-        li.append(kBox(k, colname))
+        li.append(kBox(k+1, colname))
         suggest_list.append(li)
     }
 }
@@ -858,23 +858,36 @@ function suggest_hover(e) {
 }
 
 function filter_suggests(e) {
-    for (x of suggest_list.children) {
-        if (x.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$","")))
-            x.classList.add('show')
-        else x.classList.remove('show', 'hover')
+    let n=0
+    for (let option of suggest_list.children) {
+        if (option.innerText.toLowerCase().match(uu.innerText.toLowerCase().replace("$",""))
+            || option.firstChild.getAttribute("knum").match(uu.innerText.replace("$",""))) {
+            option.classList.add('show')
+            ++n
+        }
+        else option.classList.remove('show', 'hover')
     }
     // keep last proposal or propose first element
-    suggest_list.querySelector('.show.hover') ||
+    (active = suggest_list.querySelector('.show.hover')) ||
         (active = suggest_list.querySelector('.show')) && active.classList.add('hover')
-    suggest_list.style.display = suggest_list.querySelector('.show') ? 'block' : ''
+    suggest_list.style.display = n>0 ? 'block' : ''
+    // if there is only unique match, apply immediately
+    if (n==1 && (active.firstChild.getAttribute("knum") == uu.innerText.replace("$","")
+                      || active.innerText.toLowerCase() == uu.innerText.toLowerCase().replace("$","")))
+        suggest_hit(active)
+    else {
+        uu.style.color = ""
+        uu.removeAttribute('knum')
+    }
 }
 
 function suggest_hit(e) {
     active = e.target || e
     if (active) {
         active = active.firstChild
-        uu.innerHTML = "$" + active.innerHTML
-        uu.setAttribute('knum', active.getAttribute('knum'))
+        knum = active.getAttribute('knum')
+        uu.innerHTML = "$" + (knum==uu.innerText.replace("$","")? knum : active.innerHTML)
+        uu.setAttribute('knum', knum)
         uu.style.color = active.style.color
         uu.nextSibling && setEndOfContenteditable(uu.nextSibling, true)  ||
             uu.parentNode.focus()
@@ -906,13 +919,20 @@ function handle_keydown(e) {
        handle_dollar(e)
     }
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
+        if (suggest_list.style.display == "") {   // case: re-entering span
+            // same as oninput
+            foc = sel.focusNode.parentElement
+            if (foc.tagName=='SPAN') filter_suggests(foc)
+        }
         suggest_hover_kdb(e)
         return true
     }
-    if (e.key == "Enter" && suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
-        suggest_hit(hit)
-        e.preventDefault()
-        return true
+    if (e.key == "Enter") {
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
+            suggest_hit(hit)
+            e.preventDefault()
+            return true
+        }    
     }
     if (e.key == "Enter") {
         try{this.onchange(e)}
