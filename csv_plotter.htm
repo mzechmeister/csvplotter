@@ -65,12 +65,15 @@
         opacity: 0.4;
     }
 
-    li > .kbox {
-        border: none;
-        background-color: transparent;
+    li {
         display: block;
         padding: 0 2px;
         text-indent: initial;   /* do not inherit fom div */
+    }
+
+    li > .kbox {
+        border: none;
+        background-color: transparent;
         pointer-events: none;
     }
 
@@ -255,7 +258,7 @@
 <div id="colpool">
 </div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 60.333px; background: #fffc; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -863,7 +866,7 @@ function filter_suggests(e) {
     // keep last proposal or propose first element
     suggest_list.querySelector('.show.hover') ||
         (active = suggest_list.querySelector('.show')) && active.classList.add('hover')
-    suggest_list.style.display = suggest_list.querySelector('.show') ? 'inline-block' : ''
+    suggest_list.style.display = suggest_list.querySelector('.show') ? 'block' : ''
 }
 
 function suggest_hit(e) {
