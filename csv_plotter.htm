@@ -46,15 +46,15 @@
     }
 
     .kbox {
-        border: 1px solid #0002;      /* grey ~ #ccc */
+        border: 1px solid #0002;       /* grey ~ #ccc */
         background-color: #e8f9ffaa;   /* a light blue */
         text-indent: 0px;
         display: inline-block;
         padding: 0px 4px;
-        cursor: pointer;
+        cursor: pointer;               /* draggable */
     }
 
-    .kbox::before, #suggest_list li span::before {
+    .kbox::before {
         content: attr(knum);
         vertical-align: super;
         font-size: smaller;
@@ -63,6 +63,23 @@
 
     .kbox:active {
         opacity: 0.4;
+    }
+
+    li > .kbox {
+        border: none;
+        background-color: transparent;
+        display: block;
+        padding: 0 2px;
+        text-indent: initial;   /* do not inherit fom div */
+        pointer-events: none;
+    }
+
+    li.hover {
+        background: lightblue;
+    }
+
+    li:not(.show) {
+        display: none;
     }
 
     #colpool > .kbox {
@@ -159,24 +176,6 @@
     :fullscreen .fa-expand {display: None}
     :fullscreen .fa-compress {display: inline-block}
 
-    li {
-        display: block;
-        padding: 0 2px;
-        text-indent: initial;   // do not inherit fom div
-    }
-
-    li.hover {
-        background: lightblue;
-    }
-
-    li:not(.show) {
-        display: none;
-    }
-
-    li > span {
-        pointer-events: none;
-    }
-
   /*  .trace_t > div > span {
         padding: 0 0px;
         background-color: #ddf;
@@ -256,7 +255,7 @@
 <div id="colpool">
 </div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 60.333px; background: white; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 60.333px; background: #fffc; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -405,8 +404,9 @@ schemeTableau10 = "4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab"
 schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5ffed6f".match(/.{1,6}/g)
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
-function ksp(k, colname="") {
+function kBox(k, colname="") {
     let sp = document.createElement('span');
+    sp.className = "kbox"
     sp.innerHTML = colname || document.getElementById(k).innerHTML
     sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
     //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
@@ -415,35 +415,27 @@ function ksp(k, colname="") {
 }
 
 function colBox(k, colname="") {
-    let sp = ksp(k, colname)
-    sp.className = "kbox"
+    let sp = kBox(k, colname)
     sp.id = 'col' + k
-    // var styleElem = document.head.appendChild(document.createElement("style"));
-    // styleElem.innerHTML = "#"+div.id+":before {color: hsl("+(div.getAttribute('knum')/data._colnames.length*300)+", 100%, 35%);}";
-    // styleElem.innerHTML = "#"+div.id+":before {color: #"+schemeTableau10[div.getAttribute('knum')%10]+";}";
-    sp.draggable = true
     sp.setAttribute('contenteditable', "false")
+    sp.draggable = true
     sp.addEventListener('dragstart', handleDragStart)
     sp.addEventListener('dragend', remove_drag)
     return sp
 }
 
-function colLi(k, colname=""){
-    let li = document.createElement('li');
-    li.append(ksp(k, colname))
-    return li
-}
-
 function init_box(colpool){
-    c1  = document.getElementById('colpool');
-    //c1.addEventListener('mouseover', (_ => {add_drag("trace_t edit")}) );
-    //c1.addEventListener('mouseleave', (_ => {remove_drag("trace_t edit")}) );
-    c1.innerHTML = '' // remove all currents options
+    var kpool  = document.getElementById('colpool')
+    kpool.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
-        let div = colBox(k+1, colname);
-        c1.appendChild(div);
-        suggest_list.append(colLi(k+1, colname))   // list entries for suggestion
+        let sp = colBox(k+1, colname)
+        kpool.appendChild(sp)
+
+        // list entries for suggestion
+        let li = document.createElement('li')
+        li.append(kBox(k, colname))
+        suggest_list.append(li)
     }
 }
 
