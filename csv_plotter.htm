@@ -213,6 +213,8 @@
 <div id="plotly-div"></div>
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
     <div id="info" style="flex-grow: 1"><span style="color:grey">type "$" to insert columns</span></div>
+    <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'backward', 'character')" style="width:100px"><i class="fas fa-arrow-left"></i></button>
+    <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'forward', 'character')" style="width:100px"><i class="fas fa-arrow-right"></i></button>
     <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
     <a id="github" style="text-decoration: none; color: black; padding: 2px 8px; font-size: large" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
 </div>
@@ -262,6 +264,11 @@
 
 
 <script>
+if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    // hide arrow keys
+    for (x of [...document.getElementsByClassName('mobile')])
+        x.style.setProperty('display', 'none')
+}
 
 function info(text="") {
     document.getElementById("info").innerHTML = text
@@ -893,6 +900,7 @@ function suggest_hit(e) {
         uu.style.color = active.style.color
         uu.nextSibling && setEndOfContenteditable(uu.nextSibling, true)  ||
             uu.parentNode.focus()
+        if (zwsp_mode) sel.modify('move', 'forward', 'character')    
         uu.draggable = true
         uu.addEventListener('dragstart', handleDragStart)
         uu.addEventListener('dragend', remove_drag)
@@ -954,8 +962,6 @@ function insertNodeAtCursor(node) {
     range.setStart(range.startContainer, range.startOffset - 1)
     range.deleteContents()
     range.insertNode(node)
-    //setEndOfContenteditable(uu)
-    //uu.focus()
 }
 
 function setEndOfContenteditable(contentEditableElement, atstart=false) {
@@ -982,15 +988,43 @@ function mark_active(e) {
         // hide suggest list when leaving the box 
         suggest_list.style.display = ""
 }
+ 
+function testCaret() {
+    // test the caret behaviour
+    // chrome and firefox behaves differently
+    let elem = document.createElement('div')
+    elem.contentEditable = true
+    elem.innerHTML = '<span>aaaaa</span>bbbbb'
+    document.getElementById("info").append(elem)
+    let sel = window.getSelection()
+    let range = document.createRange()
+    range.setStart(elem.childNodes[1], 1)
+    sel.addRange(range)
+    sel.modify('move', 'backward', "character")
+    return sel.focusOffset
+}
+
+var zwsp_mode = testCaret()
 
 function zwsp_put(d){
     // insert zero width space only where needed (span-span, etc.)
     var zwsp = "\u200B" // "&#8203;"  "&ZeroWidthSpace;"
     var xleft = "SPAN"
-    for (x of [...d.childNodes]) {
-        if ({SPANSPAN:1, SPANBR:1, BRSPAN:1}[xleft+x.tagName])
-            x.before(zwsp)
-        xleft = x.tagName
+    //d.innerHTML = d.innerHTML.replace(zwsp, "")  // screws up the caret position
+    if (zwsp_mode) {
+        // allow for pseudo "SPAN[text" via "SPANz[text"
+        // not handled: "text[SPAN" (needs zwsp inside span, but we have "$" here) 
+        // "append zwsp to span" (insert a zwsp between span and text)
+        for (x of [...d.childNodes]) {
+            if (!x.tagName) x.nodeValue = x.nodeValue.replace(zwsp, "")
+            if ({SPANundefined:1}[xleft+x.tagName]) x.nodeValue = zwsp + x.nodeValue
+            xleft = x.tagName
+        }
+    } else {
+        for (x of [...d.childNodes]) {
+            if ({SPANSPAN:1, SPANBR:1, BRSPAN:1}[xleft+x.tagName]) x.outerHTML = zwsp + x.outerHTML
+            xleft = x.tagName
+        }
     }
     if (xleft=="SPAN" || xleft=="BR") d.lastChild.after(zwsp)
 }
