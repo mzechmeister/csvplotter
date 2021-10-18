@@ -51,7 +51,7 @@
         text-indent: 0px;
         display: inline-block;
         padding: 0px 4px;
-        cursor: pointer;               /* draggable */
+        cursor: grab;               /* draggable */
     }
 
     .kbox::before {
@@ -340,16 +340,17 @@ for (item of document.getElementsByClassName('dropcell')) {
 }
 
 for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
+    item.oninput = function(e) {
+        foc = sel.focusNode.parentElement
+        if (foc.tagName=='SPAN') filter_suggests(foc)
+        else if (e.data == "$") handle_dollar(e)
+    }
     item.onkeyup = function(e) {
         if (this.innerText=="\n") {
             // prevent newline when empyting with backspace or del
             this.innerText = ""
         }
-     }   
-     item.oninput = function(e) {
-         foc = sel.focusNode.parentElement
-         if (foc.tagName=='SPAN') filter_suggests(foc)
-     }
+    }   
 }
 
 document.getElementById("cc").ondrop = colorDrop
@@ -907,17 +908,16 @@ suggest_div = document.getElementById("suggest_div")
 function handle_dollar(e) {
     // open a span
     uu = document.createElement('span')
+    uu.innerHTML = '$'
     uu.classList.add("active")
     insertNodeAtCursor(uu)
     zwsp_put(uu.parentElement)
     uu.before(suggest_div)
+    filter_suggests(e)
     console.log(uu)
 }
 
 function handle_keydown(e) {
-    if (e.key == "$") {
-       handle_dollar(e)
-    }
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
         if (suggest_list.style.display == "") {   // case: re-entering span
             // same as oninput
@@ -948,6 +948,8 @@ for (item of document.querySelectorAll(".trace_t:first-child > div")) {
 function insertNodeAtCursor(node) {
     let selection = window.getSelection()
     let range = selection.getRangeAt(0)
+    // delete the previous $ sign
+    range.setStart(range.startContainer, range.startOffset - 1)
     range.deleteContents()
     range.insertNode(node)
     setEndOfContenteditable(uu)
