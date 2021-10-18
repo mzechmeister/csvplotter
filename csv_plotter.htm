@@ -915,6 +915,7 @@ function handle_dollar(e) {
     zwsp_put(uu.parentElement)
     uu.before(suggest_div)
     filter_suggests(e)
+    setEndOfContenteditable(uu.firstChild)
     console.log(uu)
 }
 
@@ -953,7 +954,7 @@ function insertNodeAtCursor(node) {
     range.setStart(range.startContainer, range.startOffset - 1)
     range.deleteContents()
     range.insertNode(node)
-    setEndOfContenteditable(uu)
+    //setEndOfContenteditable(uu)
     //uu.focus()
 }
 
