@@ -212,7 +212,7 @@
 
 <div id="plotly-div"></div>
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
-    <div id="info" style="flex-grow: 1"><span style="color:grey">type "$" to insert columns</span></div>
+    <div id="info" style="flex-grow: 1"><span style="color:grey"></span></div>
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'backward', 'character')" style="width:100px"><i class="fas fa-arrow-left"></i></button>
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'forward', 'character')" style="width:100px"><i class="fas fa-arrow-right"></i></button>
     <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
@@ -342,6 +342,7 @@ for (item of document.getElementsByClassName('color')) {
 
 for (item of document.getElementsByClassName('dropcell')) {
     item.contentEditable = true
+    item.spellcheck = false
     item.ondragover = handleDragOver
     item.ondrop = handleDrop
 }
@@ -1000,6 +1001,7 @@ function testCaret() {
 }
 
 var zwsp_mode = testCaret()
+info('type "$" to insert columns')
 
 function zwsp_put(d){
     // insert zero width space only where needed (span-span, etc.)
