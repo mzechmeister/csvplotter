@@ -917,9 +917,11 @@ suggest_div = document.getElementById("suggest_div")
 function handle_dollar(e) {
     // open a span
     uu = document.createElement('span')
-    uu.innerHTML = '$'
     uu.classList.add("active")
-    insertNodeAtCursor(uu)
+    // surround the $ sign
+    let range = window.getSelection().getRangeAt(0)
+    range.setStart(range.startContainer, range.startOffset-1)
+    range.surroundContents(uu)
     zwsp_put(uu.parentElement)
     uu.before(suggest_div)
     filter_suggests(e)
@@ -953,15 +955,6 @@ function handle_keydown(e) {
 for (item of document.querySelectorAll(".trace_t:first-child > div")) {
     item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = ""}
-}
-
-function insertNodeAtCursor(node) {
-    let selection = window.getSelection()
-    let range = selection.getRangeAt(0)
-    // delete the previous $ sign
-    range.setStart(range.startContainer, range.startOffset - 1)
-    range.deleteContents()
-    range.insertNode(node)
 }
 
 function setEndOfContenteditable(contentEditableElement, atstart=false) {
