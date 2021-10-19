@@ -865,7 +865,8 @@ function suggest_hover(e) {
     e.target.classList.add('hover')
 }
 
-function filter_suggests(e) {
+function filter_suggests(uu) {
+    uu.before(suggest_div)
     let n = 0
     let query = uu.innerText.toLowerCase().replace("$","")
     for (let option of suggest_list.children) {
@@ -891,6 +892,7 @@ function filter_suggests(e) {
 }
 
 function suggest_hit(e) {
+    uu = document.querySelector(".trace_t .active")
     active = e.target || e
     if (active) {
         active = active.firstChild
@@ -923,8 +925,7 @@ function handle_dollar(e) {
     range.setStart(range.startContainer, range.startOffset-1)
     range.surroundContents(uu)
     zwsp_put(uu.parentElement)
-    uu.before(suggest_div)
-    filter_suggests(e)
+    filter_suggests(uu)
     setEndOfContenteditable(uu.firstChild)
     console.log(uu)
 }
