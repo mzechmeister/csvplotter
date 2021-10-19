@@ -925,6 +925,7 @@ function handle_dollar(e) {
     range.setStart(range.startContainer, range.startOffset-1)
     range.surroundContents(foc)
     zwsp_put(foc.parentElement)
+    foc.focus()   // @android
     filter_suggests(foc)
     setEndOfContenteditable(foc.firstChild)
     console.log(foc)
