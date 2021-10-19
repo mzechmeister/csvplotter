@@ -844,18 +844,18 @@ window.onbeforeunload = function(e){
 
 function suggest_hover_kdb(e) {
     e.preventDefault()
-    active = document.querySelector('.show.hover')
+    hover = document.querySelector('.show.hover')
     // find next proposal
-    if (active) {
-        while (active = active[(e.key=="ArrowUp"? 'previous':'next') + 'ElementSibling']) {
-            if (active.classList.contains('show')) break
+    if (hover) {
+        while (hover = hover[(e.key=="ArrowUp"? 'previous':'next') + 'ElementSibling']) {
+            if (hover.classList.contains('show')) break
         }
-        if (!active)  // stick to the element (first/last if not found)
+        if (!hover)  // stick to the element (first/last if not found)
             return
     }
     old = document.querySelector('.hover')
     old && old.classList.remove('hover')
-    active && active.classList.add('hover')
+    hover && hover.classList.add('hover')
 }
 
 function suggest_hover(e) {
@@ -865,10 +865,10 @@ function suggest_hover(e) {
     e.target.classList.add('hover')
 }
 
-function filter_suggests(uu) {
-    uu.before(suggest_div)
+function filter_suggests(foc) {
+    foc.before(suggest_div)
     let n = 0
-    let query = uu.innerText.toLowerCase().replace("$","")
+    let query = foc.innerText.toLowerCase().replace("$","")
     for (let option of suggest_list.children) {
         if (option.innerText.toLowerCase().match(query)
             || option.firstChild.getAttribute("knum").match(query)) {
@@ -878,34 +878,34 @@ function filter_suggests(uu) {
         else option.classList.remove('show', 'hover')
     }
     // keep last proposal or propose first element
-    (active = suggest_list.querySelector('.show.hover')) ||
-        (active = suggest_list.querySelector('.show')) && active.classList.add('hover')
+    (hover = suggest_list.querySelector('.show.hover')) ||
+        (hover = suggest_list.querySelector('.show')) && hover.classList.add('hover')
     suggest_list.style.display = n>0 ? 'block' : ''
     // if there is only unique match, apply immediately
-    if (n==1 && (active.firstChild.getAttribute("knum") == query
-                      || active.innerText.toLowerCase() == query))
-        suggest_hit(active)
+    if (n==1 && (hover.firstChild.getAttribute("knum") == query
+                      || hover.innerText.toLowerCase() == query))
+        suggest_hit(hover)
     else {
-        uu.style.color = ""
-        uu.removeAttribute('knum')
+        foc.style.color = ""
+        foc.removeAttribute('knum')
     }
 }
 
 function suggest_hit(e) {
-    uu = document.querySelector(".trace_t .active")
-    active = e.target || e
-    if (active) {
-        active = active.firstChild
-        knum = active.getAttribute('knum')
-        uu.innerHTML = "$" + (knum==uu.innerText.replace("$","")? knum : active.innerHTML)
-        uu.setAttribute('knum', knum)
-        uu.style.color = active.style.color
-        uu.nextSibling && setEndOfContenteditable(uu.nextSibling, true)  ||
-            uu.parentNode.focus()
+    foc = document.querySelector(".trace_t .active")
+    hover = e.target || e
+    if (hover) {
+        hover = hover.firstChild
+        knum = hover.getAttribute('knum')
+        foc.innerHTML = "$" + (knum==foc.innerText.replace("$","")? knum : hover.innerHTML)
+        foc.setAttribute('knum', knum)
+        foc.style.color = hover.style.color
+        foc.nextSibling && setEndOfContenteditable(foc.nextSibling, true)  ||
+            foc.parentNode.focus()
         if (zwsp_mode) sel.modify('move', 'forward', 'character')    
-        uu.draggable = true
-        uu.addEventListener('dragstart', handleDragStart)
-        uu.addEventListener('dragend', remove_drag)
+        foc.draggable = true
+        foc.addEventListener('dragstart', handleDragStart)
+        foc.addEventListener('dragend', remove_drag)
     }
     suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
@@ -918,16 +918,16 @@ suggest_div = document.getElementById("suggest_div")
 
 function handle_dollar(e) {
     // open a span
-    uu = document.createElement('span')
-    uu.classList.add("active")
+    foc = document.createElement('span')
+    foc.classList.add("active")
     // surround the $ sign
     let range = window.getSelection().getRangeAt(0)
     range.setStart(range.startContainer, range.startOffset-1)
-    range.surroundContents(uu)
-    zwsp_put(uu.parentElement)
-    filter_suggests(uu)
-    setEndOfContenteditable(uu.firstChild)
-    console.log(uu)
+    range.surroundContents(foc)
+    zwsp_put(foc.parentElement)
+    filter_suggests(foc)
+    setEndOfContenteditable(foc.firstChild)
+    console.log(foc)
 }
 
 function handle_keydown(e) {
