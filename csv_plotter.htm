@@ -350,8 +350,9 @@ for (item of document.getElementsByClassName('dropcell')) {
 for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
     item.oninput = function(e) {
         foc = sel.focusNode.parentElement
-        if (foc.tagName=='SPAN') filter_suggests(foc)
-        else if (e.data == "$") handle_dollar(e)
+        //if (foc.tagName=='SPAN') filter_suggests(foc)
+        //else if (e.data == "$") handle_dollar(e)
+        parseNode(this)
     }
     item.onkeyup = function(e) {
         if (this.innerText=="\n") {
@@ -422,6 +423,15 @@ function kBox(k, colname="") {
     sp.innerHTML = colname || document.getElementById(k).innerHTML
     sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
     //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
+    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
+    return sp
+}
+
+function kBoxx(colname) {
+    let sp = document.createElement('span');
+    sp.className = "kbox"
+    sp.innerHTML = colname
+    sp.setAttribute('knum', lookup[colname])
     sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
     return sp
 }
@@ -725,17 +735,45 @@ observer.observe(document.getElementById('plotly-div'), {attributes: true})
 url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
 
+
+function textlength(elem) {
+    return elem.length ? elem.length : elem.innerHTML.length
+}
+
 function parseNode(node) {
-    keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))]
-    toparse = node.innerText.split("$")
-    html = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
+    keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
+    let sel = window.getSelection()
+    let foc = sel.focusNode
+    let acurpos = node.contains(foc) ? sel.focusOffset : 0   // defaults to end
+    
+    // find caret position in flat text 
+    for (x of node.childNodes) {
+         if (x==foc || x==foc.parentNode) break
+         acurpos += textlength(x)
+    }
+  
+    let toparse = node.innerText.split("$")
+    let html = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
     for (x of toparse) {
         hit = keys.find(k => x.startsWith(k))
-        id = lookup["$"+hit]
-        html += hit? kBox("col"+id).outerHTML : "$"+x
-        html += x.split(hit)[1]
+        html += hit ? kBoxx("$"+hit).outerHTML : "$"+x
+        if (hit) html += x.split(hit)[1]
+        node.innerHTML = html
     }
-    return html
+
+    // find node and relative offset in rendered element
+    let a = 0
+    for (x of node.childNodes) {
+        let da = textlength(x)
+        if (a+da >= acurpos) break
+        else a += da
+    }
+
+    let range = document.createRange()
+    range.setStart(x.firstChild?x.firstChild:x, acurpos-a)
+    range.collapse()
+    sel.removeAllRanges()
+    sel.addRange(range)
 }
 
 function init(){
@@ -760,7 +798,7 @@ function init(){
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerHTML = url_kwargs[arg]
-        t.innerHTML = parseNode(t)
+        parseNode(t)
     }
 
     select_columns()   // plots data
@@ -980,7 +1018,7 @@ function setEndOfContenteditable(contentEditableElement, atstart=false) {
 var sel = window.getSelection()
 var foc
 
-document.onselectionchange = mark_active
+//document.onselectionchange = mark_active
 
 function mark_active(e) {
     // highlight the span with caret
