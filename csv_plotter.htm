@@ -351,7 +351,6 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
     item.oninput = function(e) {
         foc = sel.focusNode.parentElement
         //if (foc.tagName=='SPAN') filter_suggests(foc)
-        //else if (e.data == "$") handle_dollar(e)
         parseNode(this)
     }
     item.onkeyup = function(e) {
@@ -949,7 +948,6 @@ function suggest_hit(e) {
         foc.style.color = hover.style.color
         foc.nextSibling && setEndOfContenteditable(foc.nextSibling, true)  ||
             foc.parentNode.focus()
-        if (zwsp_mode) sel.modify('move', 'forward', 'character')    
         foc.draggable = true
         foc.addEventListener('dragstart', handleDragStart)
         foc.addEventListener('dragend', remove_drag)
@@ -962,21 +960,6 @@ function suggest_hit(e) {
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 suggest_div = document.getElementById("suggest_div")
-
-function handle_dollar(e) {
-    // open a span
-    foc = document.createElement('span')
-    foc.classList.add("active")
-    // surround the $ sign
-    let range = window.getSelection().getRangeAt(0)
-    range.setStart(range.startContainer, range.startOffset-1)
-    range.surroundContents(foc)
-    zwsp_put(foc.parentElement)
-    foc.focus()   // @android
-    filter_suggests(foc)
-    setEndOfContenteditable(foc.firstChild)
-    console.log(foc)
-}
 
 function handle_keydown(e) {
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
@@ -1031,47 +1014,6 @@ function mark_active(e) {
         suggest_list.style.display = ""
 }
  
-function testCaret() {
-    // test the caret behaviour
-    // chrome and firefox behaves differently
-    let elem = document.createElement('div')
-    elem.contentEditable = true
-    elem.innerHTML = '<span>aaaaa</span>bbbbb'
-    document.getElementById("info").append(elem)
-    let sel = window.getSelection()
-    let range = document.createRange()
-    range.setStart(elem.childNodes[1], 1)
-    sel.addRange(range)
-    sel.modify('move', 'backward', "character")
-    return sel.focusOffset
-}
-
-var zwsp_mode = testCaret()
-info('type "$" to insert columns')
-
-function zwsp_put(d){
-    // insert zero width space only where needed (span-span, etc.)
-    var zwsp = "\u200B" // "&#8203;"  "&ZeroWidthSpace;"
-    var xleft = "SPAN"
-    //d.innerHTML = d.innerHTML.replace(zwsp, "")  // screws up the caret position
-    if (zwsp_mode) {
-        // allow for pseudo "SPAN[text" via "SPANz[text"
-        // not handled: "text[SPAN" (needs zwsp inside span, but we have "$" here) 
-        // "append zwsp to span" (insert a zwsp between span and text)
-        for (x of [...d.childNodes]) {
-            if (!x.tagName) x.nodeValue = x.nodeValue.replace(zwsp, "")
-            if ({SPANundefined:1}[xleft+x.tagName]) x.nodeValue = zwsp + x.nodeValue
-            xleft = x.tagName
-        }
-    } else {
-        for (x of [...d.childNodes]) {
-            if ({SPANSPAN:1, SPANBR:1, BRSPAN:1}[xleft+x.tagName]) x.outerHTML = zwsp + x.outerHTML
-            xleft = x.tagName
-        }
-    }
-    if (xleft=="SPAN" || xleft=="BR") d.lastChild.after(zwsp)
-}
-
 </script>
 
 <style>
