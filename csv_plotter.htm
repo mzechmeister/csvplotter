@@ -725,6 +725,18 @@ observer.observe(document.getElementById('plotly-div'), {attributes: true})
 url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
 
+function parseNode(node) {
+    keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))]
+    toparse = node.innerText.split("$")
+    html = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
+    for (x of toparse) {
+        hit = keys.find(k => x.startsWith(k))
+        id = lookup["$"+hit]
+        html += hit? kBox("col"+id).outerHTML : "$"+x
+        html += x.split(hit)[1]
+    }
+    return html
+}
 
 function init(){
     // after reading data:
@@ -747,12 +759,8 @@ function init(){
 
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
-        t.innerText = ''
-        val = url_kwargs[arg]
-        id = lookup[val]
-        if (id) t.append("\u200B", colBox("col"+id), document.createElement('br'))   // for editing firefox needs something before the Box; br is nice in first place, but wraps when more comes into the cell
-        else if (arg=='colc' || arg=='funcc') colorUpdate(t, val)
-        else t.append(val)
+        t.innerHTML = url_kwargs[arg]
+        t.innerHTML = parseNode(t)
     }
 
     select_columns()   // plots data
