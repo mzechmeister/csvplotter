@@ -370,20 +370,29 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("kbox")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = ''; t.append("\u200B", colBox(e.target.id), document.createElement('br')); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = "$"+e.target.innerText; t.oninput(); t.onchange(); t.focus()})}})
 }
 
 
 function handleDragStart(e) {
     add_drag("[tnum='1']")
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.id);
+    e.dataTransfer.setData('text/html', this.innerText);
+    dragsrc = this
 }
 
 function handleDragOver(e) {
     e.preventDefault();   // needed otherwise drop is not called
     e.dataTransfer.dropEffect = 'move';
     return false;
+}
+
+function swap(a, b) {
+    let dummy = document.createElement("span")
+    a.before(dummy)
+    b.before(a)
+    dummy.before(b)
+    dummy.remove()
 }
 
 function handleDrop(e) {
@@ -393,17 +402,12 @@ function handleDrop(e) {
         return false;
     }
 
-    id = e.dataTransfer.getData('text/html')
-    src = document.getElementById(id)
-    if (id.startsWith('colcol')) {
-        // swap
-        srcloc = src.parentNode
-        this.prepend(src)
-        this.children[1] && srcloc.prepend(this.children[1])  // case: empty dragging target
-    }
+    if (e.target.className.match("kbox"))
+        swap(dragsrc, e.target)
     else {
-        clone = colBox(id)
-        this.append("\u200B", clone, document.createElement('br'))
+        id = e.dataTransfer.getData('text/html')
+        this.append(id)
+        this.oninput()
     }
 
     this.onchange()
@@ -416,29 +420,22 @@ schemeTableau10 = "4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab"
 schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5ffed6f".match(/.{1,6}/g)
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
-function kBox(k, colname="") {
+function kBoxx(k, colname="") {
     let sp = document.createElement('span');
     sp.className = "kbox"
     sp.innerHTML = colname || document.getElementById(k).innerHTML
     sp.setAttribute('knum', colname ? k : document.getElementById(k).getAttribute('knum'))
-    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
     sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
     return sp
 }
 
-function kBoxx(colname) {
+function kBox(colname) {
     let sp = document.createElement('span');
     sp.className = "kbox"
     sp.innerHTML = colname
     sp.setAttribute('knum', lookup[colname])
+    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
     sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
-    return sp
-}
-
-function colBox(k, colname="") {
-    let sp = kBox(k, colname)
-    sp.id = 'col' + k
-    sp.setAttribute('contenteditable', "false")
     sp.draggable = true
     sp.addEventListener('dragstart', handleDragStart)
     sp.addEventListener('dragend', remove_drag)
@@ -450,12 +447,14 @@ function init_box(colpool){
     kpool.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
-        let sp = colBox(k+1, colname)
+        let sp = kBox(colname)
+        sp.setAttribute('contenteditable', "false")
+        sp.id = 'col' + (k+1)
         kpool.appendChild(sp)
 
         // list entries for suggestion
         let li = document.createElement('li')
-        li.append(kBox(k+1, colname))
+        li.append(kBoxx(k+1, colname))
         suggest_list.append(li)
     }
 }
@@ -742,7 +741,7 @@ function textlength(elem) {
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
     let sel = window.getSelection()
-    let foc = sel.focusNode
+    let foc = sel.focusNode ? sel.focusNode : node.parentNode
     let acurpos = node.contains(foc) ? sel.focusOffset : 0   // defaults to end
     
     // find caret position in flat text 
@@ -752,12 +751,13 @@ function parseNode(node) {
     }
   
     let toparse = node.innerText.split("$")
-    let html = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
+    node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
+    
     for (x of toparse) {
         hit = keys.find(k => x.startsWith(k))
-        html += hit ? kBoxx("$"+hit).outerHTML : "$"+x
-        if (hit) html += x.split(hit)[1]
-        node.innerHTML = html
+        node.append(hit ? kBox("$"+hit) : "$"+x)
+        if (hit && (x.split(hit)[1]!=""))   // do not append empty strings
+            node.append(x.split(hit)[1])
     }
 
     // find node and relative offset in rendered element
@@ -779,12 +779,14 @@ function init(){
     // after reading data:
     colpool = arguments[0]._colnames
 
-    init_box(colpool)
     // render column names in plot fields
     lookup = {"$0": 0}
     // lookup has both column names and column number
     // e.g. $4, "$colname" "colname" => 4
     for ([i,k] of colpool.entries()) {lookup["$"+(i+1)] = lookup["$"+k] = lookup[k] = i+1}
+
+    init_box(colpool)
+
     var fs = url_kwargs.expand
     delete url_kwargs.expand
     xtitle = url_kwargs.xtitle || ""
