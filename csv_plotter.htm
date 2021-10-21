@@ -275,7 +275,7 @@ function info(text="") {
 }
 
 function dragicon(ev) {
-    event.dataTransfer.setData("text", "asdf"+ev.target.innerText);
+    event.dataTransfer.setData("text", "asdf"+ev.target.innerText)
 }
 
 for (item of document.getElementsByClassName('fa')) {
@@ -296,8 +296,8 @@ function remove_drag() {
 function colorDragStart(e) {
     add_drag(".color")
 
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.style["background-color"]);
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', this.style["background-color"])
 }
 
 function colorUpdate(f, rgb) {
@@ -313,26 +313,26 @@ function colorRestyle(f, rgb) {
 }
 
 function colorDrop(e) {
-    e.stopPropagation(); // stops the browser from redirecting.
-    var rgb = e.dataTransfer.getData('text/html');
+    e.stopPropagation()   // stops the browser from redirecting.
+    var rgb = e.dataTransfer.getData('text/html')
     colorRestyle(this, rgb)
     return false
 }
 
 // the color boxes
-divcols = document.getElementById('colornames');
+divcols = document.getElementById('colornames')
 divcols.onmouseover = (_ => add_drag(".color"))
 
 for (color of Plotly.d3.scale.category10().range()) {
-    let div = document.createElement('div');
-    div.style['background-color'] = color;
-    div.draggable = true;
+    let div = document.createElement('div')
+    div.style['background-color'] = color
+    div.draggable = true
     div.ondragstart = colorDragStart
     div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
     div.onmousedown = (_ => {add_drag(".color"); f = document.activeElement})
     div.onmouseup = (e => {if (f.classList.contains('color')) {
                        colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
-    divcols.append(div);
+    divcols.append(div)
 }
 
 for (item of document.getElementsByClassName('color')) {
@@ -376,15 +376,15 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
 
 function handleDragStart(e) {
     add_drag("[tnum='1']")
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.innerText);
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/html', this.innerText)
     dragsrc = this
 }
 
 function handleDragOver(e) {
-    e.preventDefault();   // needed otherwise drop is not called
-    e.dataTransfer.dropEffect = 'move';
-    return false;
+    e.preventDefault()   // needed otherwise drop is not called
+    e.dataTransfer.dropEffect = 'move'
+    return false
 }
 
 function swap(a, b) {
@@ -396,10 +396,10 @@ function swap(a, b) {
 }
 
 function handleDrop(e) {
-    e.preventDefault();   // stops the browser from redirecting.
+    e.preventDefault()   // stops the browser from redirecting.
     if (e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
-        return false;
+        return false
     }
 
     if (e.target.className.match("kbox"))
@@ -421,7 +421,7 @@ schemeSet3 = "8dd3c7ffffb3bebadafb807280b1d3fdb462b3de69fccde5d9d9d9bc80bdccebc5
 schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g)
 
 function kBox(colname, responsive=true) {
-    let sp = document.createElement('span');
+    let sp = document.createElement('span')
     sp.className = "kbox"
     sp.innerHTML = colname
     sp.setAttribute('knum', lookup[colname])
@@ -485,13 +485,13 @@ function parseCell(cell) {
 
         // console.log(cell.id, expr_raw, knums)
         try {
-            expr2 = math.compile(expr_raw).evaluate;
+            expr2 = math.compile(expr_raw).evaluate
             vector = data[0].map((d,i) => {
-                argi = {};
+                argi = {}
                 for (k of knums) {
-                    d = data[k][i];
+                    d = data[k][i]
                     argi["$"+k] = d=="undefined" || d===""? NaN : d  // NaNs for Mathjs
-                };
+                }
                 return expr2(argi)
             })
         }
@@ -531,7 +531,7 @@ function select_columns(){
 
     //document.getElementById("using").innerText = x + ":" + y + ":" + ct + ":" + ds
     plot_data(data, args)
-    return true;
+    return true
 }
 
 var fmtaxis = {
@@ -540,31 +540,31 @@ var fmtaxis = {
 }
 
 function linspace(start, stop, num, endpoint=true) {
-    const div = endpoint ? (num - 1) : num;
-    const step = (stop - start) / div;
-    return Array.from({length: num}, (_, i) => start + step * i);
+    const div = endpoint ? (num - 1) : num
+    const step = (stop - start) / div
+    return Array.from({length: num}, (_, i) => start + step * i)
 }
 
 function empty_func(){
     // a placeholder (function with no data)
-    var graph = document.getElementsByClassName("js-plotly-plot")[0];
+    var graph = document.getElementsByClassName("js-plotly-plot")[0]
     expr1 = document.getElementById("funcf").innerText
     if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
 }
 
 function draw_func(){
-    var graph = document.getElementsByClassName("js-plotly-plot")[0];
+    var graph = document.getElementsByClassName("js-plotly-plot")[0]
     expr1 = document.getElementById("funcf").innerText
     funcc = document.getElementById("funcc").innerText
     funco = document.getElementById("funco").innerText
     if (expr1 != "") {
         try {
-            /* expr = new Function("x", "return "+expr1); */
+            /* expr = new Function("x", "return "+expr1) */
             // mathjs
             range = [...graph._fullLayout.xaxis.range, 2000]
 
             // split range
-            user_range = expr1.match(/^\s*?\[(.*)\]/);
+            user_range = expr1.match(/^\s*?\[(.*)\]/)
             if (user_range) {
                 expr1 = expr1.replace(user_range[0], "")
                 user_range = user_range[1].split(":").map(s => s.trim())
@@ -605,7 +605,7 @@ function draw_func(){
         catch(e) {
             info('<span style="color:#D00">expr: '+e.message+'</span>')
             document.getElementById("funcf").classList.add("invalid")
-            return false;
+            return false
         }
         funcf.classList.contains("invalid") && info()
         funcf.classList.remove("invalid")
@@ -636,7 +636,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
             color: cc ? cc : '#404040',
             line: { width: 1,
                 color: '#404040'}}
-    };
+    }
     if (dt) trace1.text = dt   //.map(ti => ""+ct+": "+ti)
     if (ds) trace1.marker.size = ds
     if (de_x) trace1.error_x = {array: de_x, color: cc ? cc : '#404040', opacity: Do, width: 1}
@@ -644,13 +644,13 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
     cx = document.getElementById("cx").innerText
     cy = document.getElementById("cy").innerText
 
-    traces = [trace1];
+    traces = [trace1]
 
     trace2 = {
         type: "line",
         x: [],
         y: [],
-    };
+    }
 
     traces.push(trace2)
 
@@ -670,7 +670,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
             ...fmtaxis
         },
         margin: {l: 50, r: 10, b: 40, t: 30}
-    };
+    }
     // Plotly.plot('plotly-div', {
     Plotly.newPlot('plotly-div', {
         data: traces,
@@ -679,28 +679,28 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
             scrollZoom: true,
             displaylogo: false,
             modeBarButtonsToRemove: ['select2d', 'lasso2d']}
-    });
+    })
 
     draw_func()
     zoompan()
 
 
-    graph = document.getElementsByClassName("js-plotly-plot")[0];
+    graph = document.getElementsByClassName("js-plotly-plot")[0]
 
     graph.on('plotly_click', function(data){
-        var pts = '';
+        var pts = ''
         for (var i=0; i < data.points.length; i++){
             pts = 'x = ' + data.points[i].x + ', y = ' +
             data.points[i].y 
-            data.points[i].text === undefined || (pts += ', ' + data.points[i].text);
+            data.points[i].text === undefined || (pts += ', ' + data.points[i].text)
         }
-        info('Closest point clicked: ' + pts);
-    });
+        info('Closest point clicked: ' + pts)
+    })
 
     graph.on('plotly_relayout', function(event){
         // recompute the function for new ranges after zoom (resize?)
         draw_func()
-    });
+    })
 
 }
 
@@ -713,9 +713,9 @@ let observer = new MutationObserver(function(mutations) {
     gwidth = graph.style.width
     gheight = graph.style.height
     if (resized) {
-        window.dispatchEvent(new Event('resize'));
+        window.dispatchEvent(new Event('resize'))
     }
-});
+})
 
 observer.observe(document.getElementById('plotly-div'), {attributes: true})
 
@@ -819,7 +819,7 @@ document.getElementById("share").onclick = function(){
 function edittext(svgtext){
     // to edit xtitle etc.
     svgtext = svgtext.target
-    var input = document.createElement("input");
+    var input = document.createElement("input")
     input.value = svgtext.textContent
     input.svg = svgtext
     graph.onmouseover = null   // remove temporarily the focus stealing from zoompan.js
@@ -827,17 +827,17 @@ function edittext(svgtext){
     // input.onkeyup = function(e){
     input.addEventListener('keyup', function(e){
         //e.stopPropagation()
-        if (["Enter", "Escape"].includes(e.key)) {this.blur();}
-        else {svgtext.textContent = this.value};
+        if (["Enter", "Escape"].includes(e.key)) {this.blur()}
+        else {svgtext.textContent = this.value}
         return false
     }, true)
 
     input.onkeydown = function (e) {
         // keyup+enter is not called?! thus keydown
         if (["Enter"].includes(e.key)) {
-            (this.svg.getAttribute('class') == "xtitle") && (xtitle = this.value);
-            (this.svg.getAttribute('class') == "ytitle") && (ytitle = this.value);
-            (this.svg.getAttribute('class') == "title") && (title = this.value);
+            (this.svg.getAttribute('class') == "xtitle") && (xtitle = this.value)
+            (this.svg.getAttribute('class') == "ytitle") && (ytitle = this.value)
+            (this.svg.getAttribute('class') == "title") && (title = this.value)
         }
     }
 
@@ -850,7 +850,7 @@ function edittext(svgtext){
     input.onchange = function (e) {
         // update the titles in plotly
         var val = e.target.parentNode.parentNode.classList.value
-        var a = {"g-xtitle" : 'xaxis.', "g-ytitle" : 'yaxis.', "g-gtitle":''};
+        var a = {"g-xtitle" : 'xaxis.', "g-ytitle" : 'yaxis.', "g-gtitle":''}
         if (val=="g-xtitle") xtitle && (xtitle=e.target.value)
         if (val=="g-ytitle") ytitle && (ytitle=e.target.value)
         if (val=="g-gtitle")  title && (title=e.target.value)
@@ -861,14 +861,14 @@ function edittext(svgtext){
     }
 
     var myforeign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject')
-    myforeign.setAttribute("width", "100%");
-    myforeign.setAttribute("height", "100%");
-    myforeign.setAttribute("x", svgtext.attributes['x'].nodeValue);
-    myforeign.setAttribute("y", math.max(svgtext.attributes['y'].nodeValue-35, 10));
-    myforeign.append(input);
+    myforeign.setAttribute("width", "100%")
+    myforeign.setAttribute("height", "100%")
+    myforeign.setAttribute("x", svgtext.attributes['x'].nodeValue)
+    myforeign.setAttribute("y", math.max(svgtext.attributes['y'].nodeValue-35, 10))
+    myforeign.append(input)
 
     svg = svgtext.parentNode
-    svg.append(myforeign);
+    svg.append(myforeign)
     console.log(svg.children, svgtext.textContent)
 
     input.focus()
