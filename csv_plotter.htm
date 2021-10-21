@@ -51,7 +51,6 @@
         text-indent: 0px;
         display: inline-block;
         padding: 0px 4px;
-        cursor: grab;               /* draggable */
     }
 
     .kbox::before {
@@ -59,6 +58,10 @@
         vertical-align: super;
         font-size: smaller;
         color: grey;
+    }
+
+    #kpool > .kbox, .dropcell > .kbox::before {
+        cursor: grab;               /* draggable */
     }
 
     .kbox:active {
@@ -85,7 +88,7 @@
         display: none;
     }
 
-    #colpool > .kbox {
+    #kpool > .kbox {
         margin: 3px;
     }
 
@@ -257,7 +260,7 @@
     </div>
 </div>
 
-<div id="colpool">
+<div id="kpool">
 </div>
 
 <span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
@@ -435,7 +438,7 @@ function kBox(colname, responsive=true) {
 }
 
 function init_box(colpool){
-    var kpool  = document.getElementById('colpool')
+    var kpool  = document.getElementById('kpool')
     kpool.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
