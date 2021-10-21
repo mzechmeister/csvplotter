@@ -391,8 +391,7 @@ function swap(a, b) {
     let dummy = document.createElement("span")
     a.before(dummy)
     b.before(a)
-    dummy.before(b)
-    dummy.remove()
+    dummy.replaceWith(b)
 }
 
 function handleDrop(e) {
