@@ -450,8 +450,8 @@ function init_box(colpool){
 }
 
 function parseCell(cell) {
-    cellHTML = cell.innerHTML.replace(/\u200B/g, "")
-    cellText = cell.innerText.replace(/\u200B/g, "")
+    cellHTML = cell.innerHTML
+    cellText = cell.innerText
     if (cellHTML == +cellHTML){
         // scalar, e.g. "5"
         result = cellText }
@@ -807,7 +807,7 @@ document.getElementById("share").onclick = function(){
          +  (ytitle && "ytitle="+ytitle+"&")
          +  (title  && "title="+title+"&")
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
-    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B').replace(/\u200B/g, "")
+    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
     link.append(_url)
