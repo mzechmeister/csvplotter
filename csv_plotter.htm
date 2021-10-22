@@ -92,6 +92,10 @@
         margin: 3px;
     }
 
+    #kpool > .kbox > span, li > .kbox > span {
+        font-size: 0;   /* hide the dollar */
+    }
+
     div.dropcell.color {
         width: 25px;
         flex-grow: 0;
@@ -373,7 +377,7 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("kbox")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = "$"+e.target.innerText; t.oninput(); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {t.innerHTML = e.target.innerText; t.oninput(); t.onchange(); t.focus()})}})
 }
 
 
@@ -425,8 +429,8 @@ schemeDark2 = "1b9e77d95f027570b3e7298a66a61ee6ab02a6761d666666".match(/.{1,6}/g
 function kBox(colname, responsive=true) {
     let sp = document.createElement('span')
     sp.className = "kbox"
-    sp.innerHTML = colname
-    sp.setAttribute('knum', lookup[colname])
+    sp.innerHTML = '<span>$</span>' + colname
+    sp.setAttribute('knum', lookup["$"+colname])
     //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
     sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
     if (responsive) {
@@ -728,7 +732,7 @@ url = url_kwargs["url"]
 
 
 function textlength(elem) {
-    return elem.length ? elem.length : elem.innerHTML.length
+    return elem.length ? elem.length : elem.innerText.length
 }
 
 function parseNode(node) {
@@ -748,7 +752,7 @@ function parseNode(node) {
     
     for (x of toparse) {
         hit = keys.find(k => x.startsWith(k))
-        node.append(hit ? kBox("$"+hit) : "$"+x)
+        node.append(hit ? kBox(hit) : "$"+x)
         if (hit && (x.split(hit)[1]!=""))   // do not append empty strings
             node.append(x.split(hit)[1])
     }
@@ -762,7 +766,8 @@ function parseNode(node) {
     }
 
     let range = document.createRange()
-    range.setStart(x.firstChild?x.firstChild:x, acurpos-a)
+    afterdollar = x.firstChild && acurpos-a>0
+    range.setStart(x.firstChild?(afterdollar?x.firstChild.nextSibling:x.firstChild):x, acurpos-a-afterdollar)
     range.collapse()
     sel.removeAllRanges()
     sel.addRange(range)
