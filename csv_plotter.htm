@@ -741,9 +741,10 @@ function parseNode(node) {
     let sel = window.getSelection()
     if (node.contains(sel.focusNode)) {
         sel.extend(node.firstChild)
-        acurpos = sel.toString().length
+        seltext = sel.toString()
     } else
-        acurpos = node.innerText.length
+        seltext = node.innerText
+    acurpos = seltext.replace("\n", "").replace("\r", "").length
    
     let toparse = node.innerText.split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
