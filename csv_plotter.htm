@@ -29,7 +29,7 @@
         padding: 2px;
     }
 
-    div.dropcell, div.func {
+    .dropcell, div.func {
         min-height: 20px;
         min-width: 40px;
         display: table-cell;
@@ -191,7 +191,7 @@
         background-color: #ddf;
     }
 */
-    span:not(:focus) + ul { /* the next sibiling, but ul is previous sibling*/
+    Xspan:not(:focus) + ul { /* the next sibiling, but ul is previous sibling*/
        display: none;
     }
 
@@ -241,25 +241,25 @@
 <div class="traces" style="background: white; margin: 5px 0;">
    <div class="trace_t" tnum=1 tabIndex=0>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
-         <label><i class="far fa-file"></i></label><div id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
-         <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></div>
-         <label style="display: none">using</label><div id="using" placeholder="1:2" onchange="using_columns()" style="width: 200px; display: none">1:2</div>
-         <label><label>x</label></label><div id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></div>
-         <label><label>y</label></label><div id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></div>
-         <label><i class="fa fa-arrows-alt-h"></i></label><div id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></div>
-         <label><i class="fa fa-arrows-alt-v"></i></label><div id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></div>
-         <label><i class="fa fa-tag"></i></label><div id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></div>
-         <label><i class="fa fa-bullseye"></i></label><div id="cs" class="dropcell" placeholder="size" onchange="select_columns()"></div>
-         <label><i class="fas fa-shapes"></i></label><div id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></div>
-         <label><i class="fa fa-tint"></i></label><div id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></div>
-         <label><i class="fa fa-adjust"></i></label><div id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</div>
+         <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
+         <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
+         <label style="display: none">using</label><span id="using" placeholder="1:2" onchange="using_columns()" style="width: 200px; display: none">1:2</span>
+         <label><label>x</label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span>
+         <label><label>y</label></label><span id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></span>
+         <label><i class="fa fa-arrows-alt-h"></i></label><span id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></span>
+         <label><i class="fa fa-arrows-alt-v"></i></label><span id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></span>
+         <label><i class="fa fa-tag"></i></label><span id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></span>
+         <label><i class="fa fa-bullseye"></i></label><span id="cs" class="dropcell" placeholder="size" onchange="select_columns()"></span>
+         <label><i class="fas fa-shapes"></i></label><span id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></span>
+         <label><i class="fa fa-tint"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
+         <label><i class="fa fa-adjust"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
          <div info="dummy otherwise drop would be allow here!?"></div>
       </div>
       <div class="trace_t" tnum=2>
          <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-         <label><i class="fa fa-calculator"></i></label><div id="funcf" class="dropcell func" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></div>
-         <label><i class="fa fa-tint"></i></label><div type="search" id="funcc" class="dropcell color" placeholder="color" onchange="select_columns()"></div>
-         <label><i class="fa fa-adjust"></i></label><div id="funco" class="dropcell opacity" onchange="select_columns()">0.5</div>
+         <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></span>
+         <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
+         <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="select_columns()">0.5</span>
          <div info="dummy otherwise drop would be allow here!?"></div>
     </div>
 </div>
