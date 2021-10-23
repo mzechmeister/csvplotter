@@ -737,16 +737,12 @@ function textlength(elem) {
 
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
+
     let sel = window.getSelection()
-    let foc = sel.focusNode ? sel.focusNode : node.parentNode
-    let acurpos = node.contains(foc) ? sel.focusOffset : 0   // defaults to end
-    
-    // find caret position in flat text 
-    for (x of node.childNodes) {
-         if (x==foc || x==foc.parentNode) break
-         acurpos += textlength(x)
-    }
-  
+    let range = sel.getRangeAt(0)
+    range.setStart(node.firstChild, 0)
+    let acurpos = (node.contains(sel.focusNode)? range.toString() : node.innerText).length
+   
     let toparse = node.innerText.split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
     
@@ -757,20 +753,12 @@ function parseNode(node) {
             node.append(x.split(hit)[1])
     }
 
-    // find node and relative offset in rendered element
-    let a = 0
-    for (x of node.childNodes) {
-        let da = textlength(x)
-        if (a+da >= acurpos) break
-        else a += da
+    // put the caret in rendered element
+    sel.collapse(node.firstChild, 0)
+    while (sel.getRangeAt(0).toString().length < acurpos) {
+        sel.modify("extend", "forward", "character")
     }
-
-    let range = document.createRange()
-    afterdollar = x.firstChild && acurpos-a>0
-    range.setStart(x.firstChild?(afterdollar?x.firstChild.nextSibling:x.firstChild):x, acurpos-a-afterdollar)
-    range.collapse()
-    sel.removeAllRanges()
-    sel.addRange(range)
+    sel.collapseToEnd()
 }
 
 function init(){
