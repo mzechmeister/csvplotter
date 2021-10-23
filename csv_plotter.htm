@@ -739,9 +739,11 @@ function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
     let sel = window.getSelection()
-    let range = sel.getRangeAt(0)
-    range.setStart(node.firstChild, 0)
-    let acurpos = (node.contains(sel.focusNode)? range.toString() : node.innerText).length
+    if (node.contains(sel.focusNode)) {
+        sel.extend(node.firstChild)
+        acurpos = sel.toString().length
+    } else
+        acurpos = node.innerText.length
    
     let toparse = node.innerText.split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
@@ -755,7 +757,7 @@ function parseNode(node) {
 
     // put the caret in rendered element
     sel.collapse(node.firstChild, 0)
-    while (sel.getRangeAt(0).toString().length < acurpos) {
+    while (sel.toString().length < acurpos) {
         sel.modify("extend", "forward", "character")
     }
     sel.collapseToEnd()
