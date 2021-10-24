@@ -64,7 +64,11 @@
         pointer-events: none;    /* pass all events to kbox */
     }
 
-    #kpool > .kbox, .dropcell > .kbox::before {
+    #kpool > .kbox { 
+        cursor: pointer;            /* sent by click */
+    }    
+    
+    .dropcell > .kbox::before {
         cursor: grab;               /* draggable */
     }
 
@@ -193,9 +197,8 @@
         opacity: 0.4;
     }
 
-    .fa-compress {display: None}
     :fullscreen .fa-expand {display: None}
-    :fullscreen .fa-compress {display: inline-block}
+    html:not(:fullscreen) .fa-compress {display: None}
 
     .dropcell > .active {
         outline: 5px auto Highlight;
