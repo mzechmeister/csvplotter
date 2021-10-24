@@ -387,7 +387,7 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.onfocus = (_ => {var t = _.target;
                        for (a of document.getElementsByClassName("kbox")) {
                            a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {t.innerHTML = e.target.innerText; t.oninput(); t.onchange(); t.focus()})}})
+                           a.onclick = (e => {if (t.contains(sel.focusNode)) {range = sel.getRangeAt(0); range.deleteContents(); range.insertNode(kBox(e.target.innerText.substring(1)))}})}})
 }
 
 
