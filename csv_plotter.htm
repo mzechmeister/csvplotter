@@ -45,7 +45,7 @@
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
-    .kbox {
+    .kbox[knum] {
         border: 1px solid #0002;       /* grey ~ #ccc */
         background-color: #e8f9ffaa;   /* a light blue */
         text-indent: 0px;
@@ -68,6 +68,10 @@
         opacity: 0.4;
     }
     
+    .kbox:not([knum]) {
+        text-decoration: underline wavy red;
+    }
+    
     .dropcell .kbox.dragover {
          border: 1px dashed #090;       /* grey ~ #ccc */
     }
@@ -78,7 +82,7 @@
         text-indent: initial;   /* do not inherit fom div */
     }
 
-    li > .kbox {
+    li > .kbox[knum] {
         border: none;
         background-color: transparent;
         pointer-events: none;
@@ -271,7 +275,7 @@
 <div id="kpool">
 </div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute; padding: 10px 0;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
 
 
 <script>
@@ -360,8 +364,6 @@ for (item of document.getElementsByClassName('dropcell')) {
 
 for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
     item.oninput = function(e) {
-        foc = sel.focusNode.parentElement
-        //if (foc.tagName=='SPAN') filter_suggests(foc)
         parseNode(this)
     }
     item.onkeyup = function(e) {
@@ -403,7 +405,7 @@ function handleDragEnter(e) {
 }
 
 function handleDrag(e) {
-    e.preventDefault()   // needed otherwise drop is not called
+    //e.preventDefault()   // needed otherwise drop is not called
     return false
 }
 
@@ -427,7 +429,7 @@ function handleDrop(e) {
         else
             swap(dragsrc, e.target)
         return false
-    } else if (dragsrc){
+    } else if (dragsrc) {
         // insert kbox into text
         if (document.caretRangeFromPoint)
             range = document.caretRangeFromPoint(e.clientX, e.clientY)
@@ -436,10 +438,10 @@ function handleDrop(e) {
             range = sel.getRangeAt(0)
         }
         range.insertNode(kpool.contains(dragsrc)? kBox(dragsrc.innerText.substring(1)) : dragsrc)
-        //sel.collapse(e.rangeParent, e.rangeOffset)
+        //sel.collapse(e.rangeParent, e.rangeOffset)  // duplicates kbox?
     }
-    // drop triggers on oninput "insertFromDrop"
-    //this.focus()
+    // else: normal text dropping needs not extra handling
+    // drop triggers oninput ("insertFromDrop")
 }
 
 // https://github.com/d3/d3-scale-chromatic
@@ -458,8 +460,8 @@ function kBox(colname, responsive=true) {
         sp.draggable = true
         sp.addEventListener('dragstart', handleDragStart)
         sp.addEventListener('drag', handleDrag)
-        sp.addEventListener('dragenter', (e)=> e.target.classList.add("dragover"))
-        sp.addEventListener('dragleave', (e)=> e.target.classList.remove("dragover"))
+        sp.addEventListener('dragenter', e => e.target.classList.add("dragover"))
+        sp.addEventListener('dragleave', e => e.target.classList.remove("dragover"))
         sp.addEventListener('dragend', remove_drag)
     }
     return sp
@@ -762,6 +764,7 @@ function textlength(elem) {
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
+    kpool.after(suggest_div)
     let sel = window.getSelection()
     if (node.contains(sel.focusNode)) {
         sel.extend(node.firstChild)
@@ -769,23 +772,38 @@ function parseNode(node) {
     } else
         seltext = node.innerText
     acurpos = seltext.replace("\n", "").replace("\r", "").length
-   
+
     let toparse = node.innerText.split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
     
     for (x of toparse) {
         hit = keys.find(k => x.startsWith(k))
-        node.append(hit ? kBox(hit) : "$"+x)
-        if (hit && (x.split(hit)[1]!=""))   // do not append empty strings
-            node.append(x.split(hit)[1])
+        if (hit) {
+           node.append(kBox(hit))
+           if (x.split(hit)[1] !="")   // do not append empty strings
+               node.append(x.split(hit)[1])
+        } else {
+             querylen = acurpos - node.innerText.length - 1
+             if (querylen <= x.length) {
+                 foc = kBox(x.substring(0,querylen))
+                 node.append(foc)
+                 node.append(x.substring(querylen))
+                 filter_suggests(foc)
+                 kpool.after(suggest_div)
+             } else
+                 node.append("$"+x)
+        }        
     }
 
     // put the caret in rendered element
     sel.collapse(node.firstChild, 0)
-    while (sel.toString().length < acurpos) {
+    let n = 100   // prevent endless loop
+    while (sel.toString().length < acurpos && n--) {
         sel.modify("extend", "forward", "character")
     }
     sel.collapseToEnd()
+    foc && foc.before(suggest_div)
+    node.focus()   // no effect?
 }
 
 function init(){
@@ -953,19 +971,12 @@ function filter_suggests(foc) {
 }
 
 function suggest_hit(e) {
-    foc = document.querySelector(".trace_t .active")
     hover = e.target || e
     if (hover) {
         hover = hover.firstChild
-        knum = hover.getAttribute('knum')
-        foc.innerHTML = "$" + (knum==foc.innerText.replace("$","")? knum : hover.innerHTML)
-        foc.setAttribute('knum', knum)
-        foc.style.color = hover.style.color
-        foc.nextSibling && setEndOfContenteditable(foc.nextSibling, true)  ||
-            foc.parentNode.focus()
-        foc.draggable = true
-        foc.addEventListener('dragstart', handleDragStart)
-        foc.addEventListener('dragend', remove_drag)
+        let newKbox = kBox(hover.innerText.substring(1))
+        sel.focusNode.parentNode.replaceWith(newKbox)
+        setEndOfContenteditable(newKbox)
     }
     suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
@@ -991,15 +1002,14 @@ function handle_keydown(e) {
             suggest_hit(hit)
             e.preventDefault()
             return true
-        }    
-    }
-    if (e.key == "Enter") {
-        try{this.onchange(e)}
-        finally {return false}   // no newline for Enter press
+        } else {
+            try {this.onchange(e)}
+            finally {return false}   // no newline for Enter press
+        }
     }
 }
 
-for (item of document.querySelectorAll(".trace_t:first-child > div")) {
+for (item of document.querySelectorAll(".trace_t:first-child > span.dropcell")) {
     item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = ""}
 }
