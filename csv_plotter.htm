@@ -770,7 +770,9 @@ function textlength(elem) {
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
-    kpool.after(suggest_div)
+    kpool.after(suggest_div)           // do not count characters
+    suggest_list.style.display = ""
+
     let sel = window.getSelection()
     if (node.contains(sel.focusNode)) {
         sel.extend(node.firstChild)
@@ -989,9 +991,10 @@ function suggest_hit(e) {
     return // prevent caret movement
 }
 
+suggest_list = document.getElementById("suggest_list")
+suggest_div = document.getElementById("suggest_div")
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
-suggest_div = document.getElementById("suggest_div")
 
 function handle_keydown(e) {
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
