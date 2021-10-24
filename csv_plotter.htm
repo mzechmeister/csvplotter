@@ -60,6 +60,10 @@
         color: grey;
     }
 
+    .kbox > span {
+        pointer-events: none;    /* pass all events to kbox */
+    }
+
     #kpool > .kbox, .dropcell > .kbox::before {
         cursor: grab;               /* draggable */
     }
