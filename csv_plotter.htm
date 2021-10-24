@@ -382,10 +382,6 @@ document.getElementById("cc").ondrop = colorDrop
 document.getElementById("funcc").ondrop = colorDrop
 document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n"){this.innerText = ""}; this.onchange()}
 
-for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
-    div.tabIndex = 0
-}
-
 
 function handleDragStart(e) {
     add_drag("[tnum='1']")
