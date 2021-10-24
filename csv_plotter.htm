@@ -67,6 +67,10 @@
     .kbox:active {
         opacity: 0.4;
     }
+    
+    .dropcell .kbox.dragover {
+         border: 1px dashed #090;       /* grey ~ #ccc */
+    }
 
     li {
         display: block;
@@ -350,7 +354,7 @@ for (item of document.getElementsByClassName('color')) {
 for (item of document.getElementsByClassName('dropcell')) {
     item.contentEditable = true
     item.spellcheck = false
-    item.ondragover = handleDragOver
+    item.ondragover = handleDragEnter
     item.ondrop = handleDrop
 }
 
@@ -384,13 +388,22 @@ for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
 function handleDragStart(e) {
     add_drag("[tnum='1']")
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/html', this.innerText)
+    e.dataTransfer.setData('text/plain', this.innerText)
     dragsrc = this
 }
 
-function handleDragOver(e) {
+function handleDragEnd(e) {
+    dragsrc = null
+}
+
+function handleDragEnter(e) {
     e.preventDefault()   // needed otherwise drop is not called
     e.dataTransfer.dropEffect = 'move'
+    return false
+}
+
+function handleDrag(e) {
+    e.preventDefault()   // needed otherwise drop is not called
     return false
 }
 
@@ -402,23 +415,31 @@ function swap(a, b) {
 }
 
 function handleDrop(e) {
-    e.preventDefault()   // stops the browser from redirecting.
+    //e.preventDefault()   // stops the browser from redirecting.
     if (e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
         return false
     }
 
-    if (e.target.className.match("kbox"))
-        swap(dragsrc, e.target)
-    else {
-        id = e.dataTransfer.getData('text/html')
-        this.append(id)
-        this.oninput()
+    if (e.target.className.match("kbox")) {
+        if (kpool.contains(dragsrc))
+            e.target.replaceWith(kBox(dragsrc.innerText.substring(1)))             
+        else
+            swap(dragsrc, e.target)
+        return false
+    } else if (dragsrc){
+        // insert kbox into text
+        if (document.caretRangeFromPoint)
+            range = document.caretRangeFromPoint(e.clientX, e.clientY)
+        else {
+            sel.collapse(e.rangeParent,e.rangeOffset)
+            range = sel.getRangeAt(0)
+        }
+        range.insertNode(kpool.contains(dragsrc)? kBox(dragsrc.innerText.substring(1)) : dragsrc)
+        //sel.collapse(e.rangeParent, e.rangeOffset)
     }
-
-    this.onchange()
-    this.focus()
-    return false
+    // drop triggers on oninput "insertFromDrop"
+    //this.focus()
 }
 
 // https://github.com/d3/d3-scale-chromatic
@@ -436,6 +457,9 @@ function kBox(colname, responsive=true) {
     if (responsive) {
         sp.draggable = true
         sp.addEventListener('dragstart', handleDragStart)
+        sp.addEventListener('drag', handleDrag)
+        sp.addEventListener('dragenter', (e)=> e.target.classList.add("dragover"))
+        sp.addEventListener('dragleave', (e)=> e.target.classList.remove("dragover"))
         sp.addEventListener('dragend', remove_drag)
     }
     return sp
