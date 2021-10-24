@@ -112,12 +112,12 @@
         font-size: 0;   /* hide the dollar */
     }
 
-    div.dropcell.color {
+    span.dropcell.color {
         width: 25px;
         flex-grow: 0;
     }
 
-    div.dropcell.opacity {
+    span.dropcell.opacity {
         width: 15px;
         flex-grow: 0;
     }
@@ -129,9 +129,7 @@
     }
 
     .trace_t {
-        border-color: #ccc;
-        border-style: solid;
-        border-width: 1px;
+        border: 1px solid #ccc;
         display: flex;
         padding: 0 0 0 4px;
     }
@@ -232,11 +230,6 @@
 </div>
 
 
-<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
-<script src='dsv.js'></script>
-<script src='zoom_pan.js'></script>
-<script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
-
 <div>
    <div id="colornames" style="height:20px; float:right"></div>
 </div>
@@ -257,14 +250,12 @@
       <label><i class="fas fa-shapes"></i></label><span id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></span>
       <label><i class="fa fa-tint"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
-      <div info="dummy otherwise drop would be allow here!?"></div>
    </div>
    <div class="trace_t" tnum=2>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-      <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func(); console.log('ch')" placeholder="[::] f(x)  or  x(t), y(t)"></span>
+      <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
       <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="select_columns()">0.5</span>
-      <div info="dummy otherwise drop would be allow here!?"></div>
    </div>
 </div>
 
@@ -272,6 +263,11 @@
 
 <span id="suggest_div" contentEditable=False style="position: absolute; padding: 10px 0;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
 
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script src='dsv.js'></script>
+<script src='zoom_pan.js'></script>
+<script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 
 <script>
 if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -425,10 +421,10 @@ function handleDrop(e) {
         if (document.caretRangeFromPoint)
             range = document.caretRangeFromPoint(e.clientX, e.clientY)
         else {
-            sel.collapse(e.rangeParent,e.rangeOffset)
+            sel.collapse(e.rangeParent, e.rangeOffset)
             range = sel.getRangeAt(0)
         }
-        range.insertNode(kpool.contains(dragsrc)? kBox(dragsrc.innerText.substring(1)) : dragsrc)
+        range.insertNode(kpool.contains(dragsrc) ? kBox(dragsrc.innerText.substring(1)) : dragsrc)
         //sel.collapse(e.rangeParent, e.rangeOffset)  // duplicates kbox?
     }
     // else: normal text dropping needs not extra handling
