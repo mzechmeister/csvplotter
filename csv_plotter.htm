@@ -308,7 +308,9 @@ function add_drag(query) {
 
 function remove_drag() {
     for (x of [...document.getElementsByClassName("dragging")])
-        {x.classList.remove('dragging')}
+        x.classList.remove('dragging')
+    for (x of [...document.getElementsByClassName("dragover")])
+        x.classList.remove('dragover')   
     return false   // do only once for mousedown, dragend
 }
 
