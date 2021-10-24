@@ -384,10 +384,6 @@ document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n")
 
 for (var div of document.querySelectorAll("[tnum='1'] .dropcell")) {
     div.tabIndex = 0
-    div.onfocus = (_ => {var t = _.target;
-                       for (a of document.getElementsByClassName("kbox")) {
-                           a.onmouseover = (_ =>  {t.focus(); return false})
-                           a.onclick = (e => {if (t.contains(sel.focusNode)) {range = sel.getRangeAt(0); range.deleteContents(); range.insertNode(kBox(e.target.innerText.substring(1)))}})}})
 }
 
 
@@ -479,6 +475,12 @@ function init_box(colpool){
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
         let sp = kBox(colname)
+        sp.onclick = e => {
+              if (document.querySelector('.trace_t[tnum="1"]').contains(sel.focusNode)) {
+                  range = sel.getRangeAt(0)
+                  range.deleteContents()
+                  range.insertNode(kBox(e.target.innerText.substring(1)))
+              }}
         kpool.appendChild(sp)
 
         // list entries for suggestion
