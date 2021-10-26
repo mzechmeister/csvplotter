@@ -66,8 +66,8 @@
 
     #kpool > .kbox { 
         cursor: pointer;            /* sent by click */
-    }    
-    
+    }
+
     .dropcell > .kbox::before {
         cursor: grab;               /* draggable */
     }
@@ -402,7 +402,7 @@ function swap(a, b) {
 }
 
 function handleDrop(e) {
-    //e.preventDefault()   // stops the browser from redirecting.
+    e.preventDefault()   // stops the browser from redirecting FF68.
     if (e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
         return false
@@ -447,8 +447,8 @@ function kBox(colname, responsive=true) {
         sp.draggable = true
         sp.addEventListener('dragstart', handleDragStart)
         sp.addEventListener('drag', handleDrag)
-        sp.addEventListener('dragenter', e => e.target.classList.add("dragover"))
-        sp.addEventListener('dragleave', e => e.target.classList.remove("dragover"))
+        sp.addEventListener('dragenter', e => {e.target.classList.add("dragover")})
+        sp.addEventListener('dragleave', e => {e.target.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
     }
     return sp
@@ -766,39 +766,43 @@ function parseNode(node) {
         seltext = sel.toString()
     } else
         seltext = node.innerText
-    acurpos = seltext.replace("\n", "").replace("\r", "").length
+    curpos = seltext.replace("\n", "").replace("\r", "").length
 
     let toparse = node.innerText.split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
-    
+
+    let curnode = node.firstChild   // a text node
+    let querynode = null
     for (x of toparse) {
-        hit = keys.find(k => x.startsWith(k))
+        let knode = null
+        let text = "$" + x
+        let hit = keys.find(k => x.startsWith(k))
         if (hit) {
-           node.append(kBox(hit))
-           if (x.split(hit)[1] !="")   // do not append empty strings
-               node.append(x.split(hit)[1])
+            knode = kBox(hit)
+            text = x.substring(hit.length)
         } else {
-             querylen = acurpos - node.innerText.length - 1
-             if (querylen <= x.length) {
-                 foc = kBox(x.substring(0,querylen))
-                 node.append(foc)
-                 node.append(x.substring(querylen))
-                 filter_suggests(foc)
-                 kpool.after(suggest_div)
-             } else
-                 node.append("$"+x)
-        }        
+            querylen = curpos - node.innerText.length - 1
+            if (querylen <= x.length) {
+                // knode will be a kBox without knum and is rendered differently (wavy underline) 
+                knode = querynode = kBox(x.substring(0, querylen))
+                text = x.substring(querylen)
+            }
+        }
+        if (node.innerText.length < curpos) curnode = knode.lastChild   // text node (not $)
+        if (knode) node.append(knode)
+        if (text != "") node.append(text)
+        if (node.innerText.length - text.length < curpos) curnode = node.lastChild
     }
 
     // put the caret in rendered element
-    sel.collapse(node.firstChild, 0)
-    let n = 100   // prevent endless loop
-    while (sel.toString().length < acurpos && n--) {
-        sel.modify("extend", "forward", "character")
-    }
+    node.focus()   // only for FF68 (NS_ERROR_FAILURE, https://bugzilla.mozilla.org/show_bug.cgi?id=1623413)
+    sel.setBaseAndExtent(node, 0, curnode, 0)
+    let offset = curpos - sel.toString().length
+    sel.extend(curnode, offset)
     sel.collapseToEnd()
-    foc && foc.before(suggest_div)
     node.focus()   // no effect?
+
+    querynode && filter_suggests(querynode)
 }
 
 function init(){
