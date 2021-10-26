@@ -75,11 +75,11 @@
     .kbox:active {
         opacity: 0.4;
     }
-    
+
     .kbox:not([knum]) {
         text-decoration: underline wavy red;
     }
-    
+
     .dropcell .kbox.dragover {
          border: 1px dashed #090;       /* grey ~ #ccc */
     }
@@ -447,8 +447,10 @@ function kBox(colname, responsive=true) {
         sp.draggable = true
         sp.addEventListener('dragstart', handleDragStart)
         sp.addEventListener('drag', handleDrag)
-        sp.addEventListener('dragenter', e => {e.target.classList.add("dragover")})
-        sp.addEventListener('dragleave', e => {e.target.classList.remove("dragover")})
+        sp.addEventListener('dragenter', e => {e.currentTarget.classList.add("dragover")})
+        sp.addEventListener('dragleave', e => {if(sp.contains(e.relatedTarget)) return;   // @FF: do not leave when draging over the child textnode.  CSS ".kbox * {pointer-events: none;}"
+    }
+                                               e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
     }
     return sp
