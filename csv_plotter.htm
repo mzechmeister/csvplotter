@@ -449,7 +449,6 @@ function kBox(colname, responsive=true) {
         sp.addEventListener('drag', handleDrag)
         sp.addEventListener('dragenter', e => {e.currentTarget.classList.add("dragover")})
         sp.addEventListener('dragleave', e => {if(sp.contains(e.relatedTarget)) return;   // @FF: do not leave when draging over the child textnode.  CSS ".kbox * {pointer-events: none;}"
-    }
                                                e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
     }
@@ -714,12 +713,15 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
 
     graph = document.getElementsByClassName("js-plotly-plot")[0]
 
-    graph.on('plotly_click', function(data){
-        var pts = ''
-        for (var i=0; i < data.points.length; i++){
-            pts = 'x = ' + data.points[i].x + ', y = ' +
-            data.points[i].y 
-            data.points[i].text === undefined || (pts += ', ' + data.points[i].text)
+    graph.on('plotly_click', function(data) {
+        let pts = ''
+        for (let d of data.points) { // data.point are not all points from one trace
+            pts = "#" + d.pointNumber + ":  x = " + d.x + ", y = " + d.y
+            d['error_x.array'] === undefined || (pts += ", e_x = " + d['error_x.array'])
+            d['error_y.array'] === undefined || (pts += ", e_y = " + d['error_y.array'])
+            d.text === undefined || (pts += ', ' + d.text)
+            d['marker.size'] === undefined || (pts += ", ps = " + d['marker.size'])
+            d['marker.symbol'] === undefined || (pts += ", pt = " + d['marker.symbol'])
         }
         info('Closest point clicked: ' + pts)
     })
