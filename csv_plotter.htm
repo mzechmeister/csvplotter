@@ -440,9 +440,12 @@ function kBox(colname, responsive=true) {
     let sp = document.createElement('span')
     sp.className = "kbox"
     sp.innerHTML = '<span>$</span>' + colname
-    sp.setAttribute('knum', lookup["$"+colname])
-    //sp.style.color = "#" + schemeSet3[div.getAttribute('knum')%12]
-    sp.style.color = "#" + schemeDark2[sp.getAttribute('knum') % 8]
+    knum = lookup["$"+colname]
+    if (knum != undefined) {
+        sp.setAttribute('knum', knum)
+        //sp.style.color = "#" + schemeSet3[knum % 12]
+        sp.style.color = "#" + schemeDark2[knum % 8]
+    }
     if (responsive) {
         sp.draggable = true
         sp.addEventListener('dragstart', handleDragStart)
@@ -778,8 +781,8 @@ function parseNode(node) {
     let curnode = node.firstChild   // a text node
     let querynode = null
     for (x of toparse) {
-        let knode = null
-        let text = "$" + x
+        let knode = kBox(x)
+        let text = ""
         let hit = keys.find(k => x.startsWith(k))
         if (hit) {
             knode = kBox(hit)
@@ -793,7 +796,7 @@ function parseNode(node) {
             }
         }
         if (node.innerText.length < curpos) curnode = knode.lastChild   // text node (not $)
-        if (knode) node.append(knode)
+        node.append(knode)
         if (text != "") node.append(text)
         if (node.innerText.length - text.length < curpos) curnode = node.lastChild
     }
@@ -967,10 +970,6 @@ function filter_suggests(foc) {
     if (n==1 && (hover.firstChild.getAttribute("knum") == query
                       || hover.innerText.toLowerCase() == query))
         suggest_hit(hover)
-    else {
-        foc.style.color = ""
-        foc.removeAttribute('knum')
-    }
 }
 
 function suggest_hit(e) {
