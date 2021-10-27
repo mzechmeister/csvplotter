@@ -719,7 +719,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
     graph.on('plotly_click', function(data) {
         let pts = ''
         for (let d of data.points) { // data.point are not all points from one trace
-            pts = "#" + d.pointNumber + ":  x = " + d.x + ", y = " + d.y
+            pts = "#" + (d.pointNumber+1) + ":  x = " + d.x + ", y = " + d.y
             d['error_x.array'] === undefined || (pts += ", e_x = " + d['error_x.array'])
             d['error_y.array'] === undefined || (pts += ", e_y = " + d['error_y.array'])
             d.text === undefined || (pts += ', ' + d.text)
