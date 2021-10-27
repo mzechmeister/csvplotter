@@ -779,24 +779,22 @@ function parseNode(node) {
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
 
     let curnode = node.firstChild   // a text node
-    let querynode = null
-    for (x of toparse) {
-        let knode = kBox(x)
-        let text = ""
-        let hit = keys.find(k => x.startsWith(k))
-        if (hit) {
-            knode = kBox(hit)
-            text = x.substring(hit.length)
-        } else {
+    let qname = ''
+    for (let text of toparse) {
+        let kname = text
+        let hit = keys.find(k => text.startsWith(k))
+        if (hit)
+            kname = hit
+        else {
             querylen = curpos - node.innerText.length - 1
-            if (querylen <= x.length) {
-                // knode will be a kBox without knum and is rendered differently (wavy underline) 
-                knode = querynode = kBox(x.substring(0, querylen))
-                text = x.substring(querylen)
-            }
+            if (querylen <= text.length)
+                // knode will be a kBox without knum and is rendered differently (wavy underline)
+                kname = qname = text.substring(0, querylen)
         }
+        knode = kBox(kname)
         if (node.innerText.length < curpos) curnode = knode.lastChild   // text node (not $)
         node.append(knode)
+        text = text.substring(kname.length)   // split off kname
         if (text != "") node.append(text)
         if (node.innerText.length - text.length < curpos) curnode = node.lastChild
     }
@@ -809,7 +807,7 @@ function parseNode(node) {
     sel.collapseToEnd()
     node.focus()   // no effect?
 
-    querynode && filter_suggests(querynode)
+    qname && filter_suggests(curnode.parentNode)
 }
 
 function init(){
