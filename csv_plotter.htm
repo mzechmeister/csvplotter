@@ -297,7 +297,7 @@ function remove_drag() {
     for (x of [...document.getElementsByClassName("dragging")])
         x.classList.remove('dragging')
     for (x of [...document.getElementsByClassName("dragover")])
-        x.classList.remove('dragover')   
+        x.classList.remove('dragover')
     return false   // do only once for mousedown, dragend
 }
 
@@ -364,7 +364,7 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
             // prevent newline when empyting with backspace or del
             this.innerText = ""
         }
-    }   
+    }
 }
 
 document.getElementById("cc").ondrop = colorDrop
@@ -375,12 +375,15 @@ document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n")
 function handleDragStart(e) {
     add_drag("[tnum='1']")
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', this.innerText)
     dragsrc = this
+    // drop strings (normal text, kpool.kbox), except for dropcell kbox (which needs node swap or shift)
+    if (kpool.contains(this))
+        e.dataTransfer.setData('text/plain', this.innerText)
+    else
+        e.dataTransfer.setData('text/plain', '')   // @FF68
 }
 
 function handleDragEnd(e) {
-    dragsrc = null
 }
 
 function handleDragEnter(e) {
@@ -390,8 +393,8 @@ function handleDragEnter(e) {
 }
 
 function handleDrag(e) {
-    //e.preventDefault()   // needed otherwise drop is not called
-    return false
+    e.preventDefault()   // needed otherwise drop is not called
+    //return false
 }
 
 function swap(a, b) {
@@ -402,32 +405,36 @@ function swap(a, b) {
 }
 
 function handleDrop(e) {
-    e.preventDefault()   // stops the browser from redirecting FF68.
+    //e.preventDefault()   // stops the browser from redirecting FF68.
     if (e.dataTransfer.files.length){
         dsv(e.dataTransfer.files[0], init)
         return false
     }
 
+    kname = e.dataTransfer.getData('text').substring(1)
     if (e.target.className.match("kbox")) {
-        if (kpool.contains(dragsrc)) {   // kpool.kbox -> kbox
-            dragsrc = kBox(dragsrc.innerText.substring(1))
+        if (kname) {
+            // kpool.kbox,text -> kbox
+            dragsrc = kBox(kname)
             e.target.replaceWith(dragsrc)
-        } else                            // kbox -> kbox
+        } else
+            // kbox -> kbox
             swap(dragsrc, e.target)
-        setEndOfContenteditable(dragsrc)
+        // setEndOfContenteditable(dragsrc)
         return false
-    } else if (dragsrc) {
-        // insert kbox into text
+    } else if (!kname) {
+        // kbox -> text
         if (document.caretRangeFromPoint)
             range = document.caretRangeFromPoint(e.clientX, e.clientY)
         else {
             sel.collapse(e.rangeParent, e.rangeOffset)
             range = sel.getRangeAt(0)
         }
-        range.insertNode(kpool.contains(dragsrc) ? kBox(dragsrc.innerText.substring(1)) : dragsrc)
+        range.insertNode(dragsrc)
         //sel.collapse(e.rangeParent, e.rangeOffset)  // duplicates kbox?
     }
-    // else: normal text dropping needs not extra handling
+    // kpool.kbox,text -> text
+    // else: normal text dropping needs no extra handling
     // drop triggers oninput ("insertFromDrop")
 }
 
