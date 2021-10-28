@@ -289,7 +289,7 @@ for (item of document.getElementsByClassName('fa')) {
     item.ondragstart = dragicon
 }
 
-function add_drag(query) {
+function add_drop(query) {
     document.querySelectorAll(query).forEach(x => x.classList.add('dragging'))
 }
 
@@ -302,8 +302,7 @@ function remove_drag() {
 }
 
 function colorDragStart(e) {
-    add_drag(".color")
-
+    add_drop(".color")
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/html', this.style["background-color"])
 }
@@ -329,15 +328,16 @@ function colorDrop(e) {
 
 // the color boxes
 divcols = document.getElementById('colornames')
-divcols.onmouseover = (_ => add_drag(".color"))
+divcols.onmouseenter = (_ => add_drop(".color"))
+divcols.onmouseleave = remove_drag
 
 for (color of Plotly.d3.scale.category10().range()) {
     let div = document.createElement('div')
     div.style['background-color'] = color
     div.draggable = true
     div.ondragstart = colorDragStart
-    div.ondragend = div.onmouseup = div.onmouseleave = remove_drag
-    div.onmousedown = (_ => {add_drag(".color"); f = document.activeElement})
+    div.ondragend = remove_drag
+    div.onmousedown = (_ => {add_drop(".color"); f = document.activeElement})
     div.onmouseup = (e => {if (f.classList.contains('color')) {
                        colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
     divcols.append(div)
@@ -373,7 +373,7 @@ document.getElementById("funcf").onkeyup = function(e) {if (this.innerText=="\n"
 
 
 function handleDragStart(e) {
-    add_drag("[tnum='1']")
+    add_drop("[tnum='1']")
     e.dataTransfer.effectAllowed = 'move'
     dragsrc = this
     // drop strings (normal text, kpool.kbox), except for dropcell kbox (which needs node swap or shift)
