@@ -64,7 +64,7 @@
         pointer-events: none;    /* pass all events to kbox */
     }
 
-    #kpool > .kbox { 
+    #kpool > .kbox {
         cursor: pointer;            /* sent by click */
     }
 
@@ -369,7 +369,7 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
 
 document.getElementById("cc").ondrop = colorDrop
 document.getElementById("funcc").ondrop = colorDrop
-document.getElementById("funcf").onkeyup = function(e){if (this.innerText=="\n"){this.innerText = ""}; this.onchange()}
+document.getElementById("funcf").onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}; this.onchange()}
 
 
 function handleDragStart(e) {
@@ -381,9 +381,6 @@ function handleDragStart(e) {
         e.dataTransfer.setData('text/plain', this.innerText)
     else
         e.dataTransfer.setData('text/plain', '')   // @FF68
-}
-
-function handleDragEnd(e) {
 }
 
 function handleDragEnter(e) {
@@ -406,7 +403,7 @@ function swap(a, b) {
 
 function handleDrop(e) {
     //e.preventDefault()   // stops the browser from redirecting FF68.
-    if (e.dataTransfer.files.length){
+    if (e.dataTransfer.files.length) {
         dsv(e.dataTransfer.files[0], init)
         return false
     }
@@ -465,7 +462,7 @@ function kBox(colname, responsive=true) {
     return sp
 }
 
-function init_box(colpool){
+function init_box(colpool) {
     var kpool  = document.getElementById('kpool')
     kpool.innerHTML = '' // remove all currents options
     // put all columns into dragable divs
@@ -489,7 +486,7 @@ function init_box(colpool){
 function parseCell(cell) {
     cellHTML = cell.innerHTML
     cellText = cell.innerText
-    if (cellHTML == +cellHTML){
+    if (cellHTML == +cellHTML) {
         // scalar, e.g. "5"
         result = cellText }
     else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML) && data[cellText]) {
@@ -515,7 +512,7 @@ function parseCell(cell) {
         expr_raw = expr_raw.replace(/\s/g, " ")   // replace protected spaces (caused by nbsp)
 
         // search for column names starting with $ and ending as a word, e.g. $11 vs $119
-        for (k in lookup) {if (k.startsWith('$')){  u=expr_raw.match("\\"+k+"\\b", "g"); u && knums.add(u[0].replace("$", ""))}}
+        for (k in lookup) {if (k.startsWith('$')) {  u=expr_raw.match("\\"+k+"\\b", "g"); u && knums.add(u[0].replace("$", ""))}}
         // Trim dollar sign and convert to integer
         //knums.add(...expr_raw.match(/\$[0-9]+/g).map(x=>+x.replace("$", "")))
 
@@ -543,7 +540,7 @@ function parseCell(cell) {
     return result
 }
 
-function using_columns(){
+function using_columns() {
     [cx, cy, ct] = document.getElementById("using").innerText.split(":")
     document.getElementById("cx").innerText = cx
     document.getElementById("cy").innerText = cy
@@ -551,7 +548,7 @@ function using_columns(){
     select_columns()
 }
 
-function select_columns(){
+function select_columns() {
     args = {
         x : parseCell(document.getElementById("cx")),
         y : parseCell(document.getElementById("cy")),
@@ -581,14 +578,14 @@ function linspace(start, stop, num, endpoint=true) {
     return Array.from({length: num}, (_, i) => start + step * i)
 }
 
-function empty_func(){
+function empty_func() {
     // a placeholder (function with no data)
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
     expr1 = document.getElementById("funcf").innerText
     if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
 }
 
-function draw_func(){
+function draw_func() {
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
     expr1 = document.getElementById("funcf").innerText
     funcc = document.getElementById("funcc").innerText
@@ -607,7 +604,7 @@ function draw_func(){
             }
 
             [expr_y, expr_x] = expr1.split(",").reverse()
-            if (expr_x != undefined){
+            if (expr_x != undefined) {
                 // parametric plot
                 range = [0, 10, 2000]
             }
@@ -625,8 +622,8 @@ function draw_func(){
 
             x1 = t1 = linspace(...range)
             expr2 = math.compile(expr_y.trim()).evaluate
- 
-            if (expr_x != undefined){
+
+            if (expr_x != undefined) {
                 // parametric plot
                 expr_x2 = math.compile(expr_x.trim()).evaluate
                 x1 = t1.map(t => expr_x2({'t':t}))
@@ -648,7 +645,7 @@ function draw_func(){
         Plotly.restyle(graph, {'x': [x1], 'y': [y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
     }
-    for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle")){
+    for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle")) {
         // reset attributes for the editable labels
         // needed only for the when page reload (work in first place) + mouse zoom (property removed)
         x.style['cursor'] = 'text'
@@ -657,7 +654,7 @@ function draw_func(){
     }
 }
 
-function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
     console.log('asdfas', dt, x, y)
 
     trace1 = {
@@ -736,7 +733,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}){
         info('Closest point clicked: ' + pts)
     })
 
-    graph.on('plotly_relayout', function(event){
+    graph.on('plotly_relayout', function(event) {
         // recompute the function for new ranges after zoom (resize?)
         draw_func()
     })
@@ -763,10 +760,6 @@ observer.observe(document.getElementById('plotly-div'), {attributes: true})
 url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
 
-
-function textlength(elem) {
-    return elem.length ? elem.length : elem.innerText.length
-}
 
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
@@ -817,7 +810,7 @@ function parseNode(node) {
     qname && filter_suggests(curnode.parentNode)
 }
 
-function init(){
+function init() {
     // after reading data:
     colpool = arguments[0]._colnames
 
@@ -852,7 +845,7 @@ dsv(url, init)
 
 
 // create shared link
-document.getElementById("share").onclick = function(){
+document.getElementById("share").onclick = function() {
     _url = new URL(window.location)
     _url = _url.origin + _url.pathname + "?"
     _url += (xtitle && "xtitle="+xtitle+"&")
@@ -867,7 +860,7 @@ document.getElementById("share").onclick = function(){
 }
 
 
-function edittext(svgtext){
+function edittext(svgtext) {
     // to edit xtitle etc.
     svgtext = svgtext.target
     var input = document.createElement("input")
@@ -875,8 +868,8 @@ function edittext(svgtext){
     input.svg = svgtext
     graph.onmouseover = null   // remove temporarily the focus stealing from zoompan.js
 
-    // input.onkeyup = function(e){
-    input.addEventListener('keyup', function(e){
+    // input.onkeyup = function(e) {
+    input.addEventListener('keyup', function(e) {
         //e.stopPropagation()
         if (["Enter", "Escape"].includes(e.key)) {this.blur()}
         else {svgtext.textContent = this.value}
@@ -892,8 +885,8 @@ function edittext(svgtext){
         }
     }
 
-    input.onblur = function(e){
-        //if (e.relatedTarget){e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
+    input.onblur = function(e) {
+        //if (e.relatedTarget) {e.stopPropagation(); e.stopImmediatePropagation(); this.focus(); return}
         myforeign.remove()
         graph.onmouseover = graph.focus   // restore focus behaviour from zoompan.js
     }
@@ -925,7 +918,7 @@ function edittext(svgtext){
     input.focus()
 }
 
-window.onbeforeunload = function(e){
+window.onbeforeunload = function(e) {
     // prevent following github link accidentally
     if (e.srcElement.activeElement.id == 'github')
         return 'Are you sure you want to leave?'
@@ -990,8 +983,8 @@ function suggest_hit(e) {
     return // prevent caret movement
 }
 
-suggest_list = document.getElementById("suggest_list")
 suggest_div = document.getElementById("suggest_div")
+suggest_list = document.getElementById("suggest_list")
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 
@@ -1043,10 +1036,10 @@ function mark_active(e) {
     if (document.getElementsByClassName("trace_t")[0] == foc.parentElement.parentElement)
         foc.classList.add("active")
     else
-        // hide suggest list when leaving the box 
+        // hide suggest list when leaving the box
         suggest_list.style.display = ""
 }
- 
+
 </script>
 
 <style>
