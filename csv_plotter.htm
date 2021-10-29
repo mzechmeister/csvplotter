@@ -417,7 +417,7 @@ function handleDrop(e) {
         } else
             // kbox -> kbox
             swap(dragsrc, e.target)
-        // setEndOfContenteditable(dragsrc)
+        setEndOfContenteditable(dragsrc)
         return false
     } else if (!kname) {
         // kbox -> text
@@ -427,8 +427,14 @@ function handleDrop(e) {
             sel.collapse(e.rangeParent, e.rangeOffset)
             range = sel.getRangeAt(0)
         }
-        range.insertNode(dragsrc)
-        //sel.collapse(e.rangeParent, e.rangeOffset)  // duplicates kbox?
+        if (p = range.startContainer.parentNode.closest('.kbox')) {
+            // prevent dropping into first/last kbox
+            sel.focusOffset<2 ? p.parentNode.firstChild.before(dragsrc)
+                              : p.parentNode.lastChild.after(dragsrc)
+        } else
+            range.insertNode(dragsrc)
+        setEndOfContenteditable(dragsrc)
+        return false
     }
     // kpool.kbox,text -> text
     // else: normal text dropping needs no extra handling
