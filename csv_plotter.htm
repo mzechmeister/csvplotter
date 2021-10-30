@@ -12,12 +12,7 @@
         box-shadow: 0 0 3px 1px #900 !important;   /* red */
     }
 
-    div[contenteditable=true] {
-        display: inline-block;
-        padding: 0px 4px;
-    }
-
-    [contenteditable=true]:empty:before {
+    [contenteditable]:empty:before {
         content: attr(placeholder);
         color: #ccc;
         cursor: text;
@@ -61,11 +56,12 @@
     }
 
     .kbox > span {
-        pointer-events: none;    /* pass all events to kbox */
+        pointer-events: none;       /* pass all events to kbox */
     }
 
     #kpool > .kbox {
         cursor: pointer;            /* sent by click */
+        margin: 3px;
     }
 
     .dropcell > .kbox::before {
@@ -90,7 +86,7 @@
         text-indent: initial;   /* do not inherit fom div */
     }
 
-    li > .kbox[knum] {
+    li > .kbox {
         border: none;
         background-color: transparent;
         pointer-events: none;
@@ -102,10 +98,6 @@
 
     li:not(.show) {
         display: none;
-    }
-
-    #kpool > .kbox {
-        margin: 3px;
     }
 
     #kpool > .kbox > span, li > .kbox > span {
@@ -294,10 +286,8 @@ function add_drop(query) {
 }
 
 function remove_drag() {
-    for (x of [...document.getElementsByClassName("dragging")])
-        x.classList.remove('dragging')
-    for (x of [...document.getElementsByClassName("dragover")])
-        x.classList.remove('dragover')
+    for (x of [...document.querySelectorAll(".dragging,.dragover")])
+        x.classList.remove('dragging', 'dragover')   /* see 1156633d47d2568781cabc5ebc7c07ad16f6089b */
     return false   // do only once for mousedown, dragend
 }
 
@@ -343,23 +333,24 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div)
 }
 
-for (item of document.getElementsByClassName('color')) {
-    item.onchange = (e => colorRestyle(e.target))
+
+for (cell of document.getElementsByClassName('dropcell')) {
+    cell.contentEditable = true
+    cell.spellcheck = false
+    cell.ondragover = handleDragEnter
+    cell.ondrop = handleDrop
 }
 
-
-for (item of document.getElementsByClassName('dropcell')) {
-    item.contentEditable = true
-    item.spellcheck = false
-    item.ondragover = handleDragEnter
-    item.ondrop = handleDrop
+for (cell of document.getElementsByClassName('color')) {
+    cell.onchange = (e => colorRestyle(e.target))
+    cell.ondrop = colorDrop
 }
 
-for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]")) {
-    item.oninput = function(e) {
+for (cell of document.querySelectorAll("[contenteditable]")) {
+    cell.oninput = function(e) {
         parseNode(this)
     }
-    item.onkeyup = function(e) {
+    cell.onkeeyup = function(e) {
         if (this.innerText=="\n") {
             // prevent newline when empyting with backspace or del
             this.innerText = ""
@@ -367,8 +358,6 @@ for (item of document.querySelectorAll("[contenteditable],[contentEditable=true]
     }
 }
 
-document.getElementById("cc").ondrop = colorDrop
-document.getElementById("funcc").ondrop = colorDrop
 document.getElementById("funcf").onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}; this.onchange()}
 
 
