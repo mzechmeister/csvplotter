@@ -201,6 +201,12 @@
         display: none;
     }
 
+    .plotypicon {
+        width: 18px;
+        height: 18px;
+        border: 1px solid grey;
+    }
+
     </style>
 </head>
 
@@ -846,7 +852,7 @@ document.getElementById("share").onclick = function() {
     _url += (xtitle && "xtitle="+xtitle+"&")
          +  (ytitle && "ytitle="+ytitle+"&")
          +  (title  && "title="+title+"&")
-    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => {val=x.innerText; if (val) return x.id+'='+val}).filter(x=>x).join('&')
+    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
@@ -958,7 +964,7 @@ function filter_suggests(foc) {
     // keep last proposal or propose first element
     (hover = suggest_list.querySelector('.show.hover')) ||
         (hover = suggest_list.querySelector('.show')) && hover.classList.add('hover')
-    suggest_list.style.display = n>0 ? 'block' : ''
+    suggest_list.style.display = n ? 'block' : ''
     // if there is only unique match, apply immediately
     if (n==1 && (hover.firstChild.getAttribute("knum") == query
                       || hover.innerText.toLowerCase() == query))
@@ -1005,45 +1011,19 @@ function handle_keydown(e) {
     }
 }
 
-for (item of document.querySelectorAll(".trace_t:first-child > span.dropcell")) {
+for (item of document.querySelectorAll("[tnum='1'] > span.dropcell")) {
     item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = ""}
 }
 
-function setEndOfContenteditable(contentEditableElement, atstart=false) {
-    var range = document.createRange()     // create a range (a range is a like the selection but invisible)
-    range.selectNodeContents(contentEditableElement) // select the entire contents of the element with the range
-    range.collapse(atstart)                // collapse the range to the end point. false means collapse to end rather than the start
-    var selection = window.getSelection()  // get the selection object (allows you to change selection)
-    selection.removeAllRanges()            // remove any selections already made
-    selection.addRange(range)              // make the range you have just created the visible selection
+function setEndOfContenteditable(elem) {
+    sel.selectAllChildren(elem)
+    sel.collapseToEnd()
 }
 
 var sel = window.getSelection()
-var foc
-
-//document.onselectionchange = mark_active
-
-function mark_active(e) {
-    // highlight the span with caret
-    foc && foc.classList.remove('active')
-    foc = sel.focusNode.parentElement
-    if (document.getElementsByClassName("trace_t")[0] == foc.parentElement.parentElement)
-        foc.classList.add("active")
-    else
-        // hide suggest list when leaving the box
-        suggest_list.style.display = ""
-}
 
 </script>
-
-<style>
-    .plotypicon {
-        width: 18px;
-        height: 18px;
-        border: 1px solid grey;
-    }
-</style>
 
 <div id="plottyp" bla='"https://github.com/plotly/plotly-icons/tree/master/src/svg https://plotly-icons.ineffable.digital/">
    <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
