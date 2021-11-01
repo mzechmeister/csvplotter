@@ -386,8 +386,6 @@ function handleDragEnter(e) {
 
 function handleDrag(e) {
     e.preventDefault()   // needed otherwise drop is not called
-    this.contentEditable = true
-
     //return false
 }
 
@@ -463,6 +461,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
                                                e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
         if (drag4contenteditable) {
+            sp.addEventListener('drag', e => {sp.contentEditable = true})
             sp.addEventListener('mousedown', e => {sp.contentEditable = false})
             sp.addEventListener('mouseup', e => {
                 sp.contentEditable = true
