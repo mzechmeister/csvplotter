@@ -48,7 +48,7 @@
         padding: 0px 4px;
     }
 
-    .kbox::before {
+    .kbox[kname]::before {
         content: attr(knum);
         vertical-align: super;
         font-size: smaller;
@@ -386,6 +386,8 @@ function handleDragEnter(e) {
 
 function handleDrag(e) {
     e.preventDefault()   // needed otherwise drop is not called
+    this.contentEditable = true
+
     //return false
 }
 
@@ -447,6 +449,7 @@ function kBox(colname, responsive=true) {
     sp.innerHTML = '<span>$</span>' + colname
     knum = lookup["$"+colname]
     if (knum != undefined) {
+        colname != knum && sp.setAttribute('kname', 'true')
         sp.setAttribute('knum', knum)
         //sp.style.color = "#" + schemeSet3[knum % 12]
         sp.style.color = "#" + schemeDark2[knum % 8]
@@ -459,6 +462,16 @@ function kBox(colname, responsive=true) {
         sp.addEventListener('dragleave', e => {if(sp.contains(e.relatedTarget)) return;   // @FF: do not leave when draging over the child textnode.  CSS ".kbox * {pointer-events: none;}"
                                                e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
+        sp.addEventListener('mousedown', e => {sp.contentEditable = false})
+        sp.addEventListener('mouseup', e => {
+            sp.contentEditable = true
+            if (document.caretRangeFromPoint)
+                range = document.caretRangeFromPoint(e.clientX, e.clientY)
+            else {   // firefox
+                var sel = window.getSelection()
+                sel.collapse(e.rangeParent, e.rangeOffset)
+            }
+        })
     }
     return sp
 }
