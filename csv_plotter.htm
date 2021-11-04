@@ -303,16 +303,23 @@ function colorDragStart(e) {
     e.dataTransfer.setData('text/html', this.style["background-color"])
 }
 
-function colorUpdate(f, rgb) {
-    if (!rgb) rgb = f.innerHTML
+function parseColor(f, rgb) {
+    if (!rgb) rgb = f.innerText
     if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
-    f.style.backgroundColor = rgb
-    f.innerHTML = rgb
+    if (rgb.startsWith('#')) {
+        f.style.backgroundColor = rgb
+        f.innerHTML = rgb
+    } else {
+        // vector, i.e. a palette
+        f.style.backgroundColor = ''
+        rgb = [parseCell(f)]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
+    }
+    return rgb
 }
 
-function colorRestyle(f, rgb) {
-    colorUpdate(f, rgb)
-    Plotly.restyle(graph, {'marker.color': f.innerText, 'error_x.color': f.innerText, 'error_y.color': f.innerText}, f.parentElement.getAttribute("tnum")-1)
+function colorRestyle(f, rgb='') {
+    rgb = parseColor(f, rgb)
+    Plotly.restyle(graph, {'marker.color': rgb, 'marker.colorscale': 'Portland', 'error_x.color': rgb, 'error_y.color': rgb}, f.parentElement.getAttribute("tnum")-1)
 }
 
 function colorDrop(e) {
@@ -573,7 +580,7 @@ function select_columns() {
         dt : parseCell(document.getElementById("ct")),
         ds : parseCell(document.getElementById("cs")),
         pt : parseCell(document.getElementById("pt")),
-        cc : document.getElementById("cc").innerText,
+        cc : parseColor(document.getElementById("cc")),
         Do : parseCell(document.getElementById("co")),
     }
     args
@@ -683,6 +690,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
             symbol: pt,
             opacity: Do,
             color: cc ? cc : '#404040',
+            colorscale: 'Portland',
             line: { width: 1,
                 color: '#404040'}}
     }
