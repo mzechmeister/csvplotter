@@ -698,7 +698,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
     console.log('asdfas', dt, x, y)
 
     trace1 = {
-        type: webgl.checked ? "scattergl" : "scatter",   // https://plotly.com/javascript/webgl-vs-svg/
+        type: webgl.checked ? "scattergl" : "scatter",   // https://plotly.com/javascript/webgl-vs-svg
         x: x,
         y: y,
         name: data._basename,
@@ -865,6 +865,8 @@ function init() {
 
     var fs = url_kwargs.expand
     delete url_kwargs.expand
+    var gl = url_kwargs.gl
+    delete url_kwargs.gl
     xtitle = url_kwargs.xtitle || ""
     delete url_kwargs.xtitle
     ytitle = url_kwargs.ytitle || ""
@@ -878,6 +880,7 @@ function init() {
         parseNode(t)
     }
 
+    if (["false", "0"].includes(gl)) webgl.checked = false
     select_columns()   // plots data
     if (fs != undefined) expand.click()
 }
@@ -892,6 +895,7 @@ document.getElementById("share").onclick = function() {
     _url += (xtitle && "xtitle="+xtitle+"&")
          +  (ytitle && "ytitle="+ytitle+"&")
          +  (title  && "title="+title+"&")
+    if (!webgl.checked) _url += "gl="+webgl.checked+"&"
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
