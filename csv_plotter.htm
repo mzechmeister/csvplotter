@@ -211,6 +211,10 @@
         filter: blur(0.8px);
     }
 
+    #webgl:disabled + i {
+        color: #999;
+    }
+
     #menuicons > button,i {
         vertical-align: middle;
     }
@@ -238,7 +242,7 @@
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'forward', 'character')" style="width:100px"><i class="fas fa-arrow-right"></i></button>
     <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
     <a id="github" style="text-decoration: none; color: black; padding: 0px 8px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
-    <label><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
+    <label onclick="this.firstChild.disabled=false"><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
     <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
     </div>
 </div>
@@ -694,11 +698,13 @@ function draw_func() {
     }
 }
 
+glmin = 500   // Threshold for number of points to toggle automatically between gl and svg
+
 function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
     console.log('asdfas', dt, x, y)
 
     trace1 = {
-        type: webgl.checked ? "scattergl" : "scatter",   // https://plotly.com/javascript/webgl-vs-svg
+        type: (webgl.disabled ? data[0].length>glmin : webgl.checked) ? "scattergl" : "scatter",   // https://plotly.com/javascript/webgl-vs-svg
         x: x,
         y: y,
         name: data._basename,
@@ -880,6 +886,7 @@ function init() {
         parseNode(t)
     }
 
+    if (["", undefined].includes(gl)) webgl.disabled = true   // auto select gl
     if (["false", "0"].includes(gl)) webgl.checked = false
     select_columns()   // plots data
     if (fs != undefined) expand.click()
@@ -895,7 +902,7 @@ document.getElementById("share").onclick = function() {
     _url += (xtitle && "xtitle="+xtitle+"&")
          +  (ytitle && "ytitle="+ytitle+"&")
          +  (title  && "title="+title+"&")
-    if (!webgl.checked) _url += "gl="+webgl.checked+"&"
+    if (!webgl.disabled) _url += "gl="+webgl.checked+"&"
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
