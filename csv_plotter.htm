@@ -114,7 +114,7 @@
         flex-grow: 0;
     }
 
-    .dropcell.color:not(:hover):not(:focus) {
+    .dropcell.rgb:not(:hover):not(:focus) {
         /* slowly hide hex string */
         transition: color 1s;
         color: transparent;
@@ -272,7 +272,7 @@
    <div class="trace_t" tnum=2>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
       <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
-      <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
+      <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="select_columns()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="select_columns()">0.5</span>
    </div>
 </div>
@@ -329,10 +329,12 @@ function parseColor(f, rgb) {
     if (rgb.startsWith('#')) {
         f.style.backgroundColor = rgb
         f.innerHTML = rgb
+        f.classList.add("rgb")
     } else {
         // vector, i.e. a palette
         f.style.backgroundColor = ''
         rgb = parseCell(f)
+        f.classList.remove("rgb")
     }
     return rgb
 }
