@@ -957,6 +957,7 @@ function edittext(svgtext) {
         if (val=="g-ytitle") ytitle && (ytitle=e.target.value)
         if (val=="g-gtitle")  title && (title=e.target.value)
         if (val=="cbtitle") {
+            myforeign.remove()
             Plotly.restyle(graph, {"marker.colorbar.title": cbtitle=e.target.value})
             return
         }
