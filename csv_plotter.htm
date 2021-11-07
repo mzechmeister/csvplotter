@@ -340,7 +340,7 @@ function parseColor(f, rgb) {
 function colorRestyle(f, rgb='') {
     rgb = parseColor(f, rgb)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
-    Plotly.restyle(graph, {'marker.color': rgb, 'error_x.color': rgb, 'error_y.color': rgb, 'marker.showscale': typeof rgb[0] == "object"}, f.parentElement.getAttribute("tnum")-1)
+    Plotly.restyle(graph, {'marker.color': rgb, 'error_x.color': rgb, 'error_y.color': rgb, 'marker.showscale': typeof rgb[0] == "object", 'marker.colorbar.title': cbtitle || document.getElementById("cc").innerText}, f.parentElement.getAttribute("tnum")-1)
 }
 
 function colorDrop(e) {
