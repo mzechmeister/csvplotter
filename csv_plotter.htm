@@ -340,7 +340,7 @@ function parseColor(f, rgb) {
 function colorRestyle(f, rgb='') {
     rgb = parseColor(f, rgb)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
-    Plotly.restyle(graph, {'marker.color': rgb, 'marker.colorscale': 'Portland', 'error_x.color': rgb, 'error_y.color': rgb}, f.parentElement.getAttribute("tnum")-1)
+    Plotly.restyle(graph, {'marker.color': rgb, 'error_x.color': rgb, 'error_y.color': rgb, 'marker.showscale': typeof rgb[0] == "object"}, f.parentElement.getAttribute("tnum")-1)
 }
 
 function colorDrop(e) {
@@ -689,7 +689,7 @@ function draw_func() {
         Plotly.restyle(graph, {'x': [x1], 'y': [y1], 'name': [expr1],
             marker: [{color: funcc}], opacity: funco}, 1)
     }
-    for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle")) {
+    for (x of document.querySelectorAll(".gtitle, .xtitle, .ytitle, .cbtitle > text")) {
         // reset attributes for the editable labels
         // needed only for the when page reload (work in first place) + mouse zoom (property removed)
         x.style['cursor'] = 'text'
@@ -714,6 +714,10 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
             opacity: Do,
             color: cc ? cc : '#404040',
             colorscale: 'Portland',
+            colorbar: {title: cbtitle || document.getElementById("cc").innerText, 
+                ticks: 'inside'
+            },     
+            showscale: typeof cc == "object",
             line: { width: 1,
                 color: '#404040'}}
     }
@@ -879,6 +883,8 @@ function init() {
     delete url_kwargs.ytitle
     title = url_kwargs.title  || ""
     delete url_kwargs.title
+    cbtitle = url_kwargs.cbtitle  || ""
+    delete url_kwargs.cbtitle
 
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
@@ -950,6 +956,10 @@ function edittext(svgtext) {
         if (val=="g-xtitle") xtitle && (xtitle=e.target.value)
         if (val=="g-ytitle") ytitle && (ytitle=e.target.value)
         if (val=="g-gtitle")  title && (title=e.target.value)
+        if (val=="cbtitle") {
+            Plotly.restyle(graph, {"marker.colorbar.title": cbtitle=e.target.value})
+            return
+        }
         a = a[val] + 'title'
         b = {}; b[a] = e.target.value
         Plotly.relayout(graph, b)
