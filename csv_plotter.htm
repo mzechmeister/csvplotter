@@ -908,6 +908,7 @@ document.getElementById("share").onclick = function() {
     _url += (xtitle && "xtitle="+xtitle+"&")
          +  (ytitle && "ytitle="+ytitle+"&")
          +  (title  && "title="+title+"&")
+         +  (cbtitle&& "cbtitle="+cbtitle+"&")
     if (!webgl.disabled) _url += "gl="+webgl.checked+"&"
     _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
