@@ -820,7 +820,7 @@ function parseNode(node) {
 
     let sel = window.getSelection()
     if (node.contains(sel.focusNode)) {
-        sel.extend(node.firstChild)
+        sel.extend(node.firstChild || node)
         seltext = sel.toString()
     } else
         seltext = node.innerText
@@ -852,9 +852,9 @@ function parseNode(node) {
 
     // put the caret in rendered element
     node.focus()   // only for FF68 (NS_ERROR_FAILURE, https://bugzilla.mozilla.org/show_bug.cgi?id=1623413)
-    sel.setBaseAndExtent(node, 0, curnode, 0)
+    sel.setBaseAndExtent(node, 0, curnode || node, 0)
     let offset = curpos - sel.toString().length
-    sel.extend(curnode, offset)
+    sel.extend(curnode || node, offset)
     sel.collapseToEnd()
     node.focus()   // no effect?
 
