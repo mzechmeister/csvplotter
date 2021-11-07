@@ -345,13 +345,6 @@ function colorRestyle(f, rgb='') {
     Plotly.restyle(graph, {'marker.color': rgb, 'error_x.color': rgb, 'error_y.color': rgb, 'marker.showscale': typeof rgb[0] == "object", 'marker.colorbar.title': cbtitle || document.getElementById("cc").innerText}, f.parentElement.getAttribute("tnum")-1)
 }
 
-function colorDrop(e) {
-    e.stopPropagation()   // stops the browser from redirecting.
-    var rgb = e.dataTransfer.getData('text/html')
-    colorRestyle(this, rgb)
-    return false
-}
-
 // the color boxes
 divcols = document.getElementById('colornames')
 divcols.onmouseenter = (_ => add_drop(".color"))
@@ -379,7 +372,6 @@ for (cell of document.getElementsByClassName('dropcell')) {
 
 for (cell of document.getElementsByClassName('color')) {
     cell.onchange = (e => colorRestyle(e.target))
-    cell.ondrop = colorDrop
 }
 
 for (cell of document.querySelectorAll("[contenteditable]")) {
@@ -430,6 +422,12 @@ function handleDrop(e) {
     //e.preventDefault()   // stops the browser from redirecting FF68.
     if (e.dataTransfer.files.length) {
         dsv(e.dataTransfer.files[0], init)
+        return false
+    }
+
+    let rgb = e.dataTransfer.getData('text/html')
+    if (rgb) {
+        colorRestyle(e.target, rgb)
         return false
     }
 
