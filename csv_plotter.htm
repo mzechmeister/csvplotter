@@ -427,7 +427,7 @@ function handleDrop(e) {
 
     let rgb = e.dataTransfer.getData('text/html')
     if (rgb) {
-        colorRestyle(e.target, rgb)
+        colorRestyle(e.target.closest('.dropcell'), rgb)   // replace all cell content
         return false
     }
 
