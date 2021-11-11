@@ -272,8 +272,8 @@
    <div class="trace_t" tnum=2>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
       <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
-      <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="select_columns()"></span>
-      <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="select_columns()">0.5</span>
+      <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
+      <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span>
    </div>
 </div>
 
@@ -339,10 +339,45 @@ function parseColor(f, rgb) {
     return rgb
 }
 
+function update_errorbar(tnum) {
+    // back to d3, since Plotly cannot make variable colors for errorbars 
+    // also opacity for errorbars was depreciated
+    // only works for svg
+    let f = document.getElementsByClassName("color")[tnum-1]
+    let rgb = parseColor(f, '')
+    let opacity = parseCell(f.nextElementSibling.nextElementSibling)
+
+    let tclass = ".trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
+    let xerr = Plotly.d3.selectAll('.xerror')
+    let yerr = Plotly.d3.selectAll('.yerror')
+    if (rgb.pop) {
+        // get colors from data points
+        rgbs = Plotly.d3.selectAll('.points .point').data().map(d => d.mcc)
+
+        // apply colors to errorbars
+        xerr.style('stroke', (d,i) => rgbs[i])
+        yerr.style('stroke', (d,i) => rgbs[i])
+    }
+    if (opacity.pop) {
+        xerr.style("stroke-opacity", (d,i) => opacity[i])
+        yerr.style("stroke-opacity", (d,i) => opacity[i])
+    } else   // also fixed opacity needs to be updated, since deprecated in plotly
+        Plotly.d3.selectAll(tclass+" .xerror,.yerror").style("stroke-opacity", opacity)
+}
+
 function colorRestyle(f, rgb='') {
     rgb = parseColor(f, rgb)
+    let opacity = parseCell(f.nextElementSibling.nextElementSibling)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
-    Plotly.restyle(graph, {'marker.color': rgb, 'error_x.color': rgb, 'error_y.color': rgb, 'marker.showscale': typeof rgb[0] == "object", 'marker.colorbar.title': cbtitle || document.getElementById("cc").innerText}, f.parentElement.getAttribute("tnum")-1)
+    let tnum = f.parentElement.getAttribute("tnum")
+    Plotly.restyle(graph, {
+        'marker.color': rgb,
+        'error_x.color': rgb,
+        'error_y.color': rgb,
+        'marker.showscale': typeof rgb[0] == "object",
+        'marker.colorbar.title': cbtitle || document.getElementById("cc").innerText
+        }, tnum-1)
+    update_errorbar(1)
 }
 
 // the color boxes
@@ -771,6 +806,10 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
 
     graph = document.getElementsByClassName("js-plotly-plot")[0]
 
+    if (webgl.disabled || !webgl.checked) {
+        update_errorbar(1)
+    }
+
     graph.on('plotly_click', function(data) {
         let pts = ''
         for (let d of data.points) { // data.point are not all points from one trace
@@ -787,6 +826,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
     graph.on('plotly_relayout', function(event) {
         // recompute the function for new ranges after zoom (resize?)
         draw_func()
+        update_errorbar(1)
     })
 
 }
@@ -1077,6 +1117,10 @@ function handle_keydown(e) {
 for (item of document.querySelectorAll("[tnum='1'] > span.dropcell")) {
     item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = ""}
+}
+
+for (item of document.querySelectorAll("[tnum='2'] > span.dropcell")) {
+    item.onkeydown = handle_keydown
 }
 
 function setEndOfContenteditable(elem) {
