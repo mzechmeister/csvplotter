@@ -38,6 +38,7 @@ graph.tabIndex = 0; // https://stackoverflow.com/questions/3149362/capture-key-p
 graph.onmouseover = graph.focus   // focus when over, thus no click needed
 graph.style.cssText = "resize:both; overflow: auto;" // border: 1px solid; height:250px"
 
+var mousei
 
 graph.addEventListener("keydown", function(e){
     if (e.target!=this) {return} // e.g. to escape to edittext
