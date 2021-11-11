@@ -339,10 +339,10 @@ function parseColor(f, rgb) {
     return rgb
 }
 
-function update_errorbar(tnum) {
+function update_errorbar(tnum=1) {
     // back to d3, since Plotly cannot make variable colors for errorbars 
     // also opacity for errorbars was depreciated
-    // only works for svg
+    if (!webgl.disabled && webgl.checked) return   // does not works for gl (only svg)
     let f = document.getElementsByClassName("color")[tnum-1]
     let rgb = parseColor(f, '')
     let opacity = parseCell(f.nextElementSibling.nextElementSibling)
@@ -377,7 +377,6 @@ function colorRestyle(f, rgb='') {
         'marker.showscale': typeof rgb[0] == "object",
         'marker.colorbar.title': cbtitle || document.getElementById("cc").innerText
         }, tnum-1)
-    update_errorbar(1)
 }
 
 // the color boxes
@@ -639,7 +638,6 @@ function select_columns() {
         cc : parseColor(document.getElementById("cc")),
         Do : parseCell(document.getElementById("co")),
     }
-    args
 
     //document.getElementById("using").innerText = x + ":" + y + ":" + ct + ":" + ds
     plot_data(data, args)
@@ -800,15 +798,19 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
             modeBarButtonsToRemove: ['select2d', 'lasso2d']}
     })
 
-    draw_func()
-    zoompan()
-
-
     graph = document.getElementsByClassName("js-plotly-plot")[0]
 
-    if (webgl.disabled || !webgl.checked) {
-        update_errorbar(1)
-    }
+    graph.on('plotly_restyle', e => update_errorbar())
+
+    graph.on('plotly_relayout', function(event) {
+        // recompute the function for new ranges after zoom (resize?)
+        draw_func()
+        update_errorbar()
+    })
+
+    draw_func()
+    update_errorbar()   // to render ealier the errorbars
+    zoompan()
 
     graph.on('plotly_click', function(data) {
         let pts = ''
@@ -822,13 +824,6 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
         }
         info('Closest point clicked: ' + pts)
     })
-
-    graph.on('plotly_relayout', function(event) {
-        // recompute the function for new ranges after zoom (resize?)
-        draw_func()
-        update_errorbar(1)
-    })
-
 }
 
 
