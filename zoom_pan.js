@@ -57,12 +57,15 @@ graph.addEventListener("keydown", function(e){
         case '-': zoomX(-fac); zoomY(-fac); break;
         case 'X': case 'U':
              update['xaxis.range'] = [extremes.x.min[0].val, extremes.x.max[0].val];
+             if (key=='X') break
         case 'Y': case 'U':
              update['yaxis.range'] = [extremes.y.min[0].val, extremes.y.max[0].val]; break;
         case 'x':
-             update['xaxis.range'] = [extremes.x.min[0].val, extremes.x.max[0].val];
+             let xrange = graph._fullData.map(d => current_extreme(d.x,d.y,...graph._fullLayout.yaxis.range)).reduce((e1,e2) => [Math.min(e1[0],e2[0]), Math.max(e1[1],
+ e2[1])])
+             update['xaxis.range'] = xrange; break;
         case 'y':
-             yrange = graph._fullData.map(d => current_extreme(d.y,d.x,...graph._fullLayout.xaxis.range)).reduce((e1,e2) => [Math.min(e1[0],e2[0]), Math.max(e1[1],
+             let yrange = graph._fullData.map(d => current_extreme(d.y,d.x,...graph._fullLayout.xaxis.range)).reduce((e1,e2) => [Math.min(e1[0],e2[0]), Math.max(e1[1],
  e2[1])]);
              update['yaxis.range'] = yrange; break;
         case 'u':
