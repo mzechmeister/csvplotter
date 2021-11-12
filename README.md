@@ -13,4 +13,33 @@ Features:
 * everything in javascript (i.e. client side execution)
 * shareable via url parameters
 
+Short cuts:
+| key | description |
+|-----|----|
+| <kbd>g</kbd> | toggle grid | 
+| <kbd>r</kbd> | ruler |
+| <kbd>l</kbd> | logscale for y-axis |
+| <kbd>L</kbd> | logscale for x-axis |
+| <kbd>+</kbd> | zoom in |
+| <kbd>-</kbd> | zoom out |
+| <kbd>u</kbd> | reset zoom |
+| <kbd>&rightarrow;</kbd> | pan right |
+| <kbd>&leftarrow;</kbd> | pan left |
+| <kbd>&uparrow;</kbd> | pan up |
+| <kbd>&downarrow;</kbd> | pan down |
+| <kbd>Home</kbd> | pan left by one page |
+| <kbd>End</kbd> | pan right by one page | 
+| <kbd>PageUp</kbd> | pan up by one page |
+| <kbd>PageDown</kbd> | pan down by one page |
+| <kbd>Ctrl</kbd><kbd>&rightarrow;</kbd> | horizontal zoom in |
+| <kbd>Ctrl</kbd><kbd>&leftarrow;</kbd> |  horizontal zoom out |
+| <kbd>Ctrl</kbd><kbd>&uparrow;</kbd> | vertical zoom in |
+| <kbd>Ctrl</kbd><kbd>&downarrow;</kbd> | vertical zoom out |
+| <kbd>X</kbd> | horizontal unzoom to global data extremes |
+| <kbd>Y</kbd> | vertical unzoom to global data extremes |
+| <kbd>U</kbd> | unzoom to global data extremes |
+| <kbd>x</kbd> | horizontal unzoom to local data extremes |
+| <kbd>y</kbd> | vertical unzoom to local data extremes |
+| <kbd>0</kbd> | start y-range to 0|
+
 Inspired by [gnuplot](http://www.gnuplot.info), [desmos.com](https://www.desmos.com/calculator), and [csvplot.com](https://csvplot.com).
