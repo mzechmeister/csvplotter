@@ -20,6 +20,8 @@ function zoomX(dx) {pan('x', dx, -1)}
 function zoomY(dy) {pan('y', dy, -1)}
 
 function current_extreme(y, x, xbeg, xend) {
+    if (x == undefined) x = y.map((yi, i) => i)   // row number (that is the plotly for empty x or y data)
+    else if (y == undefined) y = x.map((yi, i) => i)
     yf = y.filter((yi, i) => xbeg<x[i] & x[i]<xend & isFinite(yi))
     return [Math.min(...yf), Math.max(...yf)]
 }
