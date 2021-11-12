@@ -20,7 +20,7 @@ function zoomX(dx) {pan('x', dx, -1)}
 function zoomY(dy) {pan('y', dy, -1)}
 
 function current_extreme(y, x, xbeg, xend) {
-    yf = y.filter((yi, i) => xbeg<x[i] & x[i]<xend)
+    yf = y.filter((yi, i) => xbeg<x[i] & x[i]<xend & isFinite(yi))
     return [Math.min(...yf), Math.max(...yf)]
 }
 
