@@ -40,7 +40,7 @@
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
-    .kbox[knum] {
+    #kpool .kbox[knum], suggest_list .kbox[knum], .fancy .kbox[knum] {
         border: 1px solid #0002;       /* grey ~ #ccc */
         background-color: #e8f9ffaa;   /* a light blue */
         text-indent: 0px;
@@ -48,7 +48,7 @@
         padding: 0px 4px;
     }
 
-    .kbox[kname]::before {
+    #kpool .kbox[kname]::before, suggest_list .kbox[kname]::before, .fancy .kbox[kname]::before {
         content: attr(knum);
         vertical-align: super;
         font-size: smaller;
@@ -211,7 +211,7 @@
         filter: blur(0.8px);
     }
 
-    #webgl:disabled + i {
+    #webgl:disabled + i, #cbfancy:not(:checked) + i {
         color: #999;
     }
 
@@ -222,7 +222,10 @@
     .fa-classes, .fa-github {
         font-size: large
     }
-    
+
+    .fa-border-style {
+        font-size: larger
+    }
     .cboutline {
         shape-rendering: crispEdges
     }
@@ -247,6 +250,8 @@
     <a id="github" style="text-decoration: none; color: black; padding: 0px 8px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
     <label onclick="this.firstChild.disabled=false"><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
     <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
+    <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementsByClassName("traces")[0].classList.toggle("fancy", this.checked)' style="display: None;">
+    <i class="fas fa-border-style"></i></label>
     </div>
 </div>
 
@@ -256,7 +261,7 @@
 </div>
 
 
-<div class="traces" style="background: white; margin: 5px 0;">
+<div class="traces fancy" style="background: white; margin: 5px 0;">
    <div class="trace_t" tnum=1 tabIndex=0>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
