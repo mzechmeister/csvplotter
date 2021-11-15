@@ -120,27 +120,27 @@
         color: transparent;
     }
 
-    .trace_t {
+    .Trace {
         border: 1px solid #ccc;
         display: flex;
         padding: 0 0 0 4px;
     }
 
-    .trace_t:focus, .trace_t:focus-within {
+    .Trace:focus, .Trace:focus-within {
         border-color: #6399cb;
     }
 
-    .trace_t > label {
+    .Trace > label {
         font-weight: bold;
         font-style:  italic;
         color: #ccc;
     }
 
-    .trace_t:focus > label, .trace_t:focus-within > label {
+    .Trace:focus > label, .Trace:focus-within > label {
         color: #6399cb;
     }
 
-    .trace_t label > i, label > label {
+    .Trace label > i, label > label {
         position: absolute;
     }
 
@@ -250,7 +250,7 @@
     <a id="github" style="text-decoration: none; color: black; padding: 0px 8px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
     <label onclick="this.firstChild.disabled=false"><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
     <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
-    <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementsByClassName("traces")[0].classList.toggle("fancy", this.checked)' style="display: None;">
+    <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementsByClassName("Traces")[0].classList.toggle("fancy", this.checked); console.log(this.checked)' style="display: None;">
     <i class="fas fa-border-style"></i></label>
     </div>
 </div>
@@ -261,8 +261,8 @@
 </div>
 
 
-<div class="traces fancy" style="background: white; margin: 5px 0;">
-   <div class="trace_t" tnum=1 tabIndex=0>
+<div class="Traces fancy" style="background: white; margin: 5px 0;">
+   <div class="Trace" tnum=1 tabIndex=0>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
       <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
@@ -277,7 +277,7 @@
       <label><i class="fa fa-tint"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
    </div>
-   <div class="trace_t" tnum=2>
+   <div class="Trace" tnum=2>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
       <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
       <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
@@ -554,7 +554,7 @@ function init_box(colpool) {
     for (let [k, colname] of colpool.entries()) {
         let sp = kBox(colname, true, drag4contenteditable=false)
         sp.onclick = e => {
-              if (document.querySelector('.trace_t[tnum="1"]').contains(sel.focusNode)) {
+              if (document.querySelector('.Trace[tnum="1"]').contains(sel.focusNode)) {
                   range = sel.getRangeAt(0)
                   range.deleteContents()
                   range.insertNode(kBox(e.target.innerText.substring(1)))
