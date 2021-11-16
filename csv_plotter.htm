@@ -262,7 +262,7 @@
 
 
 <div class="Traces fancy" style="background: white; margin: 5px 0;">
-   <div class="Trace" tnum=1 tabIndex=0>
+   <div class="Trace" contenteditable tnum=1 tabIndex=0>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
       <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
@@ -404,6 +404,9 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div)
 }
 
+for (cell of document.querySelectorAll('.Trace label')) {
+    cell.contentEditable = false
+}
 
 for (cell of document.getElementsByClassName('dropcell')) {
     cell.contentEditable = true
@@ -416,7 +419,7 @@ for (cell of document.getElementsByClassName('color')) {
     cell.onchange = (e => colorRestyle(e.target))
 }
 
-for (cell of document.querySelectorAll("[contenteditable]")) {
+for (cell of document.querySelectorAll("dropcell")) {
     cell.oninput = function(e) {
         parseNode(this)
     }
@@ -1095,7 +1098,13 @@ suggest_list = document.getElementById("suggest_list")
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 
-function handle_keydown(e) {
+Trace1 = document.getElementsByClassName('Trace')[0]
+
+Trace1.oninput = function(e) {
+    parseNode(sel.focusNode.parentElement.closest('.dropcell'))
+}
+
+Trace1.onkeydown = function(e) {
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
         if (suggest_list.style.display == "") {   // case: re-entering span
             // same as oninput
@@ -1111,19 +1120,27 @@ function handle_keydown(e) {
             e.preventDefault()
             return true
         } else {
-            try {this.onchange(e)}
-            finally {return false}   // no newline for Enter press
+            select_columns()    // update plot
+            e.preventDefault()
         }
+    }
+    if (e.key == "Tab") {
+        // go to the previous/next uncle
+        foc = sel.focusNode
+        if (!foc.closest) foc = foc.parentElement   // it was a textnode
+        foc = foc.closest('.dropcell')
+        // skip labels
+        foc = e.shiftKey ? foc.previousElementSibling.previousElementSibling : foc.nextElementSibling.nextElementSibling
+        sel.setPosition(foc, 0)
+        e.preventDefault()
     }
 }
 
 for (item of document.querySelectorAll("[tnum='1'] > span.dropcell")) {
-    item.onkeydown = handle_keydown
     item.onblur = () => {suggest_list.style.display = ""}
 }
 
 for (item of document.querySelectorAll("[tnum='2'] > span.dropcell")) {
-    item.onkeydown = handle_keydown
 }
 
 function setEndOfContenteditable(elem) {
