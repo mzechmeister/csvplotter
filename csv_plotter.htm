@@ -36,7 +36,7 @@
         text-indent: 15px;
     }
 
-    .dragging.dropcell, .dragging .dropcell, .dropcell:focus-within,  div.func:focus-within  {
+    .dragging.dropcell, .dragging .dropcell, .dropcell.caretover,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
@@ -1149,6 +1149,20 @@ function setEndOfContenteditable(elem) {
 }
 
 var sel = window.getSelection()
+
+function closest(elem, cls) {
+    if (!elem.closest) elem = elem.parentNode
+    return elem.closest(cls)
+}
+
+document.addEventListener("selectionchange", function(e) {
+    for (let x of [...document.getElementsByClassName('caretover')])
+        x.classList.remove('caretover')
+    let foc = closest(sel.focusNode.parentNode, ".dropcell")
+    foc && foc.classList.add('caretover')
+    //posinfo.innerHTML = childIndex(sel.getRangeAt(0))+","+sel.focusOffset
+})
+
 
 </script>
 
