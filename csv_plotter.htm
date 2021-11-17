@@ -1122,24 +1122,21 @@ Trace1.onkeydown = function(e) {
         if (multinode || (sel.focusOffset == sel.focusNode.length && !sel.focusNode.nextSibling)) 
             e.preventDefault()
     if (e.key == "Enter") {
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
+        e.preventDefault()
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
-            e.preventDefault()
-            return true
-        } else {
+        else
             select_columns()    // update plot
-            e.preventDefault()
-        }
     }
     if (e.key == "Tab") {
         // go to the previous/next uncle
+        e.preventDefault()
         foc = sel.focusNode
         if (!foc.closest) foc = foc.parentElement   // it was a textnode
         foc = foc.closest('.dropcell')
         // skip labels
         foc = e.shiftKey ? foc.previousElementSibling.previousElementSibling : foc.nextElementSibling.nextElementSibling
         sel.setPosition(foc, 0)
-        e.preventDefault()
     }
 }
 
