@@ -1114,6 +1114,13 @@ Trace1.onkeydown = function(e) {
         suggest_hover_kdb(e)
         return true
     }
+    multinode = sel.anchorNode != sel.focusNode
+    if (e.key == "Backspace")
+        if (multinode || (sel.focusOffset == 0 && !sel.focusNode.previousSibling)) 
+            e.preventDefault()
+    if (e.key == "Delete")
+        if (multinode || (sel.focusOffset == sel.focusNode.length && !sel.focusNode.nextSibling)) 
+            e.preventDefault()
     if (e.key == "Enter") {
         if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
             suggest_hit(hit)
