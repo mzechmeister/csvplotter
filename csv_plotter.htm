@@ -1164,7 +1164,7 @@ function closest(elem, cls) {
 document.addEventListener("selectionchange", function(e) {
     for (let x of [...document.getElementsByClassName('caretover')])
         x.classList.remove('caretover')
-    let foc = closest(sel.focusNode.parentNode, ".dropcell")
+    let foc = closest(sel.focusNode, ".dropcell")
     foc && foc.classList.add('caretover')
     //posinfo.innerHTML = childIndex(sel.getRangeAt(0))+","+sel.focusOffset
 })
