@@ -404,12 +404,13 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div)
 }
 
-for (cell of document.querySelectorAll('.Trace label')) {
+for (cell of document.querySelectorAll('.Trace label,img')) {
     cell.contentEditable = false
 }
 
 for (cell of document.getElementsByClassName('dropcell')) {
     cell.contentEditable = true
+    cell.innerHTML = "<br>"   // allows to focus empty spans
     cell.spellcheck = false
     cell.ondragover = handleDragEnter
     cell.ondrop = handleDrop
@@ -573,8 +574,8 @@ function init_box(colpool) {
 }
 
 function parseCell(cell) {
-    cellHTML = cell.innerHTML
-    cellText = cell.innerText
+    cellHTML = cell.innerHTML.replace(/<br>/g, "")
+    cellText = cell.innerText.replace(/\n/g, "")
     if (cellHTML == +cellHTML) {
         // scalar, e.g. "5"
         result = cellText }
@@ -872,7 +873,7 @@ function parseNode(node) {
         seltext = node.innerText
     curpos = seltext.replace("\n", "").replace("\r", "").length
 
-    let toparse = node.innerText.split("$")
+    let toparse = node.innerText.replace("\n", "").split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
 
     let curnode = node.firstChild   // a text node
@@ -902,6 +903,7 @@ function parseNode(node) {
     let offset = curpos - sel.toString().length
     sel.extend(curnode || node, offset)
     sel.collapseToEnd()
+    node.append(document.createElement("br"))
     node.focus()   // no effect?
 
     qname && filter_suggests(curnode.parentNode)
@@ -1101,7 +1103,7 @@ suggest_list.onmousedown = suggest_hit
 Traces = document.getElementById('Traces')
 
 Traces.oninput = function(e) {
-    parseNode(sel.focusNode.parentElement.closest('.dropcell'))
+    parseNode(closest(sel.focusNode, '.dropcell'))
 }
 
 Traces.onkeydown = function(e) {
@@ -1114,13 +1116,15 @@ Traces.onkeydown = function(e) {
         suggest_hover_kdb(e)
         return true
     }
-    multinode = sel.anchorNode != sel.focusNode
-    if (e.key == "Backspace")
-        if (multinode || (sel.focusOffset == 0 && !sel.focusNode.previousSibling)) 
+    if (e.key == "Backspace" || e.key == "Delete") {
+        if (closest(sel.anchorNode, ".dropcell") != closest(sel.focusNode, ".dropcell")) {
+            // multinode
             e.preventDefault()
-    if (e.key == "Delete")
-        if (multinode || (sel.focusOffset == sel.focusNode.length && !sel.focusNode.nextSibling)) 
+        } else if (closest(sel.focusNode, ".dropcell").innerText == "\n") {
+            // info("empty node")
             e.preventDefault()
+        }                
+    } 
     if (e.key == "Enter") {
         e.preventDefault()
         if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
@@ -1166,9 +1170,8 @@ document.addEventListener("selectionchange", function(e) {
         x.classList.remove('caretover')
     let foc = closest(sel.focusNode, ".dropcell")
     foc && foc.classList.add('caretover')
-    //posinfo.innerHTML = childIndex(sel.getRangeAt(0))+","+sel.focusOffset
+    // info(sel.focusNode.nodeName+", "+sel.focusOffset)
 })
-
 
 </script>
 
