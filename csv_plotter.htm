@@ -544,11 +544,17 @@ function init_box(colpool) {
         let sp = kBox(colname, true, drag4contenteditable=false)
         sp.onclick = e => {
               if (document.querySelector('.Trace[tnum="1"]').contains(sel.focusNode)) {
+                  foc = closest(sel.focusNode, '.kbox')
                   range = sel.getRangeAt(0)
+                  if (foc && sel.isCollapsed)  // replace whole kbox
+                      range.selectNode(foc)
                   range.deleteContents()
-                  range.insertNode(kBox(e.target.innerText.substring(1)))
+                  kbox = kBox(e.target.innerText.substring(1))
+                  range.insertNode(kbox)
+                  range.selectNode(kbox.lastChild)
                   sel.collapseToEnd(false)
-              }}
+              }
+        }
         kpool.appendChild(sp)
 
         // list entries for suggestion
