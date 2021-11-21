@@ -1132,13 +1132,6 @@ Traces.onkeydown = function(e) {
     }
 }
 
-for (item of document.querySelectorAll("[tnum='1'] > span.dropcell")) {
-    item.onblur = () => {suggest_list.style.display = ""}
-}
-
-for (item of document.querySelectorAll("[tnum='2'] > span.dropcell")) {
-}
-
 function setEndOfContenteditable(elem) {
     sel.selectAllChildren(elem)
     sel.collapseToEnd()
@@ -1151,11 +1144,16 @@ function closest(elem, cls) {
     return elem.closest(cls)
 }
 
+focused_dropcell = null
 document.addEventListener("selectionchange", function(e) {
-    for (let x of [...document.getElementsByClassName('caretover')])
-        x.classList.remove('caretover')
     let foc = closest(sel.focusNode, ".dropcell")
-    foc && foc.classList.add('caretover')
+    if (foc != focused_dropcell) {
+        // handle focus change and blur events
+        focused_dropcell && focused_dropcell.classList.remove('caretover')
+        foc && foc.classList.add('caretover')
+        suggest_list.style.display = ""
+        focused_dropcell = foc
+    }
     // info(sel.focusNode.nodeName+", "+sel.focusOffset)
 })
 
