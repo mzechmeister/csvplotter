@@ -468,6 +468,8 @@ function handleDrop(e) {
             // kpool.kbox,text -> kbox
             dragsrc = kBox(kname)
             e.target.replaceWith(dragsrc)
+        } else if (dragsrc.getAttribute("trash")) {
+            e.target.remove()
         } else
             // kbox -> kbox
             swap(dragsrc, e.target)
@@ -475,6 +477,8 @@ function handleDrop(e) {
         return false
     } else if (!kname) {
         // kbox -> text
+        if (dragsrc.getAttribute("trash"))
+            return false
         if (document.caretRangeFromPoint)
             range = document.caretRangeFromPoint(e.clientX, e.clientY)
         else {
@@ -536,25 +540,35 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
     return sp
 }
 
+kboxreplace = e => {
+    if (document.querySelector('.Trace[tnum="1"]').contains(sel.focusNode)) {
+        foc = closest(sel.focusNode, '.kbox')
+        range = sel.getRangeAt(0)
+        if (foc && sel.isCollapsed)  // replace whole kbox
+            range.selectNode(foc)
+        range.deleteContents()
+        if (e.target.getAttribute("trash")) return 
+        kbox = kBox(e.target.innerText.substring(1))
+        range.insertNode(kbox)
+        range.selectNode(kbox.lastChild)
+        sel.collapseToEnd()
+    }
+}
+
 function init_box(colpool) {
     var kpool  = document.getElementById('kpool')
     kpool.innerHTML = '' // remove all currents options
+    trash = kBox('', true, drag4contenteditable=false)
+    trash.innerHTML = '<span style="font-size:inherit"><i class="far fa-trash-alt" style="vertical-align: baseline; font-size: 1.2em; padding: 0.09em 0 0.06em 0;"></i></span>'
+    trash.setAttribute('knum', "none")
+    trash.setAttribute('trash', "true")
+    trash.onclick = kboxreplace
+    kpool.append(trash)
+     
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
         let sp = kBox(colname, true, drag4contenteditable=false)
-        sp.onclick = e => {
-              if (document.querySelector('.Trace[tnum="1"]').contains(sel.focusNode)) {
-                  foc = closest(sel.focusNode, '.kbox')
-                  range = sel.getRangeAt(0)
-                  if (foc && sel.isCollapsed)  // replace whole kbox
-                      range.selectNode(foc)
-                  range.deleteContents()
-                  kbox = kBox(e.target.innerText.substring(1))
-                  range.insertNode(kbox)
-                  range.selectNode(kbox.lastChild)
-                  sel.collapseToEnd(false)
-              }
-        }
+        sp.onclick = kboxreplace
         kpool.appendChild(sp)
 
         // list entries for suggestion
@@ -1146,6 +1160,7 @@ function setEndOfContenteditable(elem) {
 var sel = window.getSelection()
 
 function closest(elem, cls) {
+    if (!elem) return null
     if (!elem.closest) elem = elem.parentNode
     return elem.closest(cls)
 }
