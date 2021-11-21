@@ -420,21 +420,6 @@ for (cell of document.getElementsByClassName('color')) {
     cell.onchange = (e => colorRestyle(e.target))
 }
 
-for (cell of document.querySelectorAll("dropcell")) {
-    cell.oninput = function(e) {
-        parseNode(this)
-    }
-    cell.onkeeyup = function(e) {
-        if (this.innerText=="\n") {
-            // prevent newline when empyting with backspace or del
-            this.innerText = ""
-        }
-    }
-}
-
-document.getElementById("funcf").onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}; this.onchange()}
-
-
 function handleDragStart(e) {
     add_drop("[tnum='1']")
     e.dataTransfer.effectAllowed = 'move'
@@ -670,15 +655,15 @@ function linspace(start, stop, num, endpoint=true) {
 function empty_func() {
     // a placeholder (function with no data)
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
-    expr1 = document.getElementById("funcf").innerText
+    expr1 = document.getElementById("funcf").innerText.replace("\n", "")
     if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
 }
 
 function draw_func() {
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
-    expr1 = document.getElementById("funcf").innerText
-    funcc = document.getElementById("funcc").innerText
-    funco = document.getElementById("funco").innerText
+    expr1 = document.getElementById("funcf").innerText.replace("\n", "")
+    funcc = document.getElementById("funcc").innerText.replace("\n", "")
+    funco = document.getElementById("funco").innerText.replace("\n", "")
     if (expr1 != "") {
         try {
             /* expr = new Function("x", "return "+expr1) */
@@ -1104,6 +1089,9 @@ Traces = document.getElementById('Traces')
 
 Traces.oninput = function(e) {
     parseNode(closest(sel.focusNode, '.dropcell'))
+    if (document.getElementById('funcf').contains(sel.focusNode))
+        // aggressive function update
+        document.getElementById('funcf').onchange()
 }
 
 Traces.onkeydown = function(e) {
