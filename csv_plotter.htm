@@ -1122,9 +1122,7 @@ Traces.onkeydown = function(e) {
     }
     if (e.key == "Tab") {
         // go to the previous/next uncle
-        foc = sel.focusNode
-        if (!foc.closest) foc = foc.parentElement   // it was a textnode
-        foc = foc.closest('.dropcell')
+        foc = closest(sel.focusNode, '.dropcell')
         // skip labels
         try {
            foc = e.shiftKey ? foc.previousElementSibling.previousElementSibling : foc.nextElementSibling.nextElementSibling
