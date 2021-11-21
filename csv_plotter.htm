@@ -36,7 +36,7 @@
         text-indent: 15px;
     }
 
-    .dragging.dropcell, .dragging .dropcell, .dropcell:focus-within,  div.func:focus-within  {
+    .dragging.dropcell, .dragging .dropcell, .dropcell.caretover,  div.func:focus-within  {
         box-shadow: 0 0 3px 1px #090;   /* green */
     }
 
@@ -114,7 +114,7 @@
         flex-grow: 0;
     }
 
-    .dropcell.rgb:not(:hover):not(:focus) {
+    .dropcell.rgb:not(:hover):not(.caretover) {
         /* slowly hide hex string */
         transition: color 1s;
         color: transparent;
@@ -250,7 +250,7 @@
     <a id="github" style="text-decoration: none; color: black; padding: 0px 8px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
     <label onclick="this.firstChild.disabled=false"><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
     <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
-    <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementsByClassName("Traces")[0].classList.toggle("fancy", this.checked); console.log(this.checked)' style="display: None;">
+    <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("fancy", this.checked)' style="display: None;">
     <i class="fas fa-border-style"></i></label>
     </div>
 </div>
@@ -261,8 +261,8 @@
 </div>
 
 
-<div class="Traces fancy" style="background: white; margin: 5px 0;">
-   <div class="Trace" tnum=1 tabIndex=0>
+<div id="Traces" class="fancy" style="background: white; margin: 5px 0;">
+   <div class="Trace" contenteditable tnum=1>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
       <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
@@ -277,7 +277,7 @@
       <label><i class="fa fa-tint"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
    </div>
-   <div class="Trace" tnum=2>
+   <div class="Trace" contenteditable tnum=2>
       <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
       <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
       <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
@@ -404,9 +404,13 @@ for (color of Plotly.d3.scale.category10().range()) {
     divcols.append(div)
 }
 
+for (cell of document.querySelectorAll('.Trace label,img')) {
+    cell.contentEditable = false
+}
 
 for (cell of document.getElementsByClassName('dropcell')) {
     cell.contentEditable = true
+    cell.innerHTML = "<br>"   // allows to focus empty spans
     cell.spellcheck = false
     cell.ondragover = handleDragEnter
     cell.ondrop = handleDrop
@@ -415,21 +419,6 @@ for (cell of document.getElementsByClassName('dropcell')) {
 for (cell of document.getElementsByClassName('color')) {
     cell.onchange = (e => colorRestyle(e.target))
 }
-
-for (cell of document.querySelectorAll("[contenteditable]")) {
-    cell.oninput = function(e) {
-        parseNode(this)
-    }
-    cell.onkeeyup = function(e) {
-        if (this.innerText=="\n") {
-            // prevent newline when empyting with backspace or del
-            this.innerText = ""
-        }
-    }
-}
-
-document.getElementById("funcf").onkeyup = function(e) {if (this.innerText=="\n") {this.innerText = ""}; this.onchange()}
-
 
 function handleDragStart(e) {
     add_drop("[tnum='1']")
@@ -570,8 +559,8 @@ function init_box(colpool) {
 }
 
 function parseCell(cell) {
-    cellHTML = cell.innerHTML
-    cellText = cell.innerText
+    cellHTML = cell.innerHTML.replace(/<br>/g, "")
+    cellText = cell.innerText.replace(/\n/g, "")
     if (cellHTML == +cellHTML) {
         // scalar, e.g. "5"
         result = cellText }
@@ -666,15 +655,15 @@ function linspace(start, stop, num, endpoint=true) {
 function empty_func() {
     // a placeholder (function with no data)
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
-    expr1 = document.getElementById("funcf").innerText
+    expr1 = document.getElementById("funcf").innerText.replace("\n", "")
     if (expr1 == "") Plotly.restyle(graph, {'x':[[]], 'y':[[]]}, 1)
 }
 
 function draw_func() {
     var graph = document.getElementsByClassName("js-plotly-plot")[0]
-    expr1 = document.getElementById("funcf").innerText
-    funcc = document.getElementById("funcc").innerText
-    funco = document.getElementById("funco").innerText
+    expr1 = document.getElementById("funcf").innerText.replace("\n", "")
+    funcc = document.getElementById("funcc").innerText.replace("\n", "")
+    funco = document.getElementById("funco").innerText.replace("\n", "")
     if (expr1 != "") {
         try {
             /* expr = new Function("x", "return "+expr1) */
@@ -869,7 +858,7 @@ function parseNode(node) {
         seltext = node.innerText
     curpos = seltext.replace("\n", "").replace("\r", "").length
 
-    let toparse = node.innerText.split("$")
+    let toparse = node.innerText.replace("\n", "").split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
 
     let curnode = node.firstChild   // a text node
@@ -899,6 +888,7 @@ function parseNode(node) {
     let offset = curpos - sel.toString().length
     sel.extend(curnode || node, offset)
     sel.collapseToEnd()
+    node.append(document.createElement("br"))
     node.focus()   // no effect?
 
     qname && filter_suggests(curnode.parentNode)
@@ -1095,7 +1085,16 @@ suggest_list = document.getElementById("suggest_list")
 suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 
-function handle_keydown(e) {
+Traces = document.getElementById('Traces')
+
+Traces.oninput = function(e) {
+    parseNode(closest(sel.focusNode, '.dropcell'))
+    if (document.getElementById('funcf').contains(sel.focusNode))
+        // aggressive function update
+        document.getElementById('funcf').onchange()
+}
+
+Traces.onkeydown = function(e) {
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
         if (suggest_list.style.display == "") {   // case: re-entering span
             // same as oninput
@@ -1105,25 +1104,32 @@ function handle_keydown(e) {
         suggest_hover_kdb(e)
         return true
     }
-    if (e.key == "Enter") {
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover'))) {
-            suggest_hit(hit)
+    if (e.key == "Backspace" || e.key == "Delete") {
+        if (closest(sel.anchorNode, ".dropcell") != closest(sel.focusNode, ".dropcell")) {
+            // multinode
             e.preventDefault()
-            return true
-        } else {
-            try {this.onchange(e)}
-            finally {return false}   // no newline for Enter press
-        }
+        } else if (closest(sel.focusNode, ".dropcell").innerText == "\n") {
+            // info("empty node")
+            e.preventDefault()
+        }                
+    } 
+    if (e.key == "Enter") {
+        e.preventDefault()
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+            suggest_hit(hit)
+        else
+            select_columns()    // update plot
     }
-}
-
-for (item of document.querySelectorAll("[tnum='1'] > span.dropcell")) {
-    item.onkeydown = handle_keydown
-    item.onblur = () => {suggest_list.style.display = ""}
-}
-
-for (item of document.querySelectorAll("[tnum='2'] > span.dropcell")) {
-    item.onkeydown = handle_keydown
+    if (e.key == "Tab") {
+        // go to the previous/next uncle
+        foc = closest(sel.focusNode, '.dropcell')
+        // skip labels
+        try {
+           foc = e.shiftKey ? foc.previousElementSibling.previousElementSibling : foc.nextElementSibling.nextElementSibling
+           sel.setPosition(foc, 0)
+           e.preventDefault()
+        } catch {}   // fallback to normal tab behaviour
+    }
 }
 
 function setEndOfContenteditable(elem) {
@@ -1132,6 +1138,24 @@ function setEndOfContenteditable(elem) {
 }
 
 var sel = window.getSelection()
+
+function closest(elem, cls) {
+    if (!elem.closest) elem = elem.parentNode
+    return elem.closest(cls)
+}
+
+focused_dropcell = null
+document.addEventListener("selectionchange", function(e) {
+    let foc = closest(sel.focusNode, ".dropcell")
+    if (foc != focused_dropcell) {
+        // handle focus change and blur events
+        focused_dropcell && focused_dropcell.classList.remove('caretover')
+        foc && foc.classList.add('caretover')
+        suggest_list.style.display = ""
+        focused_dropcell = foc
+    }
+    // info(sel.focusNode.nodeName+", "+sel.focusOffset)
+})
 
 </script>
 
