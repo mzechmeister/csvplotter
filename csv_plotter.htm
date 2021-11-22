@@ -528,10 +528,11 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
             sp.addEventListener('mousedown', e => {sp.contentEditable = false})
             sp.addEventListener('mouseup', e => {
                 sp.contentEditable = true
-                if (document.caretRangeFromPoint)
-                    range = document.caretRangeFromPoint(e.clientX, e.clientY)
-                else {   // firefox
-                    var sel = window.getSelection()
+                var sel = window.getSelection()
+                if (document.caretRangeFromPoint) {
+                    sel.removeAllRanges()
+                    sel.addRange(document.caretRangeFromPoint(e.clientX, e.clientY))
+                } else {   // firefox
                     sel.collapse(e.rangeParent, e.rangeOffset)
                 }
             })
