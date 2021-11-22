@@ -964,7 +964,7 @@ document.getElementById("share").onclick = function() {
          +  (title  && "title="+title+"&")
          +  (cbtitle&& "cbtitle="+cbtitle+"&")
     if (!webgl.disabled) _url += "gl="+webgl.checked+"&"
-    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText) && x.id+'='+val).filter(x => x).join('&')
+    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
