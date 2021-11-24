@@ -332,11 +332,11 @@ function colorDragStart(e) {
 }
 
 function parseColor(f, rgb) {
-    if (!rgb) rgb = f.innerText
+    if (!rgb) rgb = f.innerText.replace("\n", "")
     if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     if (rgb.startsWith('#')) {
         f.style.backgroundColor = rgb
-        f.innerHTML = rgb
+        f.innerHTML = rgb + '<br>'
         f.classList.add("rgb")
     } else {
         // vector, i.e. a palette
