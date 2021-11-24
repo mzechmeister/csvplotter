@@ -410,7 +410,7 @@ for (cell of document.querySelectorAll('.Trace label,img')) {
 
 for (cell of document.getElementsByClassName('dropcell')) {
     cell.contentEditable = true
-    cell.innerHTML = "<br>"   // allows to focus empty spans
+    cell.innerHTML += "<br>"   // allows to focus empty spans
     cell.spellcheck = false
     cell.ondragover = handleDragEnter
     cell.ondrop = handleDrop
