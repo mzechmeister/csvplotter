@@ -398,8 +398,8 @@ for (color of Plotly.d3.scale.category10().range()) {
     div.draggable = true
     div.ondragstart = colorDragStart
     div.ondragend = remove_drag
-    div.onmousedown = (_ => {add_drop(".color"); f = document.activeElement})
-    div.onmouseup = (e => {if (f.classList.contains('color')) {
+    div.onmousedown = (_ => {add_drop(".color"); f = closest(sel.focusNode, ".dropcell.color")})
+    div.onmouseup = (e => {if (f) {
                        colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
     divcols.append(div)
 }
