@@ -287,7 +287,7 @@
 
 <div id="kpool"></div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute; padding: 10px 0;"><ul id="suggest_list" style="padding: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute; transform: translate(0%, -100%)"><ul id="suggest_list" style="padding: 0; margin: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
 
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
@@ -1116,6 +1116,9 @@ Traces.oninput = function(e) {
 }
 
 Traces.onkeydown = function(e) {
+    if (e.key=="ArrowLeft" || e.key=="ArrowRight") {
+        suggest_list.style.display = ""
+    }
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
         if (suggest_list.style.display == "") {   // case: re-entering span
             // same as oninput
