@@ -287,7 +287,7 @@
 
 <div id="kpool"></div>
 
-<span id="suggest_div" contentEditable=False style="position: absolute; transform: translate(0%, -100%)"><ul id="suggest_list" style="padding: 0; margin: 0; width: 100%; background: #fffc; border: 1px solid #ccc"></ul></span>
+<span id="suggest_div" contentEditable=False style="position: absolute; transform: translate(0%, -100%); max-height: 200px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc"><ul id="suggest_list" style="padding: 0; margin: 0; width: 100%; background: #fffc;"></ul></span>
 
 
 <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
@@ -1057,6 +1057,7 @@ function suggest_hover_kdb(e) {
     old = document.querySelector('.hover')
     old && old.classList.remove('hover')
     hover && hover.classList.add('hover')
+    hover && hover.scrollIntoView({block: "nearest"})
 }
 
 function suggest_hover(e) {
