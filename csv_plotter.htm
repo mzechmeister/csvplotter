@@ -114,6 +114,10 @@
         flex-grow: 0;
     }
 
+    .wrap span.dropcell.opacity, .wrap span.dropcell.color {
+        flex-grow: 1;
+    }
+
     .dropcell.rgb:not(:hover):not(.caretover) {
         /* slowly hide hex string */
         transition: color 1s;
@@ -125,7 +129,7 @@
         display: flex;
         padding: 0 0 0 4px;
     }
-
+    
     .Trace:focus, .Trace:focus-within {
         border-color: #6399cb;
     }
@@ -142,6 +146,14 @@
 
     .Trace label > i, label > label {
         position: absolute;
+    }
+
+    .wrap .Trace {
+        flex-flow: wrap row
+    }
+
+    .wrap .Trace .dropcell, .wrap .Trace div.func  {
+        min-width: 20px;   
     }
 
     label > i {
@@ -211,7 +223,7 @@
         filter: blur(0.8px);
     }
 
-    #webgl:disabled + i, #cbfancy:not(:checked) + i {
+    #webgl:disabled + i, #cbfancy:not(:checked) + i, #cbwrap:not(:checked) + i {
         color: #999;
     }
 
@@ -251,7 +263,9 @@
     <label onclick="this.firstChild.disabled=false"><input id="webgl" type="checkbox" checked onchange="select_columns()" style="display: None;">
     <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
     <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("fancy", this.checked)' style="display: None;">
-    <i class="fas fa-border-style"></i></label>
+    <i class="far fa-square"></i></label>
+    <label><input id="cbwrap" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("wrap", this.checked)' style="display: None;">
+    <i class="fas fa-align-center"></i></label>
     </div>
 </div>
 
