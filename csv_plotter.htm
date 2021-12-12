@@ -12,7 +12,7 @@
         box-shadow: 0 0 3px 1px #900 !important;   /* red */
     }
 
-    [contenteditable]:empty:before {
+    .dropcell:empty:before {
         content: attr(placeholder);
         color: #ccc;
         cursor: text;
@@ -260,8 +260,23 @@
     .fa-border-style {
         font-size: larger
     }
+
     .cboutline {
         shape-rendering: crispEdges
+    }
+    
+    .fa-x::before {
+        content: "x";
+        font-family: verdana;
+        font-style: italic;
+        font-weight: bold;
+    }
+
+    .fa-y::before {
+        content: "y";
+        font-family: verdana;
+        font-style: italic;
+        font-weight: bold;
     }
     </style>
 </head>
@@ -303,8 +318,8 @@
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
       <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
       <label style="display: none">using</label><span id="using" placeholder="1:2" onchange="using_columns()" style="width: 200px; display: none">1:2</span>
-      <label><label>x</label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span>
-      <label><label>y</label></label><span id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></span>
+      <label><label class="fa-x"></label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span>
+      <label><label class="fa-y"></label></label><span id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></span>
       <label><i class="fa fa-arrows-alt-h"></i></label><span id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></span>
       <label><i class="fa fa-arrows-alt-v"></i></label><span id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></span>
       <label><i class="fa fa-tag"></i></label><span id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></span>
