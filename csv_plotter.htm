@@ -77,8 +77,9 @@
     }
 
     .delicon {
-        position: relative;
         opacity: 0;
+        width: 0;
+        display: inline-block;
     }
 
     .kbox:hover .delicon {
@@ -88,7 +89,7 @@
     .delicon > span { 
         pointer-events: all;
         text-indent: 0;
-        position: absolute;
+        position: relative;
         top: -0.5em;
         background: white;
         z-index: 999;
