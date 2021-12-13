@@ -79,23 +79,23 @@
     .delicon {
         opacity: 0;
         width: 0;
+        position: relative;
         display: inline-block;
+        text-indent: 0;
+        top: -0.5em;
+        z-index: 999;
     }
 
     .kbox:hover .delicon {
         opacity: 1;   /* instead visibility, which does not work with position:absolute */
     }
-    
-    .delicon > span { 
-        pointer-events: all;
-        text-indent: 0;
-        position: relative;
-        top: -0.5em;
+
+    .delicon:before {
         background: white;
-        z-index: 999;
+        pointer-events: all;
     }
 
-    .delicon span:not(:hover) {
+    .delicon:not(:hover) {
         color: #ccc;
     }
 
@@ -560,7 +560,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
     let sp = document.createElement('span')
     sp.className = "kbox"
     sp.innerHTML = '<span>$</span>' + colname
-    sp.innerHTML += '<span class="delicon"><span class="far fa-times-circle" onclick="this.parentNode.parentNode.remove()"></span></span>'
+    sp.innerHTML += '<span class="delicon far fa-times-circle" onclick="this.parentNode.remove()"></span>'
     knum = lookup["$"+colname]
     if (knum != undefined) {
         colname != knum && sp.setAttribute('kname', 'true')
