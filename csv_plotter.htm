@@ -30,7 +30,7 @@
         display: table-cell;
         flex-grow: 1;
         padding: 4px 1px;
-        /*border-right: #ccc 1px solid; */
+        border-bottom: #ccc 1px solid;
         overflow: hidden;
         box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
         text-indent: 15px;
@@ -149,8 +149,8 @@
 
     .Trace {
         border: 1px solid #ccc;
+        border-bottom: none;
         display: flex;
-        padding: 0 0 0 4px;
     }
     
     .Trace:focus, .Trace:focus-within {
@@ -237,9 +237,15 @@
     }
 
     .plotypicon {
+        min-height: 20px;
+        border-bottom: #ccc 1px solid;
+    }
+
+    .plotypicon > img {
         width: 18px;
         height: 18px;
         border: 1px solid grey;
+        margin: 0 0 0 4px;
     }
 
     #webgl:checked + i {
@@ -303,7 +309,7 @@
     <label><input id="cbfancy" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("fancy", this.checked)' style="display: None;">
     <i class="far fa-square"></i></label>
     <label><input id="cbwrap" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("wrap", this.checked)' style="display: None;">
-    <i class="fas fa-align-center"></i></label>
+    <i class="fas fa-stream"></i></label>
     </div>
 </div>
 
@@ -315,7 +321,7 @@
 
 <div id="Traces" class="fancy" style="background: white; margin: 5px 0;">
    <div class="Trace" contenteditable tnum=1>
-      <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
+      <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
       <label><i class="far fa-file"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
       <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
       <label style="display: none">using</label><span id="using" placeholder="1:2" onchange="using_columns()" style="width: 200px; display: none">1:2</span>
@@ -330,7 +336,7 @@
       <label><i class="fa fa-adjust"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
    </div>
    <div class="Trace" contenteditable tnum=2>
-      <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
+      <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"></span>
       <label><i class="fa fa-calculator"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
       <label><i class="fa fa-tint"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
       <label><i class="fa fa-adjust"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span>
