@@ -516,33 +516,17 @@ function handleDragStart(e) {
         [dragposA, dragposB] = getNodePos(e.target)
     dragsrc = e.target
     // Trace.ondragstart adds deleteByDrag flag
-    return false
 }
 
 function handleDragEnter(e) {
     e.preventDefault()   // needed otherwise drop is not called
-    if (dragsrc)   // rgb has no dragsrc
-        e.dataTransfer.dropEffect = dragsrc.contains(e.target) ? 'none' : 'move'
-    return false
+    e.dataTransfer.dropEffect = (dragsrc && dragsrc.contains(e.target)) ? 'none' : 'move'   // rgb has no dragsrc
 }
 
 function handleDrag(e) {
     e.preventDefault()   // needed otherwise drop is not called
-    //return false
 }
 
-function handleDrop(e) {
-    return
-    //e.preventDefault()   // stops the browser from redirecting FF68.
-    if (e.dataTransfer.files.length) {
-        dsv(e.dataTransfer.files[0], init)
-        return false
-    }
-       // kpool.kbox,text -> kbox
-       // kbox -> kbox
-       // kbox -> text
-       // kpool.kbox,text -> text
-}
 
 // https://github.com/d3/d3-scale-chromatic
 schemeTableau10 = "4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab".match(/.{1,6}/g)
@@ -617,6 +601,7 @@ function init_box(colpool) {
     trash.setAttribute('title', "delete active column")
     trash.onclick = kboxreplace
     kpool.append(trash)
+    suggest_list.innerHTML = ""   // clear it before loading dropped file
      
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
@@ -990,8 +975,8 @@ function init() {
         t.innerHTML = url_kwargs[arg] + "<br>"
     }
 
-    ta.value = [...document.querySelectorAll(".dropcell")].map(x => x.innerText).join("");
-    [...document.querySelectorAll(".dropcell")].map(x => {x.innerText && parseNode(x)});
+    ta.value = [...dropcells].map(x => x.innerText).join("");
+    [...dropcells].map(x => {x.innerText != "\n" && parseNode(x)});
 
     if (["", undefined].includes(gl)) webgl.disabled = true   // auto select gl
     if (["false", "0"].includes(gl)) webgl.checked = false
@@ -1363,8 +1348,20 @@ Traces.ondrop = function(e) {
 
 to check: drop is in prev_sel
 */
-    // redirect drop to ta
+
     e.preventDefault()
+    //e.preventDefault()   // stops the browser from redirecting FF68.
+    if (e.dataTransfer.files.length) {
+        url_kwargs["url"] = e.dataTransfer.files[0].name
+        dsv(e.dataTransfer.files[0], init)
+        return false
+    }
+       // kpool.kbox,text -> kbox
+       // kbox -> kbox
+       // kbox -> text
+       // kpool.kbox,text -> text
+
+    // redirect drop to ta
 
     let rgb = e.dataTransfer.getData('text/rgb')
     if (rgb) {
