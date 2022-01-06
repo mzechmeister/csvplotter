@@ -1133,7 +1133,7 @@ function suggest_hit(e) {
         hover = hover.firstChild
         // get start of query kbox
         pos = hover.parentNode.parentNode.parentNode.nextSibling.innerText.length
-        taInsert(hover.innerText, ta.selectionStart-pos, ta.selectionEnd)   
+        taInsert(hover.innerText, ta.selectionStart-pos, ta.selectionEnd)
     }
     suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
@@ -1146,46 +1146,11 @@ suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 
 Traces = document.getElementById('Traces')
-
-ta.onkeydown = e => {
-    if (e.key=="ArrowLeft" || e.key=="ArrowRight") {
-        suggest_list.style.display = ""
-    }
-
-    if (e.key=="ArrowDown" || e.key=="ArrowUp") {
-        suggest_hover_kdb(e)
-        return true
-    }
-
-    if (e.key == "Delete" && ta.value.charAt(ta.selectionEnd) == "\n") 
-        e.preventDefault()
-    if (e.key == "Backspace" && ta.value.charAt(ta.selectionEnd-1) == "\n")
-        e.preventDefault()
-
-    if (e.key == "Enter") {
-        e.preventDefault()
-        // enter would destroy dropcell-lineno relation
-        // instead update the plot
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
-            suggest_hit(hit)
-        else
-            select_columns()    // update plot
-    }
-}
-
-
-Traces.onkeydown = function(e) {
-     // the suggest list should visible
-     if (e.key == "Enter") {
-        e.preventDefault()
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
-            suggest_hit(hit)
-    }
-}
-
+Trace1 = Traces.childNodes[1]
+dropcells = document.querySelectorAll('.dropcell')
+cursor = document.getElementById('cursor')
 
 var sel = window.getSelection()
-cursor = document.getElementById('cursor')
 
 function closest(elem, cls) {
     if (!elem) return null
@@ -1221,37 +1186,10 @@ function getPos(node, offset) {
     return pos
 }
 
-
 function getNodePos(node) {
     pos = getPos(node, 0)
     return [pos, pos + node.innerText.length]
 }
-
-function taInsert(text, start, end=null) {
-    if (end == null) end = start
-    block = true
-    ta.focus()
-    ta.setSelectionRange(start, end)
-    document.execCommand('insertText', false, text)
-    block = false
-}
-
-function taDelete(start, end) {
-    block = true
-    ta.focus()
-    ta.setSelectionRange(start, end)
-    document.execCommand('delete')
-    block = false
-}
-
-function taDeleteNode(node) {
-    del_sel = getNodePos(node)
-    taDelete(...del_sel)
-    return del_sel
-}
-
-Trace1 = Traces.childNodes[1]
-dropcells = document.querySelectorAll('.dropcell')
 
 function getPoint(offset, pnode=null) {
     if (!pnode) {
@@ -1279,7 +1217,63 @@ function getPoint(offset, pnode=null) {
     return [node, offset]
 }
 
-sel = window.getSelection()
+function taInsert(text, start, end=null) {
+    if (end == null) end = start
+    block = true
+    ta.focus()
+    ta.setSelectionRange(start, end)
+    document.execCommand('insertText', false, text)
+    block = false
+}
+
+function taDelete(start, end) {
+    block = true
+    ta.focus()
+    ta.setSelectionRange(start, end)
+    document.execCommand('delete')
+    block = false
+}
+
+function taDeleteNode(node) {
+    del_sel = getNodePos(node)
+    taDelete(...del_sel)
+    return del_sel
+}
+
+ta.onkeydown = e => {
+    if (e.key=="ArrowLeft" || e.key=="ArrowRight") {
+        suggest_list.style.display = ""
+    }
+
+    if (e.key=="ArrowDown" || e.key=="ArrowUp") {
+        suggest_hover_kdb(e)
+        return true
+    }
+
+    if (e.key == "Delete" && ta.value.charAt(ta.selectionEnd) == "\n") 
+        e.preventDefault()
+    if (e.key == "Backspace" && ta.value.charAt(ta.selectionEnd-1) == "\n")
+        e.preventDefault()
+
+    if (e.key == "Enter") {
+        e.preventDefault()
+        // enter would destroy dropcell-lineno relation
+        // instead update the plot
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+            suggest_hit(hit)
+        else
+            select_columns()    // update plot
+    }
+}
+
+Traces.onkeydown = function(e) {
+     // the suggest list should visible
+     if (e.key == "Enter") {
+        e.preventDefault()
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+            suggest_hit(hit)
+    }
+}
 
 block = false
 focused_dropcell = null
@@ -1329,6 +1323,17 @@ ta.oninput = e => {
     if (document.getElementById('funcf').contains(node))
         // aggressive function update
         document.getElementById('funcf').onchange()
+}
+
+Traces.onmouseup = function (e) {
+    sel.isCollapsed && ta.focus()
+}
+
+Traces.onpaste = function (e) {
+    // console.log("redirect insertFromPaste to ta")
+    e.preventDefault()
+    edata = (e.clipboardData || window.clipboardData).getData('Text')
+    taInsert(edata, ...prev_sel)
 }
 
 Traces.ondragstart = function(e) {
@@ -1406,17 +1411,6 @@ to check: drop is in prev_sel
 
     dragposA = null               
     block = false
-}
-
-Traces.onpaste = function (e) {
-    // console.log("redirect insertFromPaste to ta")
-    e.preventDefault()
-    edata = (e.clipboardData || window.clipboardData).getData('Text')
-    taInsert(edata, ...prev_sel)
-}
-
-Traces.onmouseup = function (e) {
-    sel.isCollapsed && ta.focus()
 }
 
 Traces.oninput = function(e) {
