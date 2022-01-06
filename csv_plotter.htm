@@ -82,7 +82,7 @@
         position: relative;
         display: inline-block;
         text-indent: 0;
-        top: -0.5em;
+        top: -0.8em;
         z-index: 999;
     }
 
@@ -285,6 +285,26 @@
         font-style: italic;
         font-weight: bold;
     }
+
+    #cursor {
+        display: inline;   
+    }
+
+    #cursor.collapsed {
+        vertical-align: bottom; /* makes cursor inline not super in empty dropcell */
+        animation: blink 1s;
+        outline: 1px solid red;
+        animation-iteration-count: infinite;
+    }
+
+    #suggest_div #cursor {
+        display: none;
+    }
+
+    @keyframes blink {
+        50% { outline-color: #ffffff00; }
+    }
+
     </style>
 </head>
 
@@ -300,6 +320,8 @@
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
     <div id="info" style="flex-grow: 1"><span style="color:grey"></span></div>
     <div id="menuicons" style="white-space: nowrap;">
+    <button onclick="ta.focus(); document.execCommand('undo', false, null)"><i class="fas fa-undo"></i></button>
+    <button onclick="ta.focus(); document.execCommand('redo', false, null)"><i class="fas fa-redo"></i></button>
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'backward', 'character')" style="width:100px"><i class="fas fa-arrow-left"></i></button>
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'forward', 'character')" style="width:100px"><i class="fas fa-arrow-right"></i></button>
     <button id="share" style="border-width: 1px; border-radius: 2px; border-color: #bbb; padding: 2px 8px; font-size: larger"><i class="fa fa-share-alt"></i></button>
@@ -319,6 +341,9 @@
 </div>
 
 
+<div id="cursor"></div>
+
+<div id="tawrapper" style="position: relative">
 <div id="Traces" class="fancy" style="background: white; margin: 5px 0;">
    <div class="Trace" contenteditable tnum=1>
       <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
@@ -341,6 +366,8 @@
       <label><i class="fa fa-tint" title="color"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
       <label><i class="fa fa-adjust" title="opacity"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span>
    </div>
+</div>
+<textarea id="ta" style="height: 0px; position: absolute; pointer-events: none; z-index: -1; top: 20px;"></textarea>
 </div>
 
 <div id="kpool"></div>
@@ -386,7 +413,7 @@ function remove_drag() {
 function colorDragStart(e) {
     add_drop(".color")
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/html', this.style["background-color"])
+    e.dataTransfer.setData('text/rgb', this.style["background-color"])
 }
 
 function parseColor(f, rgb) {
@@ -394,7 +421,8 @@ function parseColor(f, rgb) {
     if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     if (rgb.startsWith('#')) {
         f.style.backgroundColor = rgb
-        f.innerHTML = rgb + '<br>'
+        prev_sel = getNodePos(f)
+        taInsert(rgb, prev_sel[0], prev_sel[1]-1)   // do not replace newline
         f.classList.add("rgb")
     } else {
         // vector, i.e. a palette
@@ -471,27 +499,30 @@ for (cell of document.getElementsByClassName('dropcell')) {
     cell.innerHTML += "<br>"   // allows to focus empty spans
     cell.spellcheck = false
     cell.ondragover = handleDragEnter
-    cell.ondrop = handleDrop
 }
 
 for (cell of document.getElementsByClassName('color')) {
     cell.onchange = (e => colorRestyle(e.target))
 }
 
+dragsrc = null
+dragposA = null
+dragposB = null
+
 function handleDragStart(e) {
     add_drop("[tnum='1']")
-    e.dataTransfer.effectAllowed = 'move'
-    dragsrc = this
-    // drop strings (normal text, kpool.kbox), except for dropcell kbox (which needs node swap or shift)
-    if (kpool.contains(this))
-        e.dataTransfer.setData('text/plain', this.innerText)
-    else
-        e.dataTransfer.setData('text/plain', '')   // @FF68
+    e.dataTransfer.setData('text/plain', this.innerText)
+    if (Traces.contains(e.target))
+        [dragposA, dragposB] = getNodePos(e.target)
+    dragsrc = e.target
+    // Trace.ondragstart adds deleteByDrag flag
+    return false
 }
 
 function handleDragEnter(e) {
     e.preventDefault()   // needed otherwise drop is not called
-    e.dataTransfer.dropEffect = 'move'
+    if (dragsrc)   // rgb has no dragsrc
+        e.dataTransfer.dropEffect = dragsrc.contains(e.target) ? 'none' : 'move'
     return false
 }
 
@@ -500,61 +531,17 @@ function handleDrag(e) {
     //return false
 }
 
-function swap(a, b) {
-    let dummy = document.createElement("span")
-    a.before(dummy)
-    b.before(a)
-    dummy.replaceWith(b)
-}
-
 function handleDrop(e) {
+    return
     //e.preventDefault()   // stops the browser from redirecting FF68.
     if (e.dataTransfer.files.length) {
         dsv(e.dataTransfer.files[0], init)
         return false
     }
-
-    let rgb = e.dataTransfer.getData('text/html')
-    if (rgb) {
-        colorRestyle(e.target.closest('.dropcell'), rgb)   // replace all cell content
-        return false
-    }
-
-    kname = e.dataTransfer.getData('text').substring(1)
-    if (e.target.className.match("kbox")) {
-        if (kname) {
-            // kpool.kbox,text -> kbox
-            dragsrc = kBox(kname)
-            e.target.replaceWith(dragsrc)
-        } else if (dragsrc.getAttribute("trash")) {
-            e.target.remove()
-        } else
-            // kbox -> kbox
-            swap(dragsrc, e.target)
-        setEndOfContenteditable(dragsrc)
-        return false
-    } else if (!kname) {
-        // kbox -> text
-        if (dragsrc.getAttribute("trash"))
-            return false
-        if (document.caretRangeFromPoint)
-            range = document.caretRangeFromPoint(e.clientX, e.clientY)
-        else {
-            sel.collapse(e.rangeParent, e.rangeOffset)
-            range = sel.getRangeAt(0)
-        }
-        if (p = range.startContainer.parentNode.closest('.kbox')) {
-            // prevent dropping into first/last kbox
-            sel.focusOffset<2 ? p.parentNode.firstChild.before(dragsrc)
-                              : p.parentNode.lastChild.after(dragsrc)
-        } else
-            range.insertNode(dragsrc)
-        setEndOfContenteditable(dragsrc)
-        return false
-    }
-    // kpool.kbox,text -> text
-    // else: normal text dropping needs no extra handling
-    // drop triggers oninput ("insertFromDrop")
+       // kpool.kbox,text -> kbox
+       // kbox -> kbox
+       // kbox -> text
+       // kpool.kbox,text -> text
 }
 
 // https://github.com/d3/d3-scale-chromatic
@@ -566,7 +553,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
     let sp = document.createElement('span')
     sp.className = "kbox"
     sp.innerHTML = '<span>$</span>' + colname
-    sp.innerHTML += '<span class="delicon far fa-times-circle" onclick="this.parentNode.remove()"></span>'
+    sp.innerHTML += "<span class='delicon far fa-times-circle' onclick='taDeleteNode(this.parentNode)'></span>"
     knum = lookup["$"+colname]
     if (knum != undefined) {
         colname != knum && sp.setAttribute('kname', 'true')
@@ -583,6 +570,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
                                                e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
         if (drag4contenteditable) {
+            sp.addEventListener('drop', dropOnkbox)
             sp.addEventListener('drag', e => {sp.contentEditable = true})
             sp.addEventListener('mousedown', e => {sp.contentEditable = false})
             sp.addEventListener('mouseup', e => {
@@ -600,18 +588,22 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
     return sp
 }
 
+dropOnkbox = e => {
+    e.preventDefault()   // no browser insertion
+    prev_sel = getNodePos(e.target)
+}
+
 kboxreplace = e => {
-    if (document.querySelector('.Trace[tnum="1"]').contains(sel.focusNode)) {
-        foc = closest(sel.focusNode, '.kbox')
-        range = sel.getRangeAt(0)
+    foc = getPoint(ta.selectionStart)[0]
+    if (document.querySelector('.Trace[tnum="1"]').contains(foc)) {
+        foc = closest(foc, '.kbox')
+        block = true
+        ta.focus()
         if (foc && sel.isCollapsed)  // replace whole kbox
-            range.selectNode(foc)
-        range.deleteContents()
-        if (e.target.getAttribute("trash")) return 
-        kbox = kBox(e.target.innerText.substring(1))
-        range.insertNode(kbox)
-        range.selectNode(kbox.lastChild)
-        sel.collapseToEnd()
+            ta.setSelectionRange(...getNodePos(foc))
+        document.execCommand('insertText', false, e.target.innerText)
+        block = false
+//        if (e.target.getAttribute("trash")) re
     }
 }
 
@@ -963,14 +955,7 @@ function parseNode(node) {
         if (node.innerText.length - text.length < curpos) curnode = node.lastChild
     }
 
-    // put the caret in rendered element
-    node.focus()   // only for FF68 (NS_ERROR_FAILURE, https://bugzilla.mozilla.org/show_bug.cgi?id=1623413)
-    sel.setBaseAndExtent(node, 0, curnode || node, 0)
-    let offset = curpos - sel.toString().length
-    sel.extend(curnode || node, offset)
-    sel.collapseToEnd()
     node.append(document.createElement("br"))
-    node.focus()   // no effect?
 
     qname && filter_suggests(curnode.parentNode)
 }
@@ -1002,9 +987,11 @@ function init() {
 
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
-        t.innerHTML = url_kwargs[arg]
-        parseNode(t)
+        t.innerHTML = url_kwargs[arg] + "<br>"
     }
+
+    ta.value = [...document.querySelectorAll(".dropcell")].map(x => x.innerText).join("");
+    [...document.querySelectorAll(".dropcell")].map(x => {x.innerText && parseNode(x)});
 
     if (["", undefined].includes(gl)) webgl.disabled = true   // auto select gl
     if (["false", "0"].includes(gl)) webgl.checked = false
@@ -1153,9 +1140,13 @@ function suggest_hit(e) {
     hover = e.target || e
     if (hover) {
         hover = hover.firstChild
-        let newKbox = kBox(hover.innerText.substring(1))
-        sel.focusNode.parentNode.replaceWith(newKbox)
-        setEndOfContenteditable(newKbox)
+        // get start of query kbox
+        pos = hover.parentNode.parentNode.parentNode.nextSibling.innerText.length
+        block = true
+        ta.focus()
+        ta.selectionStart -= pos 
+        document.execCommand("insertText", false, hover.innerText)
+        block = false
     }
     suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
@@ -1169,60 +1160,46 @@ suggest_list.onmousedown = suggest_hit
 
 Traces = document.getElementById('Traces')
 
-Traces.oninput = function(e) {
-    parseNode(closest(sel.focusNode, '.dropcell'))
-    if (document.getElementById('funcf').contains(sel.focusNode))
-        // aggressive function update
-        document.getElementById('funcf').onchange()
-}
-
-Traces.onkeydown = function(e) {
+ta.onkeydown = e => {
     if (e.key=="ArrowLeft" || e.key=="ArrowRight") {
         suggest_list.style.display = ""
     }
+
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
-        if (suggest_list.style.display == "") {   // case: re-entering span
-            // same as oninput
-            foc = sel.focusNode.parentElement
-            if (foc.tagName=='SPAN') filter_suggests(foc)
-        }
         suggest_hover_kdb(e)
         return true
     }
-    if (e.key == "Backspace" || e.key == "Delete") {
-        if (closest(sel.anchorNode, ".dropcell") != closest(sel.focusNode, ".dropcell")) {
-            // multinode
-            e.preventDefault()
-        } else if (closest(sel.focusNode, ".dropcell").innerText == "\n") {
-            // info("empty node")
-            e.preventDefault()
-        }                
-    } 
+
+    if (e.key == "Delete" && ta.value.charAt(ta.selectionEnd) == "\n") 
+        e.preventDefault()
+    if (e.key == "Backspace" && ta.value.charAt(ta.selectionEnd-1) == "\n")
+        e.preventDefault()
+
     if (e.key == "Enter") {
+        e.preventDefault()
+        // enter would destroy dropcell-lineno relation
+        // instead update the plot
+        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+            suggest_hit(hit)
+        else
+            select_columns()    // update plot
+    }
+}
+
+
+Traces.onkeydown = function(e) {
+     if (e.key == "Enter") {
         e.preventDefault()
         if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
         else
             select_columns()    // update plot
     }
-    if (e.key == "Tab") {
-        // go to the previous/next uncle
-        foc = closest(sel.focusNode, '.dropcell')
-        // skip labels
-        try {
-           foc = e.shiftKey ? foc.previousElementSibling.previousElementSibling : foc.nextElementSibling.nextElementSibling
-           sel.setPosition(foc, 0)
-           e.preventDefault()
-        } catch {}   // fallback to normal tab behaviour
-    }
 }
 
-function setEndOfContenteditable(elem) {
-    sel.selectAllChildren(elem)
-    sel.collapseToEnd()
-}
 
 var sel = window.getSelection()
+cursor = document.getElementById('cursor')
 
 function closest(elem, cls) {
     if (!elem) return null
@@ -1230,8 +1207,98 @@ function closest(elem, cls) {
     return elem.closest(cls)
 }
 
+function pseudoCursor() {
+    collapsed = ta.selectionStart == ta.selectionEnd
+    pointA = getPoint(ta.selectionStart)
+    cursor.classList.toggle('collapsed', collapsed)
+    if (collapsed) {
+        // indicate the ta position in editable div
+        let range = document.createRange()
+        range.setStart(...pointA)
+        range.insertNode(cursor)
+        pointA[0].parentNode.normalize()   // triggers again selection change, if new cursor after old cursor
+    } else if (!block) {
+        // hand over the ta selection to the editable div
+        point = getPoint(ta.selectionEnd)
+        if (ta.selectionDirection == "backward") sel.setBaseAndExtent(...point, ...pointA)
+        else sel.setBaseAndExtent(...pointA, ...point)
+    }
+}
+
+function getPos(node, offset) {
+    nodes = Traces.querySelectorAll(".dropcell")
+    lineno = [...nodes].findIndex(x => x.contains(node))
+    if (lineno < 0) return 0
+    let range = document.createRange()
+    range.setStart(nodes[lineno], 0)
+    range.setEnd(node, offset)
+    pos = [...ta.value.split("\n").slice(0, lineno), range.toString()].join("\n").length
+    return pos
+}
+
+
+function getNodePos(node) {
+    pos = getPos(node, 0)
+    return [pos, pos + node.innerText.length]
+}
+
+function taInsert(text, start, end=null) {
+    if (end == null) end = start
+    block = true
+    ta.focus()
+    ta.setSelectionRange(start, end)
+    document.execCommand('insertText', false, text)
+    block = false
+}
+
+function taDelete(start, end) {
+    block = true
+    ta.focus()
+    ta.setSelectionRange(start, end)
+    document.execCommand('delete')
+    block = false
+}
+
+function taDeleteNode(node) {
+    del_sel = getNodePos(node)
+    taDelete(...del_sel)
+    return del_sel
+}
+
+Trace1 = Traces.childNodes[1]
+dropcells = document.querySelectorAll('.dropcell')
+
+function getPoint(offset, pnode=null) {
+    if (!pnode) {
+        lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
+        if (offset >= ta.textLength) {
+            // there is no dropcell after the last
+            offset -= 1
+            lineno -= 1
+        }
+        if (lineno > 1)
+            offset -= 1 + ta.value.split("\n").slice(0, lineno-1).join("\n").length  // one for newline
+        pnode = dropcells[lineno-1]
+    }
+
+    Traces.after(cursor)   // avoid miscounting with inline cursor, normalisation can be skipped
+    if (!offset) return [pnode, offset]
+    for (node of [...pnode.childNodes]) {
+        len = (node.nodeName == "BR") || (node.innerText == undefined ? node : node.innerText).length
+        if (offset <= len) break
+        offset -= len
+    }
+    if (node && node.innerText && node.innerText.length>1)
+        // get deeper to the textnode
+        return getPoint(offset, node)
+    return [node, offset]
+}
+
+sel = window.getSelection()
+
+block = false
 focused_dropcell = null
-document.addEventListener("selectionchange", function(e) {
+document.addEventListener("XXXselectionchange", function(e) {
     let foc = closest(sel.focusNode, ".dropcell")
     if (foc != focused_dropcell) {
         // handle focus change and blur events
@@ -1242,6 +1309,154 @@ document.addEventListener("selectionchange", function(e) {
     }
     // info(sel.focusNode.nodeName+", "+sel.focusOffset)
 })
+
+
+document.addEventListener("selectionchange", function(e) {
+    cursor.classList.remove("collapsed")
+    //console.log(sel.focusNode)
+    if (document.activeElement == ta) pseudoCursor()
+    else if (Traces.contains(document.activeElement)) {
+        prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
+        if (!block && prev_sel[1] == prev_sel[0]) {
+            ta.setSelectionRange(...prev_sel)
+            pseudoCursor()   // needed for normalise, will not give new ta selection
+        }
+    }
+})
+
+// Firefox ~68 + enable dom.select_events.textcontrols.enabled
+ta.addEventListener("selectionchange", function(e) {
+    pseudoCursor()
+    e.stopPropagation()
+})
+
+ta.oninput = e => {
+    lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
+    linetext = ta.value.split("\n")[lineno-1]
+    node = Traces.querySelectorAll(".dropcell")[lineno-1]
+    node.innerHTML = linetext.replace(/  /g, ' \xa0').replace(/ $/, '\xa0')
+    parseNode(node)
+    if (e.inputType == 'deleteContentForward')
+        pseudoCursor()
+    // other keys call pseudoCursor via selectionchange
+    e.stopPropagation()
+    
+    if (document.getElementById('funcf').contains(node))
+        // aggressive function update
+        document.getElementById('funcf').onchange()
+    
+}
+
+Traces.ondragstart = function(e) {
+    // add a flag
+    if (dragposA == null)
+         [dragposA, dragposB] = prev_sel
+    // e.dataTransfer.setData('deleteByDrag', 'true')
+}
+
+Traces.ondrop = function(e) {
+    // https://jsfiddle.net/eruyb96v (insert as text needed, not html)
+
+/* various cases to handle
+-----i----------  => -----i----------   oninput (simple insert)
+---DDiD---------  => ---i---------      insert  ("insertReplace")
+-----d----------  => -----CCC---------  dropInsert d  (content external)
+---DDdD---------  => ---CCC---------    dropInsert DDD (= "dropReplace")
+-----d-----CCC--  => -----CCC-------    deleteByDrag
+--d-DDD----CCC--  => --CCC-DDD------    deleteByDrag (Selection not hitted)
+---DDdD----CCC--  => ---CCC------       deleteByDrag + dropInsert DDD
+
+to check: drop is in prev_sel
+*/
+    // redirect drop to ta
+    e.preventDefault()
+
+    let rgb = e.dataTransfer.getData('text/rgb')
+    if (rgb) {
+        colorRestyle(e.target.closest('.dropcell'), rgb)   // replace all cell content
+        return false
+    }
+
+    if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(e.clientX, e.clientY)
+        droppos = getPos(range.startContainer, range.startOffset)
+    } else
+        droppos = getPos(e.rangeParent, e.rangeOffset)
+
+    if (prev_sel[0] > prev_sel[1])
+        prev_sel = prev_sel.reverse() 
+
+    drop_sel = [droppos, droppos]
+    if (prev_sel[0] < droppos && droppos < prev_sel[1])
+        drop_sel = prev_sel
+
+    edata = e.dataTransfer.getData('Text')
+    block = true
+    ta.focus()
+
+    if (dragposA != null) {
+        // deleteByDrag 
+        ta.setSelectionRange(dragposA, dragposB)
+        document.execCommand('delete')
+        if (drop_sel[0] > dragposA) {
+            drop_sel[0] -= dragposB - dragposA
+            drop_sel[1] -= dragposB - dragposA
+        }
+    }
+
+    // insertFromDrop
+    ta.setSelectionRange(...drop_sel)
+    document.execCommand('insertText', false,  edata)
+
+    dragposA = null               
+    block = false
+}
+
+Traces.onpaste = function (e) {
+    // redirect drop to ta
+    e.preventDefault()
+    edata = (e.clipboardData || window.clipboardData).getData('Text')
+    // deleteByCut
+    if (prev_sel[0] > prev_sel[1])
+        prev_sel = prev_sel.reverse()
+
+    block = true
+    ta.focus
+    ta.setSelectionRange(...prev_sel)
+
+    // insertFromPaste
+    console.log(edata)
+    endsel = prev_sel[0] + edata.length
+    document.execCommand('insertText', false, edata)
+    
+    ta.setSelectionRange(endsel, endsel)
+    block = false
+}
+
+Traces.onmouseup = function (e) {
+    sel.isCollapsed && ta.focus()
+}
+
+Traces.oninput = function(e) {
+    console.log(e.inputType)
+    block = true
+    ta.focus()
+    if (prev_sel[0] > prev_sel[1])
+        prev_sel = prev_sel.reverse() 
+    if ("deleteByCut deleteByDrag deleteContentBackward deleteContentForward".includes(e.inputType)) {
+        ta.setSelectionRange(...prev_sel)
+        document.execCommand('delete')
+    } 
+    if ("insertFromDrop insertFromPaste insertText".includes(e.inputType)) {
+        data = e.data || (e.dataTransfer && e.dataTransfer.getData('Text')) || edata
+        edata = null
+        if ("insertFromPaste insertText".includes(e.inputType)) {
+            ta.setSelectionRange(...prev_sel)
+        }    // else insertFromDrop
+        document.execCommand('insertText', false, data)
+    }
+    block = false
+}
 
 </script>
 
