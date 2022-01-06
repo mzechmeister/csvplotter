@@ -1142,11 +1142,7 @@ function suggest_hit(e) {
         hover = hover.firstChild
         // get start of query kbox
         pos = hover.parentNode.parentNode.parentNode.nextSibling.innerText.length
-        block = true
-        ta.focus()
-        ta.selectionStart -= pos 
-        document.execCommand("insertText", false, hover.innerText)
-        block = false
+        taInsert(hover.innerText, ta.selectionStart-pos, ta.selectionEnd)   
     }
     suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
@@ -1188,12 +1184,11 @@ ta.onkeydown = e => {
 
 
 Traces.onkeydown = function(e) {
+     // the suggest list should visible
      if (e.key == "Enter") {
         e.preventDefault()
         if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
-        else
-            select_columns()    // update plot
     }
 }
 
