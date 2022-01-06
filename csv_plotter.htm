@@ -550,7 +550,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
         sp.addEventListener('dragstart', handleDragStart)
         sp.addEventListener('drag', handleDrag)
         sp.addEventListener('dragenter', e => {e.currentTarget.classList.add("dragover")})
-        sp.addEventListener('dragleave', e => {if(sp.contains(e.relatedTarget)) return;   // @FF: do not leave when draging over the child textnode.  CSS ".kbox * {pointer-events: none;}"
+        sp.addEventListener('dragleave', e => {if (sp.contains(e.relatedTarget)) return;   // @FF: do not leave when draging over the child textnode.  CSS ".kbox * {pointer-events: none;}"
                                                e.currentTarget.classList.remove("dragover")})
         sp.addEventListener('dragend', remove_drag)
         if (drag4contenteditable) {
@@ -565,7 +565,7 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
                 } else {   // firefox
                     pos = getPos(e.rangeParent, e.rangeOffset)
                 }
-                ta.setSelectionRange(uu, uu)
+                ta.setSelectionRange(pos, pos)
                 // Traces.onmouseup gives focus to ta
             })
         }
@@ -982,7 +982,7 @@ function init() {
     }
 
     ta.value = [...dropcells].map(x => x.innerText).join("");
-    [...dropcells].map(x => {x.innerText != "\n" && parseNode(x)});
+    dropcells.forEach(parseNode)
 
     if (["", undefined].includes(gl)) webgl.disabled = true   // auto select gl
     if (["false", "0"].includes(gl)) webgl.checked = false
@@ -1146,7 +1146,6 @@ suggest_list.onmouseover = suggest_hover
 suggest_list.onmousedown = suggest_hit
 
 Traces = document.getElementById('Traces')
-Trace1 = Traces.childNodes[1]
 dropcells = document.querySelectorAll('.dropcell')
 cursor = document.getElementById('cursor')
 
@@ -1199,9 +1198,8 @@ function getPoint(offset, pnode=null) {
             offset -= 1
             lineno -= 1
         }
-        if (lineno > 1)
-            offset -= 1 + ta.value.split("\n").slice(0, lineno-1).join("\n").length  // one for newline
         pnode = dropcells[lineno-1]
+        offset -= getPos(pnode, 0)
     }
 
     Traces.after(cursor)   // avoid miscounting with inline cursor, normalisation can be skipped
@@ -1250,9 +1248,9 @@ ta.onkeydown = e => {
         return true
     }
 
-    if (e.key == "Delete" && ta.value.charAt(ta.selectionEnd) == "\n") 
+    if (e.key == "Delete" && ta.value[ta.selectionEnd] == "\n") 
         e.preventDefault()
-    if (e.key == "Backspace" && ta.value.charAt(ta.selectionEnd-1) == "\n")
+    if (e.key == "Backspace" && ta.value[ta.selectionEnd-1] == "\n")
         e.preventDefault()
 
     if (e.key == "Enter") {
