@@ -559,13 +559,14 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
             sp.addEventListener('mousedown', e => {sp.contentEditable = false})
             sp.addEventListener('mouseup', e => {
                 sp.contentEditable = true
-                var sel = window.getSelection()
                 if (document.caretRangeFromPoint) {
-                    sel.removeAllRanges()
-                    sel.addRange(document.caretRangeFromPoint(e.clientX, e.clientY))
+                    pos = document.caretRangeFromPoint(e.clientX, e.clientY)
+                    pos = getPos(pos.startContainer, pos.startOffset)
                 } else {   // firefox
-                    sel.collapse(e.rangeParent, e.rangeOffset)
+                    pos = getPos(e.rangeParent, e.rangeOffset)
                 }
+                ta.setSelectionRange(uu, uu)
+                // Traces.onmouseup gives focus to ta
             })
         }
     }
@@ -1296,7 +1297,7 @@ document.addEventListener("XXXselectionchange", function(e) {
 
 document.addEventListener("selectionchange", function(e) {
     cursor.classList.remove("collapsed")
-    //console.log(sel.focusNode)
+
     if (document.activeElement == ta) pseudoCursor()
     else if (Traces.contains(document.activeElement)) {
         prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
