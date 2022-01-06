@@ -577,17 +577,20 @@ dropOnkbox = e => {
     prev_sel = getNodePos(e.target)
 }
 
-kboxreplace = e => {
+kpoolClick = e => {
     foc = getPoint(ta.selectionStart)[0]
     if (document.querySelector('.Trace[tnum="1"]').contains(foc)) {
         foc = closest(foc, '.kbox')
+        // cases: selection could be extended (dropcell focuses), a kbox, or collapsed
         block = true
         ta.focus()
         if (foc && sel.isCollapsed)  // replace whole kbox
             ta.setSelectionRange(...getNodePos(foc))
-        document.execCommand('insertText', false, e.target.innerText)
+        if (e.target.getAttribute("trash")) 
+            document.execCommand('delete')
+        else
+            document.execCommand('insertText', false, e.target.innerText)
         block = false
-//        if (e.target.getAttribute("trash")) re
     }
 }
 
@@ -599,14 +602,14 @@ function init_box(colpool) {
     trash.setAttribute('knum', "none")
     trash.setAttribute('trash', "true")
     trash.setAttribute('title', "delete active column")
-    trash.onclick = kboxreplace
+    trash.onclick = kpoolClick
     kpool.append(trash)
     suggest_list.innerHTML = ""   // clear it before loading dropped file
      
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
         let sp = kBox(colname, true, drag4contenteditable=false)
-        sp.onclick = kboxreplace
+        sp.onclick = kpoolClick
         kpool.appendChild(sp)
 
         // list entries for suggestion
