@@ -905,18 +905,18 @@ url = url_kwargs["url"]
 function parseNode(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
-    kpool.after(suggest_div)           // do not count characters
+    kpool.after(suggest_div)
     suggest_list.style.display = ""
 
-    let sel = window.getSelection()
-    if (node.contains(sel.focusNode)) {
-        sel.extend(node.firstChild || node)
-        seltext = sel.toString()
-    } else
-        seltext = node.innerText
-    curpos = seltext.replace("\n", "").replace("\r", "").length
+    node_sel = getNodePos(node)
+    nodetext = ta.value.slice(...node_sel)
 
-    let toparse = node.innerText.replace("\n", "").split("$")
+    curpos = ta.selectionEnd - node_sel[0]
+    seltext = nodetext
+    if (0 < curpos && curpos < nodetext.length)
+        seltext = ta.value.slice(node_sel[0]).slice(0, curpos)
+
+    let toparse = nodetext.replace("\n", "").split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
 
     let curnode = node.firstChild   // a text node
