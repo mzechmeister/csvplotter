@@ -912,14 +912,15 @@ function parseNode(node) {
     kpool.after(suggest_div)
     suggest_list.style.display = ""
 
-    node_sel = getNodePos(node)
-    nodetext = ta.value.slice(...node_sel)
+    nodenum = [...dropcells].indexOf(node)
+    nodetext = ta.value.split("\n")[nodenum]
     nodetext = nodetext.replace(/  /g, ' \xa0').replace(/ $/, '\xa0')
+    nodestart = nodenum==0? 0: nodetext.indexOf("\n", nodenum-1)
 
-    curpos = ta.selectionEnd - node_sel[0]
+    curpos = ta.selectionEnd - nodestart
     seltext = nodetext
     if (0 < curpos && curpos < nodetext.length)
-        seltext = ta.value.slice(node_sel[0]).slice(0, curpos)
+        seltext = nodetext.slice(0, curpos)
 
     let toparse = nodetext.replace("\n", "").split("$")
     node.innerHTML = toparse.shift()   // Consume the first text. It's "", when string starts with "$".
@@ -1301,6 +1302,8 @@ document.addEventListener("selectionchange", function(e) {
     if (document.activeElement == ta) pseudoCursor()
     else if (Traces.contains(document.activeElement)) {
         prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
+        if (prev_sel[0] > prev_sel[1])
+            prev_sel = prev_sel.reverse()
         if (!block && prev_sel[1] == prev_sel[0]) {
             ta.setSelectionRange(...prev_sel)
             pseudoCursor()   // needed for normalise, will not give new ta selection
@@ -1407,24 +1410,10 @@ to check: drop is in prev_sel
 }
 
 Traces.onpaste = function (e) {
-    // redirect drop to ta
+    // console.log("redirect insertFromPaste to ta")
     e.preventDefault()
     edata = (e.clipboardData || window.clipboardData).getData('Text')
-    // deleteByCut
-    if (prev_sel[0] > prev_sel[1])
-        prev_sel = prev_sel.reverse()
-
-    block = true
-    ta.focus
-    ta.setSelectionRange(...prev_sel)
-
-    // insertFromPaste
-    console.log(edata)
-    endsel = prev_sel[0] + edata.length
-    document.execCommand('insertText', false, edata)
-    
-    ta.setSelectionRange(endsel, endsel)
-    block = false
+    taInsert(edata, ...prev_sel)
 }
 
 Traces.onmouseup = function (e) {
@@ -1435,8 +1424,7 @@ Traces.oninput = function(e) {
     console.log(e.inputType)
     block = true
     ta.focus()
-    if (prev_sel[0] > prev_sel[1])
-        prev_sel = prev_sel.reverse() 
+ 
     if ("deleteByCut deleteByDrag deleteContentBackward deleteContentForward".includes(e.inputType)) {
         ta.setSelectionRange(...prev_sel)
         document.execCommand('delete')
