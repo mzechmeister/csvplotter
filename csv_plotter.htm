@@ -915,7 +915,7 @@ function parseNode(node) {
     nodenum = [...dropcells].indexOf(node)
     nodetext = ta.value.split("\n")[nodenum]
     nodetext = nodetext.replace(/  /g, ' \xa0').replace(/ $/, '\xa0')
-    nodestart = nodenum==0? 0: nodetext.indexOf("\n", nodenum-1)
+    nodestart = getPos(node, 0)
 
     curpos = ta.selectionEnd - nodestart
     seltext = nodetext
@@ -1319,7 +1319,6 @@ ta.addEventListener("selectionchange", function(e) {
 
 ta.oninput = e => {
     lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
-    linetext = ta.value.split("\n")[lineno-1]
     node = dropcells[lineno-1]
     parseNode(node)
     if (e.inputType == 'deleteContentForward')
@@ -1329,7 +1328,7 @@ ta.oninput = e => {
     
     if (document.getElementById('funcf').contains(node))
         // aggressive function update
-        document.getElementById('funcf').onchange()   
+        document.getElementById('funcf').onchange()
 }
 
 Traces.ondragstart = function(e) {
