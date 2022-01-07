@@ -153,7 +153,7 @@
         display: flex;
     }
     
-    .Trace:focus, .Trace:focus-within {
+    .Trace:focus, .Trace:focus-within, .Trace.caretover {
         border-color: #6399cb;
     }
 
@@ -163,7 +163,7 @@
         color: #ccc;
     }
 
-    .Trace:focus > label, .Trace:focus-within > label {
+    .Trace:focus > label, .Trace:focus-within > label, .Trace.caretover > label {
         color: #6399cb;
     }
 
@@ -1002,7 +1002,7 @@ document.getElementById("share").onclick = function() {
          +  (title  && "title="+title+"&")
          +  (cbtitle&& "cbtitle="+cbtitle+"&")
     if (!webgl.disabled) _url += "gl="+webgl.checked+"&"
-    _url += [...document.querySelectorAll(".drop,.dropcell")].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+val).filter(x => x).join('&')
+    _url += [...dropcells].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+val).filter(x => x).join('&')
     _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
     var link = document.createElement("a")
     link.href = _url
@@ -1160,6 +1160,7 @@ function closest(elem, cls) {
 function pseudoCursor() {
     collapsed = ta.selectionStart == ta.selectionEnd
     pointA = getPoint(ta.selectionStart)
+    markCell(pointA[0])
     cursor.classList.toggle('collapsed', collapsed)
     if (collapsed) {
         // indicate the ta position in editable div
@@ -1274,22 +1275,21 @@ Traces.onkeydown = function(e) {
 }
 
 block = false
-focused_dropcell = null
-document.addEventListener("XXXselectionchange", function(e) {
-    let foc = closest(sel.focusNode, ".dropcell")
-    if (foc != focused_dropcell) {
-        // handle focus change and blur events
-        focused_dropcell && focused_dropcell.classList.remove('caretover')
-        foc && foc.classList.add('caretover')
-        suggest_list.style.display = ""
-        focused_dropcell = foc
-    }
-    // info(sel.focusNode.nodeName+", "+sel.focusOffset)
-})
 
+function markCell(node) {
+    let foc_old = document.querySelector('.dropcell.caretover')
+    let foc = closest(node, ".dropcell")
+    // handle focus change and blur events
+    foc_old && foc_old.classList.remove('caretover')
+    foc_old && foc_old.parentNode.classList.remove('caretover')
+    foc && foc.classList.add('caretover')
+    foc && foc.parentNode.classList.add('caretover')
+    suggest_list.style.display = ""
+}
 
 document.addEventListener("selectionchange", function(e) {
     cursor.classList.remove("collapsed")
+    markCell(null)
 
     if (document.activeElement == ta) pseudoCursor()
     else if (Traces.contains(document.activeElement)) {
