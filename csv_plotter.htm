@@ -561,12 +561,10 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
                 sp.contentEditable = true
                 if (document.caretRangeFromPoint) {
                     pos = document.caretRangeFromPoint(e.clientX, e.clientY)
-                    pos = getPos(pos.startContainer, pos.startOffset)
+                    sel.setPosition(pos.startContainer, pos.startOffset)
                 } else {   // firefox
-                    pos = getPos(e.rangeParent, e.rangeOffset)
+                    sel.setPosition(e.rangeParent, e.rangeOffset)
                 }
-                ta.setSelectionRange(pos, pos)
-                // Traces.onmouseup gives focus to ta
             })
         }
     }
@@ -1148,6 +1146,7 @@ suggest_list.onmousedown = suggest_hit
 Traces = document.getElementById('Traces')
 dropcells = document.querySelectorAll('.dropcell')
 cursor = document.getElementById('cursor')
+prev_r = null   // previous range
 
 var sel = window.getSelection()
 
@@ -1168,6 +1167,7 @@ function pseudoCursor() {
         range.setStart(...pointA)
         range.insertNode(cursor)
         pointA[0].parentNode.normalize()   // triggers again selection change, if new cursor after old cursor
+        ta.focus()
     } else if (!block) {
         // hand over the ta selection to the editable div
         point = getPoint(ta.selectionEnd)
@@ -1245,7 +1245,7 @@ ta.onkeydown = e => {
     }
 
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
-        suggest_hover_kdb(e)
+        suggest_list.style.display && suggest_hover_kdb(e)
         return true
     }
 
@@ -1288,6 +1288,9 @@ function markCell(node) {
 }
 
 document.addEventListener("selectionchange", function(e) {
+    if (prev_r == sel.getRangeAt(0)) return   // the selection has not changed !
+    prev_r = sel.getRangeAt(0)                // firefox calls textarea focus twice, try https://jsfiddle.net/o7cm2810
+
     cursor.classList.remove("collapsed")
     markCell(null)
 
@@ -1321,10 +1324,6 @@ ta.oninput = e => {
     if (document.getElementById('funcf').contains(node))
         // aggressive function update
         document.getElementById('funcf').onchange()
-}
-
-Traces.onmouseup = function (e) {
-    sel.isCollapsed && ta.focus()
 }
 
 Traces.onpaste = function (e) {
