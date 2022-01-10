@@ -344,7 +344,7 @@
 <div id="cursor"></div>
 
 <div id="tawrapper" style="position: relative">
-<div id="Traces" class="fancy" style="background: white; margin: 5px 0;">
+<div id="Traces" class="fancy wrap" style="background: white; margin: 5px 0;">
    <div class="Trace" contenteditable tnum=1>
       <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
       <label><i class="far fa-file" title="file/url"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
@@ -387,8 +387,8 @@ if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         x.style.setProperty('display', 'none')
 }
 
-function info(text="") {
-    document.getElementById("info").innerHTML = text
+function info(...args) {
+    document.getElementById("info").innerHTML = args.join(" ")
 }
 
 function dragicon(ev) {
