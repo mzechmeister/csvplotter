@@ -413,24 +413,38 @@ function remove_drag() {
 function colorDragStart(e) {
     add_drop(".color")
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/rgb', this.style["background-color"])
+    e.dataTransfer.setData("text", rgb)
+    e.dataTransfer.setData('text/rgb', rgb)
 }
 
-function parseColor(f, rgb) {
-    if (!rgb) rgb = f.innerText.replace("\n", "")
-    if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
+dropOnColorCell = e => {
+    rgb = e.dataTransfer.getData('text/rgb')
+    if (rgb) {
+        // select the whole color cell
+        prev_sel = getNodePos(e.target)
+        taInsert(rgb, prev_sel[0], prev_sel[1]-1)
+        colorRestyle(e.target)
+        e.preventDefault()
+        e.stopPropagation()
+    }
+}
+
+function renderColor(f) {
+    rgb = f.innerText.replace("\n", "")
     if (rgb.startsWith('#')) {
         f.style.backgroundColor = rgb
-        prev_sel = getNodePos(f)
-        taInsert(rgb, prev_sel[0], prev_sel[1]-1)   // do not replace newline
         f.classList.add("rgb")
     } else {
         // vector, i.e. a palette
         f.style.backgroundColor = ''
-        rgb = parseCell(f)
         f.classList.remove("rgb")
     }
-    return rgb
+}
+
+function parseColor(f) {
+    rgb = f.innerText.replace("\n", "")
+    // single rgb string or vector, i.e. a palette
+    return rgb.startsWith('#')? rgb : parseCell(f)
 }
 
 function update_errorbar(tnum=1) {
@@ -438,7 +452,7 @@ function update_errorbar(tnum=1) {
     // also opacity for errorbars was depreciated
     if (!webgl.disabled && webgl.checked) return   // does not works for gl (only svg)
     let f = document.getElementsByClassName("color")[tnum-1]
-    let rgb = parseColor(f, '')
+    let rgb = parseColor(f)
     let opacity = parseCell(f.nextElementSibling.nextElementSibling)
 
     let tclass = ".trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
@@ -459,8 +473,8 @@ function update_errorbar(tnum=1) {
         Plotly.d3.selectAll(tclass+" .xerror,.yerror").style("stroke-opacity", opacity)
 }
 
-function colorRestyle(f, rgb='') {
-    rgb = parseColor(f, rgb)
+function colorRestyle(f) {
+    rgb = parseColor(f)
     let opacity = parseCell(f.nextElementSibling.nextElementSibling)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
     let tnum = f.parentElement.getAttribute("tnum")
@@ -484,9 +498,18 @@ for (color of Plotly.d3.scale.category10().range()) {
     div.draggable = true
     div.ondragstart = colorDragStart
     div.ondragend = remove_drag
-    div.onmousedown = (_ => {add_drop(".color"); f = closest(sel.focusNode, ".dropcell.color")})
-    div.onmouseup = (e => {if (f) {
-                       colorRestyle(f, e.target.style.backgroundColor); f.focus()}})
+    div.onmousedown = (_ => {add_drop(".color")
+        rgb = div.style["background-color"]
+        if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
+    })
+    div.onmouseup = (e => {
+        // send color as click
+        f = closest(sel.focusNode, ".dropcell.color")
+            || closest(getPoint(sel.focusNode)[0], ".dropcell.color")
+        if (f) {
+            prev_sel = getNodePos(f)
+            taInsert(rgb, prev_sel[0], prev_sel[1]-1)
+            colorRestyle(f)}})
     divcols.append(div)
 }
 
@@ -502,7 +525,7 @@ for (cell of document.getElementsByClassName('dropcell')) {
 }
 
 for (cell of document.getElementsByClassName('color')) {
-    cell.onchange = (e => colorRestyle(e.target))
+    cell.ondrop = dropOnColorCell
 }
 
 dragsrc = null
@@ -904,7 +927,7 @@ url_kwargs = Object.fromEntries(new URL(window.location).searchParams)
 url = url_kwargs["url"]
 
 
-function parseNode(node) {
+function renderCell(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
     kpool.after(suggest_div)
@@ -947,6 +970,8 @@ function parseNode(node) {
     node.append(document.createElement("br"))
 
     qname && filter_suggests(curnode.parentNode)
+    
+    node.classList.contains("color") && renderColor(node)
 }
 
 function init() {
@@ -980,7 +1005,7 @@ function init() {
     }
 
     ta.value = [...dropcells].map(x => x.innerText).join("");
-    dropcells.forEach(parseNode)
+    dropcells.forEach(renderCell)
 
     if (["", undefined].includes(gl)) webgl.disabled = true   // auto select gl
     if (["false", "0"].includes(gl)) webgl.checked = false
@@ -1315,7 +1340,7 @@ ta.addEventListener("selectionchange", function(e) {
 ta.oninput = e => {
     lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
     node = dropcells[lineno-1]
-    parseNode(node)
+    renderCell(node)
     if (e.inputType == 'deleteContentForward')
         pseudoCursor()
     // other keys call pseudoCursor via selectionchange
@@ -1368,12 +1393,6 @@ to check: drop is in prev_sel
        // kpool.kbox,text -> text
 
     // redirect drop to ta
-
-    let rgb = e.dataTransfer.getData('text/rgb')
-    if (rgb) {
-        colorRestyle(e.target.closest('.dropcell'), rgb)   // replace all cell content
-        return false
-    }
 
     if (document.caretRangeFromPoint) {
         range = document.caretRangeFromPoint(e.clientX, e.clientY)
