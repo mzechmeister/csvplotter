@@ -111,8 +111,8 @@ graph.addEventListener("keydown", function(e){
               var yaxis = graph._fullLayout.yaxis;
               var l = graph._fullLayout.margin.l;
               var t = graph._fullLayout.margin.t;
-              x0 = xaxis.p2c(i0 - l)
-              y0 = yaxis.p2c(j0 - t)
+              x0 = xaxis.p2c(i0 - l + window.scrollX)
+              y0 = yaxis.p2c(j0 - t + window.scrollY)
               update.annotations = [{
                   // initial marker
                   x: x0,
@@ -128,8 +128,8 @@ graph.addEventListener("keydown", function(e){
               }]
 
               graph.onmousemove = function(evt) {
-                  mousei = evt.x
-                  mousej = evt.y
+                  mousei = evt.x + window.scrollX
+                  mousej = evt.y + window.scrollY
                   mouseX = xaxis.p2c(mousei - l);
                   mouseY = yaxis.p2c(mousej - t);
                   mouseX = clamp(mouseX, ...xaxis.range)
