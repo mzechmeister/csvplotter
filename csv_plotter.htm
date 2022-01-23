@@ -232,10 +232,6 @@
         outline: 1px dashed #0008;  /* transparency to make cursor visible at border */
     }
 
-    #suggest_list {
-        display: none;
-    }
-
     .plotypicon {
         min-height: 20px;
         border-bottom: #ccc 1px solid;
@@ -930,9 +926,6 @@ url = url_kwargs["url"]
 function renderCell(node) {
     keys = [...colnames, "0", ...colnames.map((x,i) => ""+(i+1))].sort().reverse()
 
-    kpool.after(suggest_div)
-    suggest_list.style.display = ""
-
     nodenum = [...dropcells].indexOf(node)
     nodetext = ta.value.split("\n")[nodenum]
     nodetext = nodetext.replace(/  /g, ' \xa0').replace(/ $/, '\xa0')
@@ -1143,7 +1136,7 @@ function filter_suggests(foc) {
     // keep last proposal or propose first element
     (hover = suggest_list.querySelector('.show.hover')) ||
         (hover = suggest_list.querySelector('.show')) && hover.classList.add('hover')
-    suggest_list.style.display = n ? 'block' : ''
+    if (!n) kpool.after(suggest_div)
     // if there is only unique match, apply immediately
     if (n==1 && (hover.firstChild.getAttribute("knum") == query
                       || hover.innerText.toLowerCase() == query))
@@ -1158,7 +1151,6 @@ function suggest_hit(e) {
         pos = hover.parentNode.parentNode.parentNode.nextSibling.innerText.length
         taInsert(hover.innerText, ta.selectionStart-pos, ta.selectionEnd)
     }
-    suggest_list.style.display = ""
     e.preventDefault && e.preventDefault()  // do not insert newline
     return // prevent caret movement
 }
@@ -1183,6 +1175,7 @@ function closest(elem, cls) {
 
 function pseudoCursor() {
     collapsed = ta.selectionStart == ta.selectionEnd
+    kpool.after(suggest_list)   // do not count the entries
     pointA = getPoint(ta.selectionStart)
     markCell(pointA[0])
     cursor.classList.toggle('collapsed', collapsed)
@@ -1199,6 +1192,7 @@ function pseudoCursor() {
         if (ta.selectionDirection == "backward") sel.setBaseAndExtent(...point, ...pointA)
         else sel.setBaseAndExtent(...pointA, ...point)
     }
+    suggest_div.append(suggest_list)
 }
 
 function getPos(node, offset) {
@@ -1264,13 +1258,20 @@ function taDeleteNode(node) {
     return del_sel
 }
 
+ta.onblur = e => {
+    Traces.after(cursor)
+    kpool.after(suggest_div)
+    for (x of [...document.getElementsByClassName('caretover')])
+        x.classList.remove("caretover")
+}
+
 ta.onkeydown = e => {
     if (e.key=="ArrowLeft" || e.key=="ArrowRight") {
-        suggest_list.style.display = ""
+        kpool.after(suggest_div)
     }
 
     if (e.key=="ArrowDown" || e.key=="ArrowUp") {
-        suggest_list.style.display && suggest_hover_kdb(e)
+        Traces.contains(suggest_div) && suggest_hover_kdb(e)
         return true
     }
 
@@ -1283,7 +1284,7 @@ ta.onkeydown = e => {
         e.preventDefault()
         // enter would destroy dropcell-lineno relation
         // instead update the plot
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+        if (Traces.contains(suggest_div) && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
         else
             select_columns()    // update plot
@@ -1294,7 +1295,7 @@ Traces.onkeydown = function(e) {
      // the suggest list should visible
      if (e.key == "Enter") {
         e.preventDefault()
-        if (suggest_list.style.display!="" && (hit=document.querySelector('.show.hover')))
+        if (Traces.contains(suggest_div) && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
     }
 }
@@ -1309,7 +1310,6 @@ function markCell(node) {
     foc_old && foc_old.parentNode.classList.remove('caretover')
     foc && foc.classList.add('caretover')
     foc && foc.parentNode.classList.add('caretover')
-    suggest_list.style.display = ""
 }
 
 document.addEventListener("selectionchange", function(e) {
@@ -1321,6 +1321,7 @@ document.addEventListener("selectionchange", function(e) {
 
     if (document.activeElement == ta) pseudoCursor()
     else if (Traces.contains(document.activeElement)) {
+        kpool.after(suggest_div)
         prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
         if (prev_sel[0] > prev_sel[1])
             prev_sel = prev_sel.reverse()
