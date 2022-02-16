@@ -1440,12 +1440,12 @@ Traces.oninput = function(e) {
         document.execCommand('delete')
     } 
     if ("insertFromDrop insertFromPaste insertText".includes(e.inputType)) {
-        data = e.data || (e.dataTransfer && e.dataTransfer.getData('Text')) || edata
+        var text = e.data || (e.dataTransfer && e.dataTransfer.getData('Text')) || edata
         edata = null
         if ("insertFromPaste insertText".includes(e.inputType)) {
             ta.setSelectionRange(...prev_sel)
         }    // else insertFromDrop
-        document.execCommand('insertText', false, data)
+        document.execCommand('insertText', false, text)
     }
     block = false
 }
