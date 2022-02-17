@@ -1280,6 +1280,12 @@ ta.onkeydown = e => {
     if (e.key == "Backspace" && ta.value[ta.selectionEnd-1] == "\n")
         e.preventDefault()
 
+    if (e.ctrlKey && e.key == 'a') {
+        e.preventDefault()
+        // for ctrl+A select only the cell (textarea line, not the whole textarea) 
+        ta.setSelectionRange(ta.value.lastIndexOf('\n', ta.selectionStart)+1, ta.value.indexOf('\n', ta.selectionStart))
+    }
+
     if (e.key == "Enter") {
         e.preventDefault()
         // enter would destroy dropcell-lineno relation
