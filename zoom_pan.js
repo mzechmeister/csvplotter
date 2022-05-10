@@ -165,12 +165,12 @@ function rubber_init(e) {
     rx0 = xaxis.range
     ry0 = yaxis.range
     obj.onmousemove = rubber_zoom
-    Plotly.relayout(obj, {'xaxis.fixedrange': true, 'yaxis.fixedrange': true})
+    obj._fullLayout.xaxis.fixedrange = true
+    obj._fullLayout.yaxis.fixedrange = true
     obj.onmouseup = function(e) {
-        obj.onmousemove = null
-        Plotly.relayout(this, {
-                'xaxis.fixedrange': false, 'yaxis.fixedrange': false
-        })
+        this.onmousemove = null
+        this._fullLayout.xaxis.fixedrange = false
+        this._fullLayout.yaxis.fixedrange = false
     }
 }
 
