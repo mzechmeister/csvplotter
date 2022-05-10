@@ -9,7 +9,7 @@ Features:
 * automatic csv file parsing
 * drag&drop of file columns
 * file and function plotting
-* zooming with keyboard keys
+* zooming with keyboard keys; rubber band zoom with right-click drag
 * everything in javascript (i.e. client side execution)
 * shareable via url parameters
 

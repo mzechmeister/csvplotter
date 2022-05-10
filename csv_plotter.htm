@@ -312,7 +312,7 @@
    <button id="expand" class="vis" onclick="[document.getElementsByTagName('body')[0].style.height, graph.style.height] = this.firstChild.classList.toggle('fas') ?  ['','100vh'] : ['100vh', ''];"><i class="far fa-keyboard"></i></button>
 </div>
 
-<div id="plotly-div"></div>
+<div id="plotly-div" oncontextmenu="return false"></div>
 <div style="display: flex; align-items: start;"><i class="fa fa-info" style="padding: 0px 5px;"></i>
     <div id="info" style="flex-grow: 1"><span style="color:grey"></span></div>
     <div id="menuicons" style="white-space: nowrap;">

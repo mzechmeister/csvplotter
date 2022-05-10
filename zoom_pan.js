@@ -149,11 +149,51 @@ graph.addEventListener("keydown", function(e){
     return false
 });
 
+
+
+var zoomspeed = 1 / 20   // [zoomfac/px]
+zoomfac = d => d<0 ? 1 - d*zoomspeed : 1 / (1 + d*zoomspeed)
+
+function rubber_init(e) {
+    var obj = e.currentTarget
+    xaxis = obj._fullLayout.xaxis
+    yaxis = obj._fullLayout.yaxis
+    X0 = e.clientX
+    x0 = xaxis.p2r(X0-obj._fullLayout.margin.l-obj.getBoundingClientRect().left)
+    Y0 = e.clientY
+    y0 = yaxis.p2r(Y0-obj._fullLayout.margin.t-obj.getBoundingClientRect().top)
+    rx0 = xaxis.range
+    ry0 = yaxis.range
+    obj.onmousemove = rubber_zoom
+    Plotly.relayout(obj, {'xaxis.fixedrange': true, 'yaxis.fixedrange': true})
+    obj.onmouseup = function(e) {
+        obj.onmousemove = null
+        Plotly.relayout(this, {
+                'xaxis.fixedrange': false, 'yaxis.fixedrange': false
+        })
+    }
+}
+
+function rubber_zoom(e) {
+    xfac = zoomfac(e.clientX-X0)
+    yfac = zoomfac(-(e.clientY-Y0))
+    // new ranges
+    Rx0 = x0 - xfac * (x0-rx0[0])
+    Rx1 = x0 - xfac * (x0-rx0[1])
+    Ry0 = y0 - yfac * (y0-ry0[0])
+    Ry1 = y0 - yfac * (y0-ry0[1])
+    Plotly.relayout(e.currentTarget,
+           {'xaxis.range': [Rx0, Rx1],
+            'yaxis.range': [Ry0, Ry1]})
+}
+
+
+
 graph.addEventListener('mousedown', function(evt){
     // hack to pan when pressing middle button/mouse wheel
     // better would be https://github.com/plotly/plotly.js/issues/4004
     this._fullLayout.dragmode = evt.buttons == 4? 'pan' : 'zoom'
+    if (evt.buttons == 2) rubber_init(evt)
 }, true);
 
 }
-
