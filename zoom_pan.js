@@ -155,22 +155,19 @@ var zoomspeed = 1 / 20   // [zoomfac/px]
 zoomfac = d => d<0 ? 1 - d*zoomspeed : 1 / (1 + d*zoomspeed)
 
 function rubber_init(e) {
+    e.stopPropagation()   // zoom bug (https://github.com/plotly/plotly.js/issues/5311), mousedown is attached to nsewdrag
     var obj = e.currentTarget
     xaxis = obj._fullLayout.xaxis
     yaxis = obj._fullLayout.yaxis
     X0 = e.clientX
-    x0 = xaxis.p2r(X0-obj._fullLayout.margin.l-obj.getBoundingClientRect().left)
     Y0 = e.clientY
+    x0 = xaxis.p2r(X0-obj._fullLayout.margin.l-obj.getBoundingClientRect().left)
     y0 = yaxis.p2r(Y0-obj._fullLayout.margin.t-obj.getBoundingClientRect().top)
     rx0 = xaxis.range
     ry0 = yaxis.range
     obj.onmousemove = rubber_zoom
-    obj._fullLayout.xaxis.fixedrange = true
-    obj._fullLayout.yaxis.fixedrange = true
     obj.onmouseup = function(e) {
-        this.onmousemove = null
-        this._fullLayout.xaxis.fixedrange = false
-        this._fullLayout.yaxis.fixedrange = false
+        obj.onmousemove = null
     }
 }
 
@@ -186,7 +183,6 @@ function rubber_zoom(e) {
            {'xaxis.range': [Rx0, Rx1],
             'yaxis.range': [Ry0, Ry1]})
 }
-
 
 
 graph.addEventListener('mousedown', function(evt){
