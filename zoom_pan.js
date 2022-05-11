@@ -188,7 +188,7 @@ function rubber_zoom(e) {
 graph.addEventListener('mousedown', function(evt){
     // hack to pan when pressing middle button/mouse wheel
     // better would be https://github.com/plotly/plotly.js/issues/4004
-    this._fullLayout.dragmode = evt.buttons == 4? 'pan' : 'zoom'
+    if (evt.buttons == 4) this._fullLayout.dragmode = 'pan'
     if (evt.buttons == 2) rubber_init(evt)
 }, true);
 
