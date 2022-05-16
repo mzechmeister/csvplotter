@@ -152,7 +152,7 @@
         border-bottom: none;
         display: flex;
     }
-    
+
     .Trace:focus, .Trace:focus-within, .Trace.caretover {
         border-color: #6399cb;
     }
@@ -176,7 +176,7 @@
     }
 
     .wrap .Trace .dropcell, .wrap .Trace div.func  {
-        min-width: 20px;   
+        min-width: 20px;
     }
 
     label > i {
@@ -267,7 +267,7 @@
     .cboutline {
         shape-rendering: crispEdges
     }
-    
+
     .fa-x::before {
         content: "x";
         font-family: verdana;
@@ -283,7 +283,7 @@
     }
 
     #cursor {
-        display: inline;   
+        display: inline;
     }
 
     #cursor.collapsed {
@@ -444,7 +444,7 @@ function parseColor(f) {
 }
 
 function update_errorbar(tnum=1) {
-    // back to d3, since Plotly cannot make variable colors for errorbars 
+    // back to d3, since Plotly cannot make variable colors for errorbars
     // also opacity for errorbars was depreciated
     if (!webgl.disabled && webgl.checked) return   // does not works for gl (only svg)
     let f = document.getElementsByClassName("color")[tnum-1]
@@ -604,7 +604,7 @@ kpoolClick = e => {
         ta.focus()
         if (foc && sel.isCollapsed)  // replace whole kbox
             ta.setSelectionRange(...getNodePos(foc))
-        if (e.target.getAttribute("trash")) 
+        if (e.target.getAttribute("trash"))
             document.execCommand('delete')
         else
             document.execCommand('insertText', false, e.target.innerText)
@@ -623,7 +623,7 @@ function init_box(colpool) {
     trash.onclick = kpoolClick
     kpool.append(trash)
     suggest_list.innerHTML = ""   // clear it before loading dropped file
-     
+
     // put all columns into dragable divs
     for (let [k, colname] of colpool.entries()) {
         let sp = kBox(colname, true, drag4contenteditable=false)
@@ -823,9 +823,9 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
             opacity: Do,
             color: cc ? cc : '#404040',
             colorscale: 'Portland',
-            colorbar: {title: cbtitle || document.getElementById("cc").innerText, 
+            colorbar: {title: cbtitle || document.getElementById("cc").innerText,
                 ticks: 'inside'
-            },     
+            },
             showscale: typeof cc == "object",
             line: { width: 1,
                 color: '#404040'}}
@@ -963,7 +963,7 @@ function renderCell(node) {
     node.append(document.createElement("br"))
 
     qname && filter_suggests(curnode.parentNode)
-    
+
     node.classList.contains("color") && renderColor(node)
 }
 
@@ -1275,14 +1275,14 @@ ta.onkeydown = e => {
         return true
     }
 
-    if (e.key == "Delete" && ta.value[ta.selectionEnd] == "\n") 
+    if (e.key == "Delete" && ta.value[ta.selectionEnd] == "\n")
         e.preventDefault()
     if (e.key == "Backspace" && ta.value[ta.selectionEnd-1] == "\n")
         e.preventDefault()
 
     if (e.ctrlKey && e.key == 'a') {
         e.preventDefault()
-        // for ctrl+A select only the cell (textarea line, not the whole textarea) 
+        // for ctrl+A select only the cell (textarea line, not the whole textarea)
         ta.setSelectionRange(ta.value.lastIndexOf('\n', ta.selectionStart)+1, ta.value.indexOf('\n', ta.selectionStart))
     }
 
@@ -1352,7 +1352,7 @@ ta.oninput = e => {
         pseudoCursor()
     // other keys call pseudoCursor via selectionchange
     e.stopPropagation()
-    
+
     if (document.getElementById('funcf').contains(node))
         // aggressive function update
         document.getElementById('funcf').onchange()
@@ -1408,7 +1408,7 @@ to check: drop is in prev_sel
         droppos = getPos(e.rangeParent, e.rangeOffset)
 
     if (prev_sel[0] > prev_sel[1])
-        prev_sel = prev_sel.reverse() 
+        prev_sel = prev_sel.reverse()
 
     drop_sel = [droppos, droppos]
     if (prev_sel[0] < droppos && droppos < prev_sel[1])
@@ -1419,7 +1419,7 @@ to check: drop is in prev_sel
     ta.focus()
 
     if (dragposA != null) {
-        // deleteByDrag 
+        // deleteByDrag
         ta.setSelectionRange(dragposA, dragposB)
         document.execCommand('delete')
         if (drop_sel[0] > dragposA) {
@@ -1432,7 +1432,7 @@ to check: drop is in prev_sel
     ta.setSelectionRange(...drop_sel)
     document.execCommand('insertText', false,  edata)
 
-    dragposA = null               
+    dragposA = null
     block = false
 }
 
@@ -1440,11 +1440,11 @@ Traces.oninput = function(e) {
     console.log(e.inputType)
     block = true
     ta.focus()
- 
+
     if ("deleteByCut deleteByDrag deleteContentBackward deleteContentForward".includes(e.inputType)) {
         ta.setSelectionRange(...prev_sel)
         document.execCommand('delete')
-    } 
+    }
     if ("insertFromDrop insertFromPaste insertText".includes(e.inputType)) {
         var text = e.data || (e.dataTransfer && e.dataTransfer.getData('Text')) || edata
         edata = null
