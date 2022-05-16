@@ -1,4 +1,4 @@
-function zoompan(){
+function zoompan() {
 var graph = document.getElementsByClassName("js-plotly-plot")[0]
 
 var update
@@ -42,7 +42,7 @@ graph.style.cssText = "resize:both; overflow: auto;" // border: 1px solid; heigh
 
 var mousei
 
-graph.addEventListener("keydown", function(e){
+graph.addEventListener("keydown", function(e) {
     if (e.target!=this) {return} // e.g. to escape to edittext
     var key = e.key
     if (e.ctrlKey) key = 'Ctrl+' + key
@@ -184,11 +184,16 @@ function rubber_zoom(e) {
             'yaxis.range': [Ry0, Ry1]})
 }
 
-
-graph.addEventListener('mousedown', function(evt){
+graph.addEventListener('mousedown', function(evt) {
     // hack to pan when pressing middle button/mouse wheel
     // better would be https://github.com/plotly/plotly.js/issues/4004
-    if (evt.buttons == 4) this._fullLayout.dragmode = 'pan'
+    if (evt.buttons == 4 && this._fullLayout.dragmode == 'zoom') {
+        this._fullLayout.dragmode = 'pan'
+        document.addEventListener('mouseup', function(evt) {
+            // https://community.plotly.com/t/plotly-onmousedown-and-onmouseup/4812/4
+            graph._fullLayout.dragmode = 'zoom'
+        }, {'once': true})
+    }
     if (evt.buttons == 2) rubber_init(evt)
 }, true)
 
