@@ -24,20 +24,25 @@
         padding: 2px;
     }
 
+    .dropparent {
+        min-width: 40px;
+        display: flex;
+        flex-grow: 1;
+        border-bottom: #ccc 1px solid;
+        box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
+    }
+
     .dropcell, div.func {
         min-height: 20px;
         min-width: 40px;
-        display: table-cell;
         flex-grow: 1;
         padding: 4px 1px;
-        border-bottom: #ccc 1px solid;
-        overflow: hidden;
-        box-shadow: #ddd -1em 0px 1em -1em inset;   /* greying out rightwards */
+        overflow: hidden;   /* case no wrap */
         text-indent: 15px;
     }
 
-    .dragging.dropcell, .dragging .dropcell, .dropcell.caretover,  div.func:focus-within  {
-        box-shadow: 0 0 3px 1px #090;   /* green */
+    .dragging.dropcell, .dragging .dropcell, span.caretover,  div.func:focus-within  {
+        box-shadow: 0 0 3px 1px #090  !important;  /* green */
     }
 
     #kpool .kbox[knum], suggest_list .kbox[knum], .fancy .kbox[knum] {
@@ -157,13 +162,13 @@
         border-color: #6399cb;
     }
 
-    .Trace > label {
+    .dropparent > label {
         font-weight: bold;
         font-style:  italic;
         color: #ccc;
     }
 
-    .Trace:focus > label, .Trace:focus-within > label, .Trace.caretover > label {
+    .Trace:focus > label, .Trace:focus-within > label, .Trace.caretover > span > label {
         color: #6399cb;
     }
 
@@ -343,24 +348,23 @@
 <div id="Traces" class="fancy wrap" style="background: white; margin: 5px 0;">
    <div class="Trace" contenteditable tnum=1>
       <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
-      <label><i class="far fa-file" title="file/url"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
-      <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span>
-      <label style="display: none">using</label><span id="using" placeholder="1:2" onchange="using_columns()" style="width: 200px; display: none">1:2</span>
-      <label><label class="fa-x" title="x values"></label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span>
-      <label><label class="fa-y" title="y values"></label></label><span id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></span>
-      <label><i class="fa fa-arrows-alt-h" title="x errors"></i></label><span id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></span>
-      <label><i class="fa fa-arrows-alt-v" title="y errors"></i></label><span id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></span>
-      <label><i class="fa fa-tag" title="label"></i></label><span id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></span>
-      <label><i class="fa fa-bullseye" title="point size"></i></label><span id="cs" class="dropcell" placeholder="size" onchange="select_columns()"></span>
-      <label><i class="fas fa-shapes" title="point type"></i></label><span id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></span>
-      <label><i class="fa fa-tint" title="color"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span>
-      <label><i class="fa fa-adjust" title="opacity"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span>
+      <span class="dropparent"><label><i class="far fa-file" title="file/url"></i></label><span id="url" class="dropcell"><label for="csvFileInput" style="display: inline-block; text-align: left; border: 1px solid #ccc"></label>
+      <input id="csvFileInput" type="file" style="display:none" onchange="this.previousElementSibling.textContent = this.previousElementSibling.title = this.files[0].name; dsv(this.files[0], plot_data)" placeholder="Choose file"></span></span>
+      <span class="dropparent"><label><label class="fa-x" title="x values"></label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><label class="fa-y" title="y values"></label></label><span id="cy" class="dropcell" placeholder="y" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-arrows-alt-h" title="x errors"></i></label><span id="ce_x" class="dropcell" placeholder="err_x" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-arrows-alt-v" title="y errors"></i></label><span id="ce_y" class="dropcell" placeholder="err_y" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-tag" title="label"></i></label><span id="ct" class="dropcell" placeholder="label" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-bullseye" title="point size"></i></label><span id="cs" class="dropcell" placeholder="size" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fas fa-shapes" title="point type"></i></label><span id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-tint" title="color"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-adjust" title="opacity"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span></span>
    </div>
    <div class="Trace" contenteditable tnum=2>
       <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"></span>
-      <label><i class="fa fa-calculator" title="function"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span>
-      <label><i class="fa fa-tint" title="color"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span>
-      <label><i class="fa fa-adjust" title="opacity"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span>
+      <span class="dropparent"><label><i class="fa fa-calculator" title="function"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span></span>
+      <span class="dropparent"><label><i class="fa fa-tint" title="color"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span></span>
+      <span class="dropparent"><label><i class="fa fa-adjust" title="opacity"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span></span>
    </div>
 </div>
 <textarea id="ta" style="height: 0px; position: absolute; pointer-events: none; z-index: -1; top: 20px;"></textarea>
@@ -449,7 +453,7 @@ function update_errorbar(tnum=1) {
     if (!webgl.disabled && webgl.checked) return   // does not works for gl (only svg)
     let f = document.getElementsByClassName("color")[tnum-1]
     let rgb = parseColor(f)
-    let opacity = parseCell(f.nextElementSibling.nextElementSibling)
+    let opacity = parseCell(f.parentNode.nextElementSibling.lastChild)
 
     let tclass = ".trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
     let xerr = Plotly.d3.selectAll('.xerror')
@@ -471,7 +475,7 @@ function update_errorbar(tnum=1) {
 
 function colorRestyle(f) {
     rgb = parseColor(f)
-    let opacity = parseCell(f.nextElementSibling.nextElementSibling)
+    //let opacity = parseCell(f.nextElementSibling.nextElementSibling)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
     let tnum = f.parentElement.getAttribute("tnum")
     Plotly.restyle(graph, {
@@ -1309,13 +1313,13 @@ Traces.onkeydown = function(e) {
 block = false
 
 function markCell(node) {
-    let foc_old = document.querySelector('.dropcell.caretover')
-    let foc = closest(node, ".dropcell")
+    let foc_old = document.querySelector('.dropparent.caretover')
+    let foc = closest(node, ".dropparent")
     // handle focus change and blur events
     foc_old && foc_old.classList.remove('caretover')
     foc_old && foc_old.parentNode.classList.remove('caretover')
     foc && foc.classList.add('caretover')
-    foc && foc.parentNode.classList.add('caretover')
+    foc && foc.closest(".Trace").classList.add('caretover')
 }
 
 document.addEventListener("selectionchange", function(e) {
