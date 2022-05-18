@@ -1189,7 +1189,7 @@ function pseudoCursor() {
         range.setStart(...pointA)
         range.insertNode(cursor)
         pointA[0].parentNode.normalize()   // triggers again selection change, if new cursor after old cursor
-        ta.focus()
+        ta.focus(preventScroll=false)
     } else if (!block) {
         // hand over the ta selection to the editable div
         point = getPoint(ta.selectionEnd)
