@@ -42,7 +42,7 @@
     }
 
     .dragging.dropcell, .dragging .dropcell, span.caretover,  div.func:focus-within  {
-        box-shadow: 0 0 3px 1px #090  !important;  /* green */
+        box-shadow: 0 0 3px 1px #090;  /* green */
     }
 
     #kpool .kbox[knum], suggest_list .kbox[knum], .fancy .kbox[knum] {
@@ -1313,11 +1313,11 @@ Traces.onkeydown = function(e) {
 block = false
 
 function markCell(node) {
-    let foc_old = document.querySelector('.dropparent.caretover')
-    let foc = closest(node, ".dropparent")
+    let foc_old = document.querySelector('.dropcell.caretover')
+    let foc = closest(node, ".dropcell")
     // handle focus change and blur events
     foc_old && foc_old.classList.remove('caretover')
-    foc_old && foc_old.parentNode.classList.remove('caretover')
+    foc_old && foc_old.classList.remove('caretover')
     foc && foc.classList.add('caretover')
     foc && foc.closest(".Trace").classList.add('caretover')
 }
