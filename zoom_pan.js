@@ -161,8 +161,8 @@ function rubber_init(e) {
     yaxis = obj._fullLayout.yaxis
     X0 = e.clientX
     Y0 = e.clientY
-    x0 = xaxis.p2r(X0-obj._fullLayout.margin.l-obj.getBoundingClientRect().left)
-    y0 = yaxis.p2r(Y0-obj._fullLayout.margin.t-obj.getBoundingClientRect().top)
+    x0 = xaxis.p2c(X0-obj._fullLayout.margin.l-obj.getBoundingClientRect().left)
+    y0 = yaxis.p2c(Y0-obj._fullLayout.margin.t-obj.getBoundingClientRect().top)
     rx0 = xaxis.range
     ry0 = yaxis.range
     obj.onmousemove = rubber_zoom
@@ -175,13 +175,13 @@ function rubber_zoom(e) {
     xfac = zoomfac(e.clientX-X0)
     yfac = zoomfac(-(e.clientY-Y0))
     // new ranges
-    Rx0 = x0 - xfac * (x0-rx0[0])
-    Rx1 = x0 - xfac * (x0-rx0[1])
-    Ry0 = y0 - yfac * (y0-ry0[0])
-    Ry1 = y0 - yfac * (y0-ry0[1])
+    Rx0 = x0 - xfac * (x0-xaxis.r2c(rx0[0]))
+    Rx1 = x0 - xfac * (x0-xaxis.r2c(rx0[1]))
+    Ry0 = y0 - yfac * (y0-yaxis.r2c(ry0[0]))
+    Ry1 = y0 - yfac * (y0-yaxis.r2c(ry0[1]))
     Plotly.relayout(e.currentTarget,
-           {'xaxis.range': [Rx0, Rx1],
-            'yaxis.range': [Ry0, Ry1]})
+           {'xaxis.range': [xaxis.c2r(Rx0), xaxis.c2r(Rx1)],
+            'yaxis.range': [yaxis.c2r(Ry0), yaxis.c2r(Ry1)]})
 }
 
 graph.addEventListener('mousedown', function(evt) {
