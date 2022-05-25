@@ -253,7 +253,7 @@
         filter: blur(0.8px);
     }
 
-    #webgl:disabled + i, #cbfancy:not(:checked) + i, #cbwrap:not(:checked) + i {
+    #webgl:disabled + i, #cbfancy:not(:checked) + i, #cbwrap:not(:checked) + i, #cblegend:not(:checked) + i  {
         color: #999;
     }
 
@@ -338,7 +338,9 @@
 
 
 <div>
-   <div id="colornames" style="height:20px; float:right"></div>
+    <label title="legend"><input id="cblegend" type="checkbox" checked onchange='Plotly.relayout(graph, {showlegend: this.checked})' style="display: None;">
+    <i class="fas fa-list-ul"></i></label>
+    <div id="colornames" style="height:20px; float:right"></div>
 </div>
 
 
