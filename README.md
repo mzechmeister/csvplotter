@@ -42,4 +42,7 @@ Short cuts:
 | <kbd>y</kbd> | vertical unzoom to local data extremes |
 | <kbd>0</kbd> | start y-range to 0|
 
+Tips:
+* To join strings, in particular for the tag field, math.js provides the [concat](https://mathjs.org/docs/expressions/syntax.html#strings) and [string](https://mathjs.org/docs/expressions/syntax.html#strings) functions, e.g. `concat(string($"manufacturer"), "<br>", string($"qsec"))`.
+
 Inspired by [gnuplot](http://www.gnuplot.info), [desmos.com](https://www.desmos.com/calculator), and [csvplot.com](https://csvplot.com).
