@@ -257,6 +257,15 @@
         color: #999;
     }
 
+    #cblegend:indeterminate + i + .diagopac {
+        padding: 0px;
+        position: absolute;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right bottom, #f000 50%, #fffc 50%);
+    }
+
     #menuicons > button,i {
         vertical-align: middle;
     }
@@ -338,8 +347,8 @@
 
 
 <div>
-    <label title="legend"><input id="cblegend" type="checkbox" checked onchange='Plotly.relayout(graph, {showlegend: this.checked})' style="display: None;">
-    <i class="fas fa-list-ul"></i></label>
+    <label title="toggle legend" style="position:relative"><input id="cblegend" type="checkbox" checked onclick='toggle_tristate(cblegend); Plotly.relayout(graph, {showlegend: [null, false, true][this.state]})' style="display: None">
+    <i class="fas fa-list-ul"></i><i class="diagopac"></i></label>
     <div id="colornames" style="height:20px; float:right"></div>
 </div>
 
@@ -383,6 +392,17 @@
 <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 
 <script>
+cblegend.state = 2
+toggle_tristate(cblegend)
+
+function toggle_tristate(cb) {
+    cb.state = ++cb.state % 3   // cycle through 0,1,2
+    if (cb.state == 0) {
+        cb.indeterminate = true;
+        cb.checked = true;   // after 'indeterminate' the state 'false' follows 
+    }
+}
+
 if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
     // hide arrow keys
     for (x of [...document.getElementsByClassName('mobile')])
