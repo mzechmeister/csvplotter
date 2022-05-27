@@ -253,7 +253,7 @@
         filter: blur(0.8px);
     }
 
-    #webgl:indeterminate + i, #cbfancy:not(:checked) + i, #cbwrap:not(:checked) + i, #cblegend:not(:checked) + i  {
+    #webgl:indeterminate + i, #cbfancy:not(:checked) + i, #cbwrap:not(:checked) + i, #cblegend:not(:checked):not(:indeterminate) + i  {
         color: #999;
     }
 
@@ -392,17 +392,16 @@
 <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
 
 <script>
-cblegend.state = 2
-webgl.state = 2
-toggle_tristate(cblegend)
-toggle_tristate(webgl)
+tristate(cblegend, 0)
+
+function tristate(cb, state) {
+    cb.state = state
+    cb.indeterminate = state == 0
+    cb.checked = state == 2
+}
 
 function toggle_tristate(cb) {
-    cb.state = ++cb.state % 3   // cycle through 0,1,2
-    if (cb.state == 0) {
-        cb.indeterminate = true;
-        cb.checked = true;   // after 'indeterminate' the state 'false' follows 
-    }
+    tristate(cb, ++cb.state % 3)   // cycle through 0,1,2
 }
 
 if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -1029,8 +1028,10 @@ function init() {
     ta.value = [...dropcells].map(x => x.innerText).join("");
     dropcells.forEach(renderCell)
 
-    if (["true", "1"].includes(gl)) {webgl.checked = true; webgl.indeterminate = false; webgl.state = 2} 
-    if (["false", "0"].includes(gl)) {webgl.checked = false; webgl.indeterminate = false; webgl.state = 1} 
+    state = ["true", "1"].includes(gl) ? 2 :
+            ["false", "0"].includes(gl) ? 1 : 0
+    tristate(webgl, state)
+
     select_columns()   // plots data
     if (fs != undefined) expand.click()
 }
