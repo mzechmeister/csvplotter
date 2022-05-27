@@ -347,7 +347,7 @@
 
 
 <div>
-    <label title="toggle legend" style="position:relative"><input id="cblegend" type="checkbox" checked onclick='toggle_tristate(cblegend); Plotly.relayout(graph, {showlegend: [null, false, true][this.state]})' style="display: None">
+    <label title="toggle legend" style="position:relative"><input id="cblegend" type="checkbox" onclick='toggle_tristate(cblegend); Plotly.relayout(graph, {showlegend: [null, false, true][this.state]})' style="display: None">
     <i class="fas fa-list-ul"></i><i class="diagopac"></i></label>
     <div id="colornames" style="height:20px; float:right"></div>
 </div>
@@ -888,7 +888,8 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
             title: ytitle || (cy>-1 ? 'Column '+cy : cy),
             ...fmtaxis
         },
-        margin: {l: 50, r: 10, b: 40, t: 30}
+        margin: {l: 50, r: 10, b: 40, t: 30},
+        showlegend: [null, false, true][cblegend.state]
     }
     // Plotly.plot('plotly-div', {
     Plotly.newPlot('plotly-div', {
