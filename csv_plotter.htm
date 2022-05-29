@@ -502,7 +502,7 @@ function colorRestyle(f) {
     rgb = parseColor(f)
     //let opacity = parseCell(f.nextElementSibling.nextElementSibling)
     if (rgb.pop) rgb = [rgb]   // plotly needs brackets when restyling https://community.plotly.com/t/plotly-restyle-acces-modify-trace-data/9233/2
-    let tnum = f.parentElement.getAttribute("tnum")
+    let tnum = f.closest(".Trace").getAttribute("tnum")
     Plotly.restyle(graph, {
         'marker.color': rgb,
         'error_x.color': rgb,
