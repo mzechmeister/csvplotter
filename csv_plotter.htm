@@ -258,9 +258,10 @@
     }
 
     #cblegend:indeterminate + i + .diagopac {
-        padding: 0px;
+        padding: 1px;
         position: absolute;
         left: 0px;
+        top: 0px;
         width: 100%;
         height: 100%;
         background: linear-gradient(to right bottom, #f000 50%, #fffc 50%);
@@ -336,20 +337,20 @@
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'backward', 'character')" style="width:100px"><i class="fas fa-arrow-left"></i></button>
     <button class="mobile" onmousedown="event.preventDefault()" onclick="sel.modify('move', 'forward', 'character')" style="width:100px"><i class="fas fa-arrow-right"></i></button>
     <button id="share" title="create link"><i class="fa fa-share-alt"></i></button>
-    <a id="github" title="github" style="text-decoration: none; color: black; padding: 0px 8px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
+    <a id="github" title="github" style="text-decoration: none; color: black; padding: 0px 4px;" href="https://github.com/mzechmeister/csvplotter"><i class="fab fa-github"></i></a>
     <label title="toggle svg/webgl"><input id="webgl" type="checkbox"  onclick="toggle_tristate(this)" onchange="select_columns()" style="display: None">
-    <i class="fas fa-glasses" style="padding: 0px 8px 0px 0px;"></i></label>
+    <i class="fas fa-glasses"></i></label>
     <label title="frame for column name"><input id="cbfancy" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("fancy", this.checked)' style="display: None;">
     <i class="far fa-square"></i></label>
-    <label title="wrap"><input id="cbwrap" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("wrap", this.checked)' style="display: None;">
-    <i class="fas fa-stream"></i></label>
+    <label title="toggle legend" style="position:relative"><input id="cblegend" type="checkbox" onclick='toggle_tristate(cblegend); Plotly.relayout(graph, {showlegend: [null, false, true][this.state]})' style="display: None">
+    <i class="fas fa-list-ul" style="padding: 0 8px 0 4px;"></i><i class="diagopac" style="padding: 0px"></i></label>
     </div>
 </div>
 
 
 <div>
-    <label title="toggle legend" style="position:relative"><input id="cblegend" type="checkbox" onclick='toggle_tristate(cblegend); Plotly.relayout(graph, {showlegend: [null, false, true][this.state]})' style="display: None">
-    <i class="fas fa-list-ul"></i><i class="diagopac"></i></label>
+    <label title="wrap"><input id="cbwrap" type="checkbox" checked onchange='document.getElementById("Traces").classList.toggle("wrap", this.checked)' style="display: None;">
+    <i class="fas fa-stream"></i></label>
     <div id="colornames" style="height:20px; float:right"></div>
 </div>
 
