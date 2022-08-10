@@ -1082,9 +1082,9 @@ function edittext(svgtext) {
     input.onkeydown = function (e) {
         // keyup+enter is not called?! thus keydown
         if (["Enter"].includes(e.key)) {
-            (this.svg.getAttribute('class') == "xtitle") && (xtitle = this.value)
-            (this.svg.getAttribute('class') == "ytitle") && (ytitle = this.value)
-            (this.svg.getAttribute('class') == "title") && (title = this.value)
+            if (this.svg.getAttribute('class') == "xtitle") xtitle = this.value
+            if (this.svg.getAttribute('class') == "ytitle") ytitle = this.value
+            if (this.svg.getAttribute('class') == "title") title = this.value
         }
     }
 
