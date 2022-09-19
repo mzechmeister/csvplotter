@@ -1,5 +1,7 @@
-function zoompan() {
-var graph = document.getElementsByClassName("js-plotly-plot")[0]
+function zoompan(graph=".js-plotly-plot") {
+if (typeof graph == "string") {
+    graph = document.querySelector(graph)
+}
 
 var update
 
@@ -38,7 +40,8 @@ function trac_mouse(evt) {
 
 graph.tabIndex = 0   // https://stackoverflow.com/questions/3149362/capture-key-press-or-keydown-event-on-div-element
 graph.onmouseover = graph.focus   // focus when over, thus no click needed
-graph.style.cssText = "resize:both; overflow: auto;" // border: 1px solid; height:250px"
+graph.style.resize = "both"
+graph.style.overflow = "auto" // border: 1px solid; height:250px"
 
 var mousei
 
