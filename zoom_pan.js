@@ -132,7 +132,7 @@ graph.addEventListener("keydown", function(e) {
 
               graph.onmousemove = function(evt) {
                   mousei = evt.x + window.scrollX
-                  mousej = evt.y + window.scrollY
+                  mousej = evt.y + window.scrollY - graph.offsetTop
                   mouseX = xaxis.p2c(mousei - l)
                   mouseY = yaxis.p2c(mousej - t)
                   mouseX = clamp(mouseX, ...xaxis.range)
