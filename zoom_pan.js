@@ -29,7 +29,7 @@ function current_extreme(y, x, xbeg, xend) {
 }
 
 function clamp(x, x1, x2) {
-    return math.min(math.max(x, x1), x2)
+    return Math.min(Math.max(x, x1), x2)
 }
 
 function trac_mouse(evt) {
