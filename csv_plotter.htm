@@ -1319,7 +1319,7 @@ ta.onkeydown = e => {
     if (e.ctrlKey && e.key == 'a') {
         e.preventDefault()
         // for ctrl+A select only the cell (textarea line, not the whole textarea)
-        ta.setSelectionRange(ta.value.lastIndexOf('\n', ta.selectionStart)+1, ta.value.indexOf('\n', ta.selectionStart))
+        ta.setSelectionRange(ta.value.lastIndexOf('\n', ta.selectionStart-1)+1, ta.value.indexOf('\n', ta.selectionStart))
     }
 
     if (e.key == "Enter") {
