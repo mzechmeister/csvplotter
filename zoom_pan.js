@@ -1,3 +1,21 @@
+function current_extreme(y, x, xbeg, xend) {
+    if (x == undefined) x = y.map((yi, i) => i)   // row number (happens in plotly for empty x or y data)
+    else if (y == undefined) y = x.map((yi, i) => i)
+    yf = y.filter((yi, i) => xbeg<x[i] & x[i]<xend & isFinite(yi))
+    return [Math.min(...yf), Math.max(...yf)]
+}
+
+function clamp(x, x1, x2) {
+    return Math.min(Math.max(x, x1), x2)
+}
+
+function trac_mouse(evt) {
+    // track coordinates, since they are not available on keyboard events
+    i0 = evt.x
+    j0 = evt.y
+}
+
+
 function zoompan(graph=".js-plotly-plot") {
 if (typeof graph == "string") {
     graph = document.querySelector(graph)
@@ -20,23 +38,6 @@ function panX(dx) {pan('x', dx)}
 function panY(dy) {pan('y', dy)}
 function zoomX(dx) {pan('x', dx, -1)}
 function zoomY(dy) {pan('y', dy, -1)}
-
-function current_extreme(y, x, xbeg, xend) {
-    if (x == undefined) x = y.map((yi, i) => i)   // row number (that is the plotly for empty x or y data)
-    else if (y == undefined) y = x.map((yi, i) => i)
-    yf = y.filter((yi, i) => xbeg<x[i] & x[i]<xend & isFinite(yi))
-    return [Math.min(...yf), Math.max(...yf)]
-}
-
-function clamp(x, x1, x2) {
-    return Math.min(Math.max(x, x1), x2)
-}
-
-function trac_mouse(evt) {
-    // track coordinates, since they are not available on keyboard events
-    i0 = evt.x
-    j0 = evt.y
-}
 
 graph.tabIndex = 0   // https://stackoverflow.com/questions/3149362/capture-key-press-or-keydown-event-on-div-element
 graph.onmouseover = graph.focus   // focus when over, thus no click needed
@@ -139,7 +140,7 @@ graph.addEventListener("keydown", function(e) {
                   mouseY = clamp(mouseY, ...yaxis.range)
                   rulertext = `[${x0.toPrecision(7)}, ${y0.toPrecision(7)}] ${mouseX.toPrecision(7)}, ${mouseY.toPrecision(7)}  distance: ${(mouseX-x0).toPrecision(7)}, ${(mouseY-y0).toPrecision(7)}`
 
-                  Plotly.relayout(graph, 
+                  Plotly.relayout(graph,
                   {annotations:
                    [{x: x0, y: y0, ax: mouseX, ay: mouseY, axref:'x', ayref:'y', arrowhead: 7, arrowwidth: 1, text: ''},
                     {x: 1, y: 0, ax: 0, ay: 0, xref:'paper', yref:'paper', showarrow: false, xanchor: "right", yanchor: "bottom", text: rulertext}]})
