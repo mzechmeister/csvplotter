@@ -150,6 +150,7 @@ graph.addEventListener("keydown", function(e) {
     }
 
     Plotly.relayout(graph, update)
+    e.preventDefault();
     return false
 })
 
