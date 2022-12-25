@@ -29,18 +29,18 @@ function auto_colnames(data) {
 }
 
 function text_to_table(text, func, delim) {
-   // guess the delimiter if not given
-   lines = text.split("\n");
-   if (delim) {}
-   else if (lines[0].split(";").length > 1) {delim = ";"}
-   else if (lines[0].split(",").length > 1) {delim = ","}
-   else if (lines[0].split(RegExp(" +")).length > 1) {delim = RegExp(" +")}
-   console.log("delim:", delim)
-   data = lines.map(x => x.split(delim));
-   // transpose
-   data = data[0].map((_,k) => data.map(hjk => ""+hjk[k]))
-   auto_colnames(data)
-   data._url = text._url
-   data._basename = text._url.split('/').pop()
-   func(data)
+    // guess the delimiter if not given
+    lines = text.split("\n");
+    if (delim) {}
+    else if (lines[0].split(";").length > 1) {delim = ";"}
+    else if (lines[0].split(",").length > 1) {delim = ","}
+    else if (lines[0].split(RegExp(" +")).length > 1) {delim = RegExp(" +")}
+    console.log("delim:", delim)
+    data = lines.map(x => x.split(delim));
+    // transpose
+    data = data[0].map((_,k) => data.map(hjk => ""+hjk[k]))
+    auto_colnames(data)
+    data._url = text._url
+    data._basename = text._url.split('/').pop()
+    func(data)
 }
