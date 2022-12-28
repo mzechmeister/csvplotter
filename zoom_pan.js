@@ -40,7 +40,19 @@ function zoomX(dx) {pan('x', dx, -1)}
 function zoomY(dy) {pan('y', dy, -1)}
 
 graph.tabIndex = 0   // https://stackoverflow.com/questions/3149362/capture-key-press-or-keydown-event-on-div-element
-graph.onmouseover = graph.focus   // focus when over, thus no click needed
+graph.onmousedown = graph.focus
+// graph.onmouseover = graph.focus   // (too aggressive focus stealing)
+graph.onmouseenter = e => {
+    // focus when hover, thus no click needed before shortcut keypress
+    // but don't steal focus
+    if (!document.activeElement || document.activeElement == document.body) graph.focus()
+}
+
+// https://gist.github.com/robdodson/fc680a32c0f2b673fe8bbf85d4acea26?permalink_comment_id=3814503#gistcomment-3814503
+styleTag = document.createElement('style')
+styleTag.innerHTML = '#'+graph.id+':focus {outline: auto}'
+document.body.append(styleTag)
+
 graph.style.resize = "both"
 graph.style.overflow = "auto" // border: 1px solid; height:250px"
 
