@@ -673,7 +673,7 @@ function init_box(colpool) {
 function parseCell(cell) {
     cellHTML = cell.innerHTML.replace(/<br>/g, "")
     cellText = cell.innerText.replace(/\n/g, "")
-    if (cellHTML == +cellHTML) {
+    if (cellText == +cellText) {
         // scalar, e.g. "5"
         result = cellText }
     else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML) && data[cellText]) {
