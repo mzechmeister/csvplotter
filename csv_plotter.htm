@@ -672,13 +672,13 @@ function init_box(colpool) {
 
 function parseCell(cell) {
     cellHTML = cell.innerHTML.replace(/<br>/g, "")
-    cellText = cell.innerText.replace(/\n/g, "")
+    cellText = cell.innerText.replace(/\n/g, "").trim()
     if (cellText == +cellText) {
         // scalar, e.g. "5"
         result = cellText }
-    else if (cell.childElementCount && (cell.children[0].outerHTML == cellHTML) && data[cellText]) {
+    else if (cellText in lookup) {
         // single column
-        result = data[cellText]}
+        result = data[lookup[cellText]]}
     else {
         // column operations
         expr_raw = cellHTML
