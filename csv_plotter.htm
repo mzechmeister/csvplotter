@@ -1070,8 +1070,10 @@ document.getElementById("share").onclick = function() {
          +  (title  && "title="+title+"&")
          +  (cbtitle&& "cbtitle="+cbtitle+"&")
     if (!webgl.indeterminate) _url += "gl="+webgl.checked+"&"
-    _url += [...dropcells].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+val).filter(x => x).join('&')
-    _url = _url.replace(/#/g, '%23').replace(/\+/g, '%2B')
+    // encode modulo %, logical & and add + operators
+    encode = x => (x.replace(/%/g, "%25").replace(/&/g, "%26").replace(/"/g, "%22").replace(/\+/g, '%2B') )
+    _url += [...dropcells].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+encode(val)).filter(x => x).join('&')
+    _url = _url.replace(/#/g, '%23')
     var link = document.createElement("a")
     link.href = _url
     link.append(_url)
