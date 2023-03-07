@@ -44,5 +44,7 @@ Short cuts:
 
 Tips:
 * To join strings, in particular for the tag field, math.js provides the [concat](https://mathjs.org/docs/expressions/syntax.html#strings) and [string](https://mathjs.org/docs/expressions/syntax.html#strings) functions, e.g. `concat(string($"manufacturer"), "<br>", string($"qsec"))`.
+* Local files can be loaded by drag&drop to the filename field.
+* To sent files from the command line see [csv_sent.py](https://gist.github.com/mzechmeister/8bfec277c385c6d72fbc9c8dcedbb2fd).
 
 Inspired by [gnuplot](http://www.gnuplot.info), [desmos.com](https://www.desmos.com/calculator), and [csvplot.com](https://csvplot.com).
