@@ -376,6 +376,7 @@
       <span class="dropparent"><label><i class="fas fa-shapes" title="point type"></i></label><span id="pt" class="dropcell" placeholder="pt" onchange="select_columns()"></span></span>
       <span class="dropparent"><label><i class="fa fa-tint" title="color"></i></label><span id="cc" class="dropcell color" placeholder="color" onchange="select_columns()"></span></span>
       <span class="dropparent"><label><i class="fa fa-adjust" title="opacity"></i></label><span id="co" class="dropcell opacity" placeholder="opac" onchange="select_columns()">0.5</span></span>
+      <span class="dropparent"><label><i class="fa fa-filter" title="filter"></i></label><span id="filt" class="dropcell filter" placeholder="filter" onchange="select_columns()"></span></span>
    </div>
    <div class="Trace" contenteditable tnum=2>
       <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"></span>
@@ -746,6 +747,7 @@ function select_columns() {
         pt : parseCell(document.getElementById("pt")),
         cc : parseColor(document.getElementById("cc")),
         Do : parseCell(document.getElementById("co")),
+        filt : parseCell(document.getElementById("filt")),
     }
 
     //document.getElementById("using").innerText = x + ":" + y + ":" + ct + ":" + ds
@@ -842,8 +844,22 @@ function draw_func() {
 
 glmin = 500   // Threshold for number of points to toggle automatically between gl and svg
 
-function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do}) {
-    console.log('asdfas', dt, x, y)
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}) {
+
+    if (filt) {
+        // filter only data with criteria filt
+        datafilter = d => (d && d.filter ? d.filter((_,i) => filt[i]) : d)
+        x = datafilter(x)
+        y = datafilter(y)
+        de_x = datafilter(de_x)
+        de_y = datafilter(de_y)
+        dt = datafilter(dt)
+        ct = datafilter(ct)
+        ds = datafilter(ds)
+        pt = datafilter(pt)
+        cc = datafilter(cc)
+        Do = datafilter(Do)
+    }
 
     trace1 = {
         type: (webgl.indeterminate ? data[0].length>glmin : webgl.checked) ? "scattergl" : "scatter",   // https://plotly.com/javascript/webgl-vs-svg
