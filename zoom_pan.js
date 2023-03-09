@@ -21,6 +21,9 @@ if (typeof graph == "string") {
     graph = document.querySelector(graph)
 }
 
+if (graph.has_zoompan) return
+graph.has_zoompan = true
+
 var update
 
 function pan(axis, dx, mode=1) {
