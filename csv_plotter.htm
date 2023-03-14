@@ -1352,12 +1352,6 @@ ta.onkeydown = e => {
 }
 
 Traces.onkeydown = function(e) {
-     // the suggest list should visible
-     if (e.key == "Enter") {
-        e.preventDefault()
-        if (Traces.contains(suggest_div) && (hit=document.querySelector('.show.hover')))
-            suggest_hit(hit)
-    }
 }
 
 block = false
