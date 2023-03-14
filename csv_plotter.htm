@@ -1497,19 +1497,11 @@ to check: drop is in prev_sel
 }
 
 Traces.oninput = function(e) {
-    console.log(e.inputType)
-    block = true
-    ta.focus()
-
     if ("deleteByCut deleteByDrag deleteContentBackward deleteContentForward".includes(e.inputType)) {
-        ta.setSelectionRange(...prev_sel)
-        document.execCommand('delete')
+        taDelete(...prev_sel)
+    } else if (e.inputType == "insertText") {
+        taInsert(edata, ...prev_sel)
     }
-    if (e.inputType == "insertText") {
-        ta.setSelectionRange(...prev_sel)
-        document.execCommand('insertText', false, e.data)
-    }
-    block = false
 }
 
 </script>
