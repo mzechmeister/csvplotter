@@ -1494,7 +1494,7 @@ Traces.oninput = function(e) {
     if ("deleteByCut deleteByDrag deleteContentBackward deleteContentForward".includes(e.inputType)) {
         taDelete(...prev_sel)
     } else if (e.inputType == "insertText") {
-        taInsert(edata, ...prev_sel)
+        taInsert(e.data, ...prev_sel)
     }
 }
 
