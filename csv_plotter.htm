@@ -1414,10 +1414,8 @@ Traces.onpaste = function (e) {
 }
 
 Traces.ondragstart = function(e) {
-    // add a flag
-    if (dragposA == null)
-         [dragposA, dragposB] = prev_sel
-    // e.dataTransfer.setData('deleteByDrag', 'true')
+    // remember selection
+    [dragposA, dragposB] = prev_sel
 }
 
 prev_sel = [null, null]
@@ -1438,7 +1436,6 @@ to check: drop is in prev_sel
 */
 
     e.preventDefault()
-    //e.preventDefault()   // stops the browser from redirecting FF68.
     if (e.dataTransfer.files.length) {
         url_kwargs["url"] = e.dataTransfer.files[0].name
         dsv(e.dataTransfer.files[0], init)
