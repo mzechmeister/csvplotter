@@ -1469,13 +1469,10 @@ to check: drop is in prev_sel
         drop_sel = prev_sel
 
     edata = e.dataTransfer.getData('Text')
-    block = true
-    ta.focus()
 
     if (dragposA != null) {
         // deleteByDrag
-        ta.setSelectionRange(dragposA, dragposB)
-        document.execCommand('delete')
+        taDelete(dragposA, dragposB)
         if (drop_sel[0] > dragposA) {
             drop_sel[0] -= dragposB - dragposA
             drop_sel[1] -= dragposB - dragposA
@@ -1483,11 +1480,9 @@ to check: drop is in prev_sel
     }
 
     // insertFromDrop
-    ta.setSelectionRange(...drop_sel)
-    document.execCommand('insertText', false,  edata)
+    taInsert(edata, ...drop_sel)
 
     dragposA = null
-    block = false
 }
 
 Traces.oninput = function(e) {
