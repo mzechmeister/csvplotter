@@ -1357,7 +1357,13 @@ ta.onkeydown = e => {
     }
 }
 
-Traces.onkeydown = function(e) {
+Traces.onbeforeinput = function(e) {
+    if (sel.toString().match('\n')) {
+        // redirect input to ta to prevent cutting DOM elements
+        e.preventDefault()
+        if (e.data) taInsert(e.data, ...prev_sel)
+        else taDelete(...prev_sel)
+    }
 }
 
 block = false
