@@ -1266,7 +1266,7 @@ function getNodePos(node) {
 
 function getPoint(offset, pnode=null) {
     if (!pnode) {
-        lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
+        lineno = ta.value.substr(0, offset).split("\n").length
         if (offset >= ta.textLength) {
             // there is no dropcell after the last
             offset -= 1
