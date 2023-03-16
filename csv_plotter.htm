@@ -1294,11 +1294,17 @@ function taInsert(text, start, end=null) {
     block = true
     ta.focus()
     ta.setSelectionRange(start, end)
-    document.execCommand('insertText', false, text)
+    text = text.replaceAll('\n', '')   // don't insert newlines
+    keep_newlines = ta.value.substring(start, end).replace(/[^\n]/g, "")   // don't remove newlines
+    document.execCommand('insertText', false, text+keep_newlines)
+    // triggers ta.oninput
     block = false
 }
 
 function taDelete(start, end) {
+    if (ta.value.substring(start, end).match("\n"))
+        return taInsert('', start, end)   // fires insertText
+
     block = true
     ta.focus()
     ta.setSelectionRange(start, end)
@@ -1393,9 +1399,15 @@ ta.addEventListener("selectionchange", function(e) {
 })
 
 ta.oninput = e => {
-    lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
-    node = dropcells[lineno-1]
-    renderCell(node)
+    linenoStart = linenoEnd = ta.value.substr(0, ta.selectionStart).split("\n").length
+    newlines = e.data ? e.data.split("\n").length - 1 : 0  // e.g. ctrl-x
+    linenoStart -= newlines
+    for (var lineno=linenoStart; lineno<=linenoEnd; ++lineno) {
+        node = dropcells[lineno-1]
+        renderCell(node)
+    }
+    if (newlines) ta.setSelectionRange(ta.selectionStart-newlines, ta.selectionStart-newlines)
+
     if (e.inputType == 'deleteContentForward')
         pseudoCursor()
     // other keys call pseudoCursor via selectionchange
@@ -1404,6 +1416,13 @@ ta.oninput = e => {
     if (document.getElementById('funcf').contains(node))
         // aggressive function update
         document.getElementById('funcf').onchange()
+}
+
+Traces.oncut = function (e) {
+    // redirect cut to ta
+    e.preventDefault()
+    event.clipboardData.setData("text/plain", sel.toString())
+    taDelete(...prev_sel)
 }
 
 Traces.onpaste = function (e) {
