@@ -1222,6 +1222,7 @@ prev_r = null   // previous range
 prev_sel = [null, null]
 block = false
 kbox_mousedown = false
+tr_mousedown = false
 
 var sel = window.getSelection()
 
@@ -1370,8 +1371,24 @@ ta.onkeydown = e => {
     }
 }
 
+Traces.onmousedown = function(e) {
+   tr_mousedown = true
+}
+
+Traces.onmouseup = function(e) {
+    tr_mousedown = false
+    //kpool.after(suggest_div)
+    prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
+    if (prev_sel[0] > prev_sel[1])
+        prev_sel = prev_sel.reverse()
+    if (!block && prev_sel[1] == prev_sel[0]) {
+        ta.setSelectionRange(...prev_sel)
+        pseudoCursor()   // needed for normalise, will not give new ta selection
+    }
+}
+
 document.addEventListener("selectionchange", function(e) {
-    if (kbox_mousedown) return                // wait for possible drag
+    if (kbox_mousedown || tr_mousedown) return   // wait for possible drag
     if (prev_r == sel.getRangeAt(0)) return   // the selection has not changed !
     prev_r = sel.getRangeAt(0)                // firefox calls textarea focus twice, try https://jsfiddle.net/o7cm2810
 
@@ -1380,14 +1397,7 @@ document.addEventListener("selectionchange", function(e) {
 
     if (document.activeElement == ta) pseudoCursor()
     else if (Traces.contains(document.activeElement)) {
-        kpool.after(suggest_div)
-        prev_sel = [getPos(sel.anchorNode, sel.anchorOffset), getPos(sel.focusNode, sel.focusOffset)]
-        if (prev_sel[0] > prev_sel[1])
-            prev_sel = prev_sel.reverse()
-        if (!block && prev_sel[1] == prev_sel[0]) {
-            ta.setSelectionRange(...prev_sel)
-            pseudoCursor()   // needed for normalise, will not give new ta selection
-        }
+        Traces.onmouseup()
     }
 })
 
