@@ -1509,10 +1509,7 @@ to check: drop is in prev_sel
     if ((prev_sel[0] < droppos && droppos < prev_sel[1])
           || closest(e.target, ".kbox"))   // replace on hover kbox, droppos inclusive <= ... <=
         drop_sel = prev_sel
-
-    edata = e.dataTransfer.getData('Text')
-
-    if (dragposA != null) {
+    else if (dragposA != null) {
         // deleteByDrag
         taDelete(dragposA, dragposB)
         if (drop_sel[0] > dragposA) {
@@ -1520,6 +1517,8 @@ to check: drop is in prev_sel
             drop_sel[1] -= dragposB - dragposA
         }
     }
+
+    edata = e.dataTransfer.getData('Text')
 
     // insertFromDrop
     taInsert(edata, ...drop_sel)
