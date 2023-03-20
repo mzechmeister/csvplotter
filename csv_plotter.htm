@@ -1408,13 +1408,14 @@ ta.addEventListener("selectionchange", function(e) {
 })
 
 ta.oninput = e => {
-    linenoStart = linenoEnd = ta.value.substr(0, ta.selectionStart).split("\n").length
-    newlines = e.data ? e.data.split("\n").length - 1 : 0  // e.g. ctrl-v
-    linenoStart -= newlines
-    for (var lineno=linenoStart; lineno<=linenoEnd; ++lineno) {
-        node = dropcells[lineno-1]
-        renderCell(node)
+    nodes = [...dropcells]   // render all for Undo and Redo, since unclear whether multiple cells were affected
+    if (! "historyUndo historyRedo".match(e.inputType)) {
+        lineno = ta.value.substr(0, ta.selectionStart).split("\n").length
+        newlines = e.data ? e.data.split("\n").length - 1 : 0  // e.g. ctrl-v
+        nodes = nodes.slice(lineno-newlines-1, lineno)
     }
+    for (node of nodes) renderCell(node)
+
     if (newlines) ta.setSelectionRange(ta.selectionStart-newlines, ta.selectionStart-newlines)
 
     if (e.inputType == 'deleteContentForward')
