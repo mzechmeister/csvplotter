@@ -609,10 +609,9 @@ function kBox(colname, responsive=true, drag4contenteditable=true) {
         sp.addEventListener('dragend', remove_drag)
         if (drag4contenteditable) {
             sp.addEventListener('drop', dropOnkbox)
-            sp.addEventListener('drag', e => {kbox_mousedown = false; sp.contentEditable = true})
-            sp.addEventListener('mousedown', e => {kbox_mousedown = true; sp.contentEditable = false})
-            sp.addEventListener('mouseup', e => {kbox_mousedown = false;
-                sp.contentEditable = true
+            sp.addEventListener('dragstart', e => {sp.contentEditable = true})
+            sp.addEventListener('mousedown', e => {sp.contentEditable = false})
+            sp.addEventListener('mouseup', e => {sp.contentEditable = true
                 if (document.caretRangeFromPoint) {
                     pos = document.caretRangeFromPoint(e.clientX, e.clientY)
                     sel.setPosition(pos.startContainer, pos.startOffset)
@@ -1221,7 +1220,6 @@ cursor = document.getElementById('cursor')
 prev_r = null   // previous range
 prev_sel = [null, null]
 block = false
-kbox_mousedown = false
 tr_mousedown = false
 
 var sel = window.getSelection()
@@ -1372,7 +1370,7 @@ ta.onkeydown = e => {
 }
 
 Traces.onmousedown = function(e) {
-   tr_mousedown = true
+    tr_mousedown = true
 }
 
 Traces.onmouseup = function(e) {
@@ -1388,7 +1386,7 @@ Traces.onmouseup = function(e) {
 }
 
 document.addEventListener("selectionchange", function(e) {
-    if (kbox_mousedown || tr_mousedown) return   // wait for possible drag
+    if (tr_mousedown) return                  // wait for possible drag
     if (prev_r == sel.getRangeAt(0)) return   // the selection has not changed !
     prev_r = sel.getRangeAt(0)                // firefox calls textarea focus twice, try https://jsfiddle.net/o7cm2810
 
