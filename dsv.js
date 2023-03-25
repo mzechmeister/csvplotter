@@ -1,7 +1,7 @@
 async function dsv(file, ...args) {
     if (typeof file == "string") {
         // nothing needed if file is instanceof File
-        var file = await fetch(file);
+        file = await fetch(file);
     }
     var responseText = await file.text()
     if (!file.ok) console.log(file.statusText, "("+file.url+")")
