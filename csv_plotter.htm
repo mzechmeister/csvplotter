@@ -1368,8 +1368,14 @@ ta.onkeydown = e => {
         // instead update the plot
         if (Traces.contains(suggest_div) && (hit=document.querySelector('.show.hover')))
             suggest_hit(hit)
-        else
-            select_columns()    // update plot
+        else {
+            if (url_kwargs['url'] != ta.value.split("\n")[0]) {
+                // url changed
+                url_kwargs['url'] = ta.value.split("\n")[0];
+                dsv(url_kwargs['url'], init)
+            } else
+                select_columns()    // update plot
+        }
     }
 }
 
