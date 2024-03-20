@@ -6,7 +6,7 @@ async function dsv(file, ...args) {
     var responseText = await file.text()
     if (!file.ok) console.log(file.statusText, "("+file.url+")")
     if (responseText.length) {
-        responseText.__proto__._url = file.name || file.url
+        responseText.__proto__._url = file.name || file.url || "Blob"
         text_to_table(responseText, ...args)
     }
 }

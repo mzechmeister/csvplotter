@@ -1062,7 +1062,14 @@ function init() {
     if (fs != undefined) expand.click()
 }
 
-dsv(url, init)
+if (url) dsv(url, init)
+
+// This api allows to dynamically retrieve data from other sites as fileobj.
+// The dispatcher needs to implement contentWindow.postMessage.
+function load_data_from_fileobj(event) {
+    dsv(event.data, init)
+}
+window.addEventListener('message', load_data_from_fileobj);
 
 
 // create shared link
