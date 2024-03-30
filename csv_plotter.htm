@@ -538,9 +538,9 @@ for (color of Plotly.d3.scale.category10().range()) {
         if (rgb.startsWith('rgb')) rgb = '#' + rgb.slice(4,-1).split(',').map(x => (+x).toString(16).padStart(2,0)).join('')
     })
     div.onmouseup = (e => {
-        // send color as click
+        // send color at click
         f = closest(sel.focusNode, ".dropcell.color")
-            || closest(getPoint(sel.focusNode)[0], ".dropcell.color")
+            || closest(getPoint(ta.selectionStart)[0], ".dropcell.color")
         if (f) {
             prev_sel = getNodePos(f)
             taInsert(rgb, prev_sel[0], prev_sel[1]-1)
