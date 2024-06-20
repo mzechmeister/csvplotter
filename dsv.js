@@ -30,7 +30,9 @@ function auto_colnames(data) {
 
 function text_to_table(text, func, delim) {
     // guess the delimiter if not given
-    lines = text.split("\n");
+    lines = text.split("\n")
+    // remove empty last line
+    if (lines[lines.length-1] == "") lines.pop()
     if (delim) {}
     else if (lines[0].split(";").length > 1) {delim = ";"}
     else if (lines[0].split(",").length > 1) {delim = ","}
@@ -38,7 +40,7 @@ function text_to_table(text, func, delim) {
     console.log("delim:", delim)
     data = lines.map(x => x.split(delim));
     // transpose
-    data = data[0].map((_,k) => data.map(hjk => ""+hjk[k]))
+    data = data[0].map((_,k) => data.map(hjk => hjk[k]))
     auto_colnames(data)
     data._url = text._url
     data._basename = text._url.split('/').pop()
