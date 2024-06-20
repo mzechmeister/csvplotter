@@ -16,6 +16,7 @@ function auto_colnames(data) {
     colnames = data.map(d => d[0])
     var is_all_text = colnames.every(x => isNaN(Number(x)))   // check if there are only numbers
     if (is_all_text) {
+        colnames[0] = colnames[0].replace(/^# /, "")   // trim comment prefix
         for (var k=0; k<colnames.length; ++k) {
             data[k].shift()   // remove headline
             data[colnames[k]] = data[k]   // data can be now indexed by column number or column name
