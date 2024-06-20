@@ -715,7 +715,7 @@ function parseCell(cell) {
                 argi = {}
                 for (k of knums) {
                     d = data[k][i]
-                    argi["$"+k] = d=="undefined" || d===""? NaN : d  // NaNs for Mathjs
+                    argi["$"+k] = [undefined, "", "nan"].includes(d) ? NaN : d  // NaNs for Mathjs
                 }
                 return expr2(argi)
             })
