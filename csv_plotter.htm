@@ -740,7 +740,7 @@ function using_columns() {
     select_columns()
 }
 
-function select_columns() {
+function select_columns(opt) {
     args = {
         x : parseCell(document.getElementById("cx")),
         y : parseCell(document.getElementById("cy")),
@@ -755,7 +755,7 @@ function select_columns() {
     }
 
     //document.getElementById("using").innerText = x + ":" + y + ":" + ct + ":" + ds
-    plot_data(data, args)
+    plot_data(data, args, opt)
     return true
 }
 
@@ -848,7 +848,7 @@ function draw_func() {
 
 glmin = 500   // Threshold for number of points to toggle automatically between gl and svg
 
-function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}) {
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt) {
 
     if (filt) {
         // filter only data with criteria filt
@@ -918,6 +918,9 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}) {
         margin: {l: 50, r: 10, b: 40, t: 30},
         showlegend: [null, false, true][cblegend.state]
     }
+    if (opt.includes('xlog')) layout['xaxis'].type = 'log'
+    if (opt.includes('ylog')) layout['yaxis'].type = 'log'
+
     // Plotly.plot('plotly-div', {
     Plotly.newPlot('plotly-div', {
         data: traces,
@@ -1046,6 +1049,12 @@ function init() {
     cbtitle = url_kwargs.cbtitle || ""
     delete url_kwargs.cbtitle
 
+    opt = []
+    if ('xlog' in url_kwargs) opt.push('xlog')
+    delete url_kwargs.xlog
+    if ('ylog' in url_kwargs) opt.push('ylog')
+    delete url_kwargs.ylog
+
     for (arg in url_kwargs) {
         t = document.getElementById(arg)
         t.innerHTML = url_kwargs[arg] + "<br>"
@@ -1058,7 +1067,7 @@ function init() {
             ["false", "0"].includes(gl) ? 1 : 0
     tristate(webgl, state)
 
-    select_columns()   // plots data
+    select_columns(opt)   // plots data
     if (fs != undefined) expand.click()
 }
 
@@ -1081,6 +1090,8 @@ document.getElementById("share").onclick = function() {
          +  (title  && "title="+title+"&")
          +  (cbtitle&& "cbtitle="+cbtitle+"&")
     if (!webgl.indeterminate) _url += "gl="+webgl.checked+"&"
+    if (graph.layout['xaxis'].type == 'log') _url += 'xlog&'
+    if (graph.layout['yaxis'].type == 'log') _url += 'ylog&'
     // encode modulo %, logical & and add + operators
     encode = x => (x.replace(/%/g, "%25").replace(/&/g, "%26").replace(/"/g, "%22").replace(/\+/g, '%2B') )
     _url += [...dropcells].map(x => (val=x.innerText.replace("\n", "")) && x.id+'='+encode(val)).filter(x => x).join('&')
