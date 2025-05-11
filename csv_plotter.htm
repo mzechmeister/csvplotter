@@ -943,7 +943,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt) 
 
     draw_func()
     update_errorbar()   // to render ealier the errorbars
-    zoompan()
+    plotlyEnableZoomPan(graph)
 
     graph.on('plotly_click', function(data) {
         let pts = ''
