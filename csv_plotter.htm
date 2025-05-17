@@ -848,7 +848,7 @@ function draw_func() {
 
 glmin = 500   // Threshold for number of points to toggle automatically between gl and svg
 
-function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt) {
+function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt=[]) {
 
     if (filt) {
         // filter only data with criteria filt
