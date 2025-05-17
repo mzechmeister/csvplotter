@@ -369,7 +369,7 @@
 <div id="tawrapper" style="position: relative">
 <div id="Traces" class="fancy wrap" style="background: white; margin: 5px 0;">
    <div class="Trace" contenteditable tnum=1>
-      <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
+      <span class="plotypicon"><img src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg"></span>
       <span class="dropparent"><label><i class="far fa-file" title="file/url" onclick="csvFileInput.click()"></i></label><span id="url" class="dropcell">
       </span><input id="csvFileInput" type="file" style="display:none" onchange="url_kwargs['url'] = '['+this.files[0].name+']'; dsv(this.files[0], init)"></span>
       <span class="dropparent"><label><label class="fa-x" title="x values"></label></label><span id="cx" class="dropcell" placeholder="x" onchange="select_columns()"></span></span>
@@ -384,7 +384,7 @@
       <span class="dropparent"><label><i class="fa fa-filter" title="filter"></i></label><span id="filt" class="dropcell filter" placeholder="filter" onchange="select_columns()"></span></span>
    </div>
    <div class="Trace" contenteditable tnum=2>
-      <span class="plotypicon"><image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"></span>
+      <span class="plotypicon"><img src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon"></span>
       <span class="dropparent"><label><i class="fa fa-calculator" title="function"></i></label><span id="funcf" class="dropcell func" onchange="empty_func(); draw_func()" placeholder="[::] f(x)  or  x(t), y(t)"></span></span>
       <span class="dropparent"><label><i class="fa fa-tint" title="color"></i></label><span type="search" id="funcc" class="dropcell color rgb" placeholder="color" onchange="empty_func(); draw_func()"></span></span>
       <span class="dropparent"><label><i class="fa fa-adjust" title="opacity"></i></label><span id="funco" class="dropcell opacity" onchange="empty_func(); draw_func()">0.5</span></span>
@@ -1554,12 +1554,5 @@ to check: drop is in prev_sel
 }
 
 </script>
-
-<div id="plottyp" bla='"https://github.com/plotly/plotly-icons/tree/master/src/svg https://plotly-icons.ineffable.digital/">
-   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-scatter.svg" class="plotypicon">
-   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-error-bars.svg" class="plotypicon">
-   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-line.svg" class="plotypicon">
-   <image src="https://raw.githubusercontent.com/plotly/plotly-icons/master/src/svg/plot-histogram.svg" class="plotypicon"'>
-</div>
 
 </html>
