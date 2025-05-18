@@ -485,13 +485,14 @@ function parseColor(f) {
 function update_errorbar(tnum=1) {
     // back to d3, since Plotly cannot make variable colors for errorbars
     // also opacity for errorbars was depreciated
-    if (!webgl.indeterminate && webgl.checked) return   // does not works for gl (only svg)
+    let tclass = "trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
+    let trace1 = graph.getElementsByClassName(tclass)[0]
+    if (!trace1) return   // does not works for gl (only svg)
+
     let f = document.getElementsByClassName("color")[tnum-1]
     let rgb = parseColor(f)
     let opacity = parseCell(f.parentNode.nextElementSibling.lastChild)
 
-    let tclass = "trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
-    let trace1 = graph.getElementsByClassName(tclass)[0]
     let xerr = trace1.querySelectorAll('.xerror')
     let yerr = trace1.querySelectorAll('.yerror')
     if (rgb.pop) {
