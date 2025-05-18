@@ -1,6 +1,6 @@
 const allShortcuts = [
     'Ctrl+ArrowRight', 'Ctrl+ArrowLeft', 'Ctrl+ArrowUp', 'Ctrl+ArrowDown',
-    '+', '-', 'X', 'U', 'Y', 'x', 'y', 'u', 'Escape', '0',
+    '+', '-', 'X', 'U', 'Y', 'x', 'y', 'u', 'Escape', '0', 'Ctrl+0',
     'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown',
     'Home', 'End', 'PageUp', 'PageDown', 'l', 'L', 'g', 'r'
 ];
@@ -134,10 +134,8 @@ const plotlyEnableZoomPan = (
                 update['xaxis.autorange'] = true;
                 update['yaxis.autorange'] = true;
                 break;
-            case '0':
-                update['xaxis.range[0]'] = 0;
-                update['yaxis.range[0]'] = 0;
-                break;
+            case 'Ctrl+0': update['xaxis.range[0]'] = 0; break;
+            case '0': update['yaxis.range[0]'] = 0; break;
             case 'ArrowRight': panX(zoomFactor); break
             case 'ArrowLeft': panX(-zoomFactor); break
             case 'ArrowUp': panY(zoomFactor); break
