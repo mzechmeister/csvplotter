@@ -398,7 +398,7 @@
 <span id="suggest_div" contentEditable=False style="position: absolute; transform: translate(0%, -100%); max-height: 200px; overflow-y: auto; overflow-x: hidden; border: 1px solid #ccc"><ul id="suggest_list" style="padding: 0; margin: 0; width: 100%; background: #fffc;"></ul></span>
 
 
-<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script src='https://cdn.plot.ly/plotly-3.0.1.min.js'></script>
 <script src='dsv.js'></script>
 <script src='zoom_pan.js'></script>
 <script src="https://unpkg.com/mathjs/lib/browser/math.js"></script>
@@ -490,22 +490,23 @@ function update_errorbar(tnum=1) {
     let rgb = parseColor(f)
     let opacity = parseCell(f.parentNode.nextElementSibling.lastChild)
 
-    let tclass = ".trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
-    let xerr = Plotly.d3.selectAll('.xerror')
-    let yerr = Plotly.d3.selectAll('.yerror')
+    let tclass = "trace" + graph._fullLayout._traceUids[tnum-1]   // "trace1af3d7"
+    let trace1 = graph.getElementsByClassName(tclass)[0]
+    let xerr = trace1.querySelectorAll('.xerror')
+    let yerr = trace1.querySelectorAll('.yerror')
     if (rgb.pop) {
         // get colors from data points
-        rgbs = Plotly.d3.selectAll('.points .point').data().map(d => d.mcc)
+        rgbs = [...trace1.querySelectorAll('.points .point')].map(x => x.style.fill)
 
         // apply colors to errorbars
-        xerr.style('stroke', (d,i) => rgbs[i])
-        yerr.style('stroke', (d,i) => rgbs[i])
+        xerr.forEach((x,i) => x.style['stroke'] = rgbs[i])
+        yerr.forEach((x,i) => x.style['stroke'] = rgbs[i])
     }
     if (opacity.pop) {
-        xerr.style("stroke-opacity", (d,i) => opacity[i])
-        yerr.style("stroke-opacity", (d,i) => opacity[i])
+        xerr.forEach((x,i) => x.style['stroke-opacity'] = opacity[i])
+        yerr.forEach((x,i) => x.style['stroke-opacity'] = opacity[i])
     } else   // also fixed opacity needs to be updated, since deprecated in plotly
-        Plotly.d3.selectAll(tclass+" .xerror,.yerror").style("stroke-opacity", opacity)
+        trace1.querySelectorAll('.xerror,.yerror').forEach(x => x.style['stroke-opacity'] = opacity)
 }
 
 function colorRestyle(f) {
@@ -527,7 +528,7 @@ divcols = document.getElementById('colornames')
 divcols.onmouseenter = (_ => add_drop(".color"))
 divcols.onmouseleave = remove_drag
 
-for (color of Plotly.d3.scale.category10().range()) {
+for (color of Plotly.PlotSchema.get().layout.layoutAttributes.colorway.dflt) {  // get category10 colors
     let div = document.createElement('div')
     div.style['background-color'] = color
     div.draggable = true
