@@ -878,7 +878,7 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt=[
             opacity: Do,
             color: cc ? cc : '#404040',
             colorscale: 'Portland',
-            colorbar: {title: cbtitle || document.getElementById("cc").innerText,
+            colorbar: {title: {text: cbtitle || document.getElementById("cc").innerText, side: 'right'},
                 ticks: 'inside'
             },
             showscale: typeof cc == "object",
@@ -1145,11 +1145,11 @@ function edittext(svgtext) {
         if (val=="g-gtitle")  title && (title=e.target.value)
         if (val=="cbtitle") {
             myforeign.remove()
-            Plotly.restyle(graph, {"marker.colorbar.title": cbtitle=e.target.value})
+            Plotly.restyle(graph, {"marker.colorbar.title": {text: cbtitle=e.target.value, side: "right"}})
             return
         }
         a = a[val] + 'title'
-        b = {}; b[a] = e.target.value
+        b = {}; b[a] = {"text": e.target.value}
         Plotly.relayout(graph, b)
         graph.onmouseover = graph.focus   // restore focus behaviour from zoompan.js, relayout removes the foreign object
     }
