@@ -907,14 +907,14 @@ function plot_data(data, {x, y, de_x, de_y, dt, ct, ds, pt, cc, Do, filt}, opt=[
         // height: 394,
         // width: 1121,
         hovermode: 'closest',
-        title: title || "csv plotter",
+        title: {text: title || "csv plotter"},
         xaxis: {
-            title: xtitle || (cx>-1 ? 'Column '+cx : cx),
+            title: {text: xtitle || (cx>-1 ? 'Column '+cx : cx)},
             ...fmtaxis
         },
         yaxis: {
             //title: 'Column y',
-            title: ytitle || (cy>-1 ? 'Column '+cy : cy),
+            title: {text: ytitle || (cy>-1 ? 'Column '+cy : cy)},
             ...fmtaxis
         },
         margin: {l: 50, r: 10, b: 40, t: 30},
